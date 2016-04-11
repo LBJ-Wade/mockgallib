@@ -1,7 +1,6 @@
 //
 // wrapping power.cpp
 //
-//#include <iostream>
 #include "Python.h"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
@@ -35,8 +34,6 @@ PyObject* py_power_alloc(PyObject* self, PyObject* args)
   }
 
   PyBytes_AsStringAndSize(bytes, &filename, &len);
-
-  printf("filename= %s\n", filename);
 
   PowerSpectrum* ps;
 
@@ -166,49 +163,3 @@ PyObject* py_power_Pi(PyObject* self, PyObject* args)
 
   Py_RETURN_NONE;
 }
-
-/*
-static PyMethodDef Methods[] = {
-  {"_power_alloc", py_power_alloc, METH_VARARGS,
-   "read and allocate power spectrum"},
-  {"_power_sigma", py_power_sigma, METH_VARARGS,
-   "compute sigma(R); density fluctuation smoothed with radius R"},
-  {"_power_n", py_power_n, METH_VARARGS,
-   "return number of power spectrum rows"},
-  {"_power_k", py_power_k, METH_VARARGS,
-   "return wavenumber array k"},
-  {"_power_P", py_power_P, METH_VARARGS,
-   "return power spectrum array P"},
-  {"_power_ki", py_power_ki, METH_VARARGS,
-   "return k[i]"},
-  {"_power_Pi", py_power_Pi, METH_VARARGS,
-   "return P[i]"},
-  {NULL, NULL, 0, NULL}
-};
-
-void py_power_add_methods(vector<PyMethodDef>& methods)
-{
-  int i=0;
-  while(Methods[i].ml_name != NULL) {
-    methods.push_back(Methods[i++]);
-  }
-}
-
-
-static struct PyModuleDef module = {
-  PyModuleDef_HEAD_INIT,
-  "mockgallib.powerspectrum", // name of this module
-  "power spectrum module", // Doc String
-  -1,
-  Methods
-};
-
-
-PyMODINIT_FUNC
-PyInit__mockgallib_power(void) {
-  cerr << "py_power initialised\n";
-  import_array();
-  return PyModule_Create(&module);
-}
-
-*/
