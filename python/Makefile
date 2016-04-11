@@ -6,7 +6,7 @@
 all: build install
 
 
-SRC  := pymock.cpp
+SRC  := py_package.cpp py_power.cpp py_msg.cpp
 
 build: $(SRC)
 	python3 setup.py build_ext --inplace

@@ -4,14 +4,18 @@
 #include <iostream>
 #include "Python.h"
 
+#include "py_msg.h"
 #include "py_power.h"
 
 using namespace std;
 
 
 static PyMethodDef methods[] = {
+  {"set_loglevel", py_msg_set_loglevel, METH_VARARGS,
+   "set loglevel: 0=debug, 1=verbose, ..."},
+   
   {"_power_alloc", py_power_alloc, METH_VARARGS,
-   "read and allocate power spectrum"},
+   "read power spectrum from file"},
   {"_power_sigma", py_power_sigma, METH_VARARGS,
    "compute sigma(R); density fluctuation smoothed with radius R"},
   {"_power_n", py_power_n, METH_VARARGS,
