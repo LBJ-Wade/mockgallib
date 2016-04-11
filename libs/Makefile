@@ -16,7 +16,7 @@ CFLAGS   += $(foreach dir, $(DIR_PATH), -I$(dir)/include)
 LIBS     += $(foreach dir, $(DIR_PATH), -L$(dir)/lib)
 LIBS     += 
 
-OBJS     := msg.o power.o 
+OBJS     := msg.o power.o mf.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)
