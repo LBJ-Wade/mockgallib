@@ -1,0 +1,22 @@
+# make
+#   to compile this python module
+# make install
+#   to install it to a python module directory
+
+all: build install
+
+
+SRC  := pymock.cpp
+
+build: $(SRC)
+	python3 setup.py build_ext --inplace
+
+install:
+	python3 setup.py install
+
+
+.PHONY: clean
+
+clean:
+	rm -rf build mockgallib/*.so
+
