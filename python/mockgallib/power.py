@@ -1,18 +1,16 @@
 import mockgallib._mockgallib as c
-#import mockgallib._mockgallib_power as c
 
 class PowerSpectrum:
     def __init__(self, filename):
-        print(filename)
         self._ps = c._power_alloc(filename)
         if self._ps == None:
             raise Exception("Unable to open file " + filename)
         self.n= c._power_n(self._ps)
         self.k= c._power_k(self._ps)
-        self.P= c._power_k(self._ps)
+        self.P= c._power_P(self._ps)
 
     def __len__(self):
-        return n
+        return self.n
 
     def __getitem__(self, i):
         return (c._power_ki(self._ps, i), c._power_Pi(self._ps, i))
