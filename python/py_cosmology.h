@@ -4,5 +4,6 @@
 #include "Python.h"
 
 PyObject* py_cosmology_set(PyObject* self, PyObject* args);
+PyObject* py_cosmology_rhom(PyObject* self, PyObject* args);
 
 #endif

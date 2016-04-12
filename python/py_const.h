@@ -5,5 +5,6 @@
 
 PyObject* py_const_G(PyObject* self, PyObject* args);
 PyObject* py_const_rhocrit0(PyObject* self, PyObject* args);
+PyObject* py_const_deltac(PyObject* self, PyObject* args);
 
 #endif

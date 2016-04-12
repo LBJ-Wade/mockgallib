@@ -3,3 +3,4 @@ from mockgallib._mockgallib import cosmology_set
 from mockgallib.power import PowerSpectrum
 from mockgallib.const import Const
 from mockgallib.sigma import Sigma
+from mockgallib.mf import MassFunction

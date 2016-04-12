@@ -17,3 +17,9 @@ PyObject* py_cosmology_set(PyObject* self, PyObject* args)
   Py_RETURN_NONE;
 }
 
+PyObject* py_cosmology_rhom(PyObject* self, PyObject* args)
+{
+  const double rho_m= cosmology_rho_m();
+  return Py_BuildValue("d", rho_m);
+}
+
