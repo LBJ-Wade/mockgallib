@@ -5,16 +5,18 @@
 // Tinker et al (2010) ApJ 724, 878
 
 //
-// Call tinker_init() before using any functions.
-// OK to call inker_init() multiple times;
+// MF* mf= mf_alloc();        // allocate
+// double a= 1.0/(1.0 + z);   // scale factor
+// mf_set_redshift(mf, a);    // set redshift
+//
+// mf_free(mf);
 
 #include <cstdio>
 #include <cmath>
 #include <cassert>
-#include <gsl/gsl_integration.h>
 
 #include "mf.h"
-#include "const.h"  // => delta_c
+#include "const.h"     // => delta_c
 
 using namespace std;
 
@@ -52,10 +54,12 @@ void mf_set_redshift(MF* const mf, const double a)
   mf->alpha = 1.0/result;
 }
 
-
-
 double mf_f(MF const * const mf, const double nu)
 {
+#ifdef DEBUG
+  assert(mf->alpha > 0.0);
+#endif
+  
   const double z= mf->z;
   
   // Table 4 and Equations (8-12) for Delta=200

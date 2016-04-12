@@ -5,13 +5,18 @@
 #include "Python.h"
 
 #include "py_msg.h"
+#include "py_cosmology.h"
 #include "py_power.h"
+#include "py_const.h"
+#include "py_sigma.h"
 
 using namespace std;
 
-
 static PyMethodDef methods[] = {
   {"set_loglevel", py_msg_set_loglevel, METH_VARARGS,
+   "set loglevel: 0=debug, 1=verbose, ..."},
+
+  {"cosmology_set", py_cosmology_set, METH_VARARGS,
    "set loglevel: 0=debug, 1=verbose, ..."},
    
   {"_power_alloc", py_power_alloc, METH_VARARGS,
@@ -28,6 +33,27 @@ static PyMethodDef methods[] = {
    "return k[i]"},
   {"_power_Pi", py_power_Pi, METH_VARARGS,
    "return P[i]"},
+
+  {"_const_G", py_const_G, METH_VARARGS, "return G in internal unit"},
+  {"_const_rhocrit0", py_const_rhocrit0, METH_VARARGS,
+   "return critical density at z=0"},
+
+  {"_sigma_alloc", py_sigma_alloc, METH_VARARGS,
+   "allocate sigma(M) module"},
+  {"_sigma_M", py_sigma_M, METH_VARARGS,
+   "get sigma0(M)"},
+  {"_sigma_n", py_sigma_n, METH_VARARGS,
+   "get number of M/sigma0 array"},
+  {"_sigma_M_range", py_sigma_M_range, METH_VARARGS,
+   "get range in M"},
+  {"_sigma_0inv", py_sigma_0inv, METH_VARARGS,
+   "get 1/sigma0(M)"},
+  {"_sigma_M_array", py_sigma_M_array, METH_VARARGS,
+   "get an array of M"},
+  {"_sigma_sinv_array", py_sigma_sinv_array, METH_VARARGS,
+   "get an array of 1/sigma0"},
+
+  
   {NULL, NULL, 0, NULL}
 };
 
@@ -43,6 +69,7 @@ static struct PyModuleDef module = {
 PyMODINIT_FUNC
 PyInit__mockgallib(void) {
   py_power_module_init();  
-
+  py_sigma_module_init();
+  
   return PyModule_Create(&module);
 }

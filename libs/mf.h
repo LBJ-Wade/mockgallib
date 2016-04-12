@@ -1,6 +1,8 @@
 #ifndef TINKER_H
 #define TINKER_H 1
 
+#include <gsl/gsl_integration.h>
+
 struct MF {
   double z;
   double alpha;
