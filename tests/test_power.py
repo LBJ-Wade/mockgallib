@@ -1,7 +1,7 @@
 import unittest
 import mockgallib as mock
 
-class TestLightCone(unittest.TestCase):
+class TestPower(unittest.TestCase):
     def setUp(self):
         mock.set_loglevel(3)
         self.ps= mock.PowerSpectrum('../data/planck1_matterpower.dat')
