@@ -5,9 +5,10 @@
 #include "Python.h"
 
 #include "py_msg.h"
+#include "py_const.h"
 #include "py_cosmology.h"
 #include "py_power.h"
-#include "py_const.h"
+#include "py_growth.h"
 #include "py_sigma.h"
 #include "py_mf.h"
 
@@ -16,6 +17,12 @@ using namespace std;
 static PyMethodDef methods[] = {
   {"set_loglevel", py_msg_set_loglevel, METH_VARARGS,
    "set loglevel: 0=debug, 1=verbose, ..."},
+
+  {"_const_G", py_const_G, METH_VARARGS, "return G in internal unit"},
+  {"_const_rhocrit0", py_const_rhocrit0, METH_VARARGS,
+   "return critical density at z=0"},
+  {"_const_deltac", py_const_deltac, METH_VARARGS,
+   "return critial overdensity"},
 
   {"cosmology_set", py_cosmology_set, METH_VARARGS,
    "set omega_m0"},
@@ -37,11 +44,9 @@ static PyMethodDef methods[] = {
   {"_power_Pi", py_power_Pi, METH_VARARGS,
    "return P[i]"},
 
-  {"_const_G", py_const_G, METH_VARARGS, "return G in internal unit"},
-  {"_const_rhocrit0", py_const_rhocrit0, METH_VARARGS,
-   "return critical density at z=0"},
-  {"_const_deltac", py_const_deltac, METH_VARARGS,
-   "return critial overdensity"},
+  {"growth_D", py_growth_D, METH_VARARGS,
+   "growth_D(a); linear growth factor at scale factor a"},
+
 
   {"_sigma_alloc", py_sigma_alloc, METH_VARARGS,
    "allocate sigma(M) module"},

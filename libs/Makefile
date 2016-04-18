@@ -18,9 +18,8 @@ DIR_PATH := # e.g. /opt/gsl
 
 CFLAGS   += $(foreach dir, $(DIR_PATH), -I$(dir)/include)
 LIBS     += $(foreach dir, $(DIR_PATH), -L$(dir)/lib)
-LIBS     += 
 
-OBJS     := msg.o cosmology.o
+OBJS     := msg.o cosmology.o growth.o
 OBJS     += power.o sigma.o mf.o
 
 libmockgal.a: $(OBJS)
