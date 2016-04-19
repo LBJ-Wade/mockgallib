@@ -27,14 +27,12 @@ MF* mf_alloc()
   MF* const mf= new MF();
   mf->z= 0.0;
   mf->alpha= 0.0;
-  mf->w= gsl_integration_cquad_workspace_alloc(100);
 
   return mf;
 }
 
 void mf_free(MF* const mf)
 {
-  gsl_integration_cquad_workspace_free(mf->w);
   delete mf;
 }
 
@@ -44,12 +42,17 @@ void mf_set_redshift(MF* const mf, const double a)
   mf->alpha= 1.0;
   mf->z= 1.0/a - 1.0;
 
+  gsl_integration_cquad_workspace* w= 
+    gsl_integration_cquad_workspace_alloc(100);
+      
   gsl_function F;
   F.function= &integrand_mf_normalisation;
   F.params= (void*) mf;
        
   double result;
-  gsl_integration_cquad(&F, 1.0e-8, 10.0, 1.0e-5, 1.0e-5, mf->w, &result, 0, 0);
+  gsl_integration_cquad(&F, 1.0e-8, 10.0, 1.0e-5, 1.0e-5, w, &result, 0, 0);
+
+  gsl_integration_cquad_workspace_free(w);
 
   mf->alpha = 1.0/result;
 }

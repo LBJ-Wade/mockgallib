@@ -10,7 +10,6 @@
 
 static double D0= 0.0;  // normalization factor
 
-static double growth_int(double a, void* param);
 static double growth(const double a);
 
 double growth_D(const double a)

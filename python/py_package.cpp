@@ -11,6 +11,7 @@
 #include "py_growth.h"
 #include "py_sigma.h"
 #include "py_mf.h"
+#include "py_hod.h"
 
 using namespace std;
 
@@ -69,6 +70,15 @@ static PyMethodDef methods[] = {
    "set redshift for the mass function"},   
   {"_mf_f", py_mf_f, METH_VARARGS,
    "compute f(nu)"},
+
+  {"_hod_alloc", py_hod_alloc, METH_VARARGS, 
+   "allocate an hod object"},
+  {"_hod_get_coef", py_hod_get_coef, METH_VARARGS,
+   "get HOD coefficients c[]"},
+  {"_hod_ncen", py_hod_ncen, METH_VARARGS,
+   "py_hod_ncen(_hod, M, z); mean number of central galaxies"},
+  {"_hod_nsat", py_hod_nsat, METH_VARARGS,
+   "py_hod_nsat(_hod, M, z); mean number of satellite galaxies"},
   
   {NULL, NULL, 0, NULL}
 };

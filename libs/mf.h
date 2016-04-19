@@ -6,7 +6,6 @@
 struct MF {
   double z;
   double alpha;
-  gsl_integration_cquad_workspace* w;
 };
 
 MF* mf_alloc();

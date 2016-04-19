@@ -5,3 +5,4 @@ from mockgallib.power import PowerSpectrum
 from mockgallib.const import Const
 from mockgallib.sigma import Sigma
 from mockgallib.mf import MassFunction
+from mockgallib.hod import Hod
