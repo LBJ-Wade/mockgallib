@@ -147,7 +147,7 @@ double nbar_compute(NbarIntegration* const ni, const double z)
   ni->hod->compute_param_z(z);
 
 
-  if(ni->D == 0.0 || ni->z != z) {    
+  if(ni->D == 0.0 || ni->z != z) {
     mf_set_redshift(ni->mf, a);    
     ni->D= growth_D(a);
     ni->z= z;

@@ -88,7 +88,7 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
     for(int i=0; i<n; ++i) {
       nbar.z= *p;
       nbar.nbar= *(p + next_col);
-      nbar.dnbar= nbar.nbar;
+      nbar.dnbar= nbar.nbar; // minimising the relative error
       
       if(z_min <= nbar.z && nbar.z <= z_max) {
 	v->push_back(nbar);
@@ -127,6 +127,50 @@ PyObject* py_nbar_fitting_len(PyObject* self, PyObject* args)
     (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
 
   return Py_BuildValue("i", fitting->vobs->size());
+}
+
+PyObject* py_nbar_fitting_z(PyObject* self, PyObject* args)
+{
+  // return vobs[i].z
+  int i;
+  PyObject* py_fitting;
+  if(!PyArg_ParseTuple(args, "Oi", &py_fitting, &i))
+    return NULL;
+
+  NbarFitting* const fitting=
+    (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
+
+  cerr << i << " " << fitting->vobs->at(i).z << endl;
+
+  return Py_BuildValue("d", fitting->vobs->at(i).z);
+}
+
+PyObject* py_nbar_fitting_nbar_obs(PyObject* self, PyObject* args)
+{
+  // return vobs[i].nbar
+  int i;
+  PyObject* py_fitting;
+  if(!PyArg_ParseTuple(args, "Oi", &py_fitting, &i))
+    return NULL;
+
+  NbarFitting* const fitting=
+    (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
+
+  return Py_BuildValue("d", fitting->vobs->at(i).nbar);
+}
+
+PyObject* py_nbar_fitting_nbar_hod(PyObject* self, PyObject* args)
+{
+  // return vhod[i].nbar
+  int i;
+  PyObject* py_fitting;
+  if(!PyArg_ParseTuple(args, "Oi", &py_fitting, &i))
+    return NULL;
+
+  NbarFitting* const fitting=
+    (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
+
+  return Py_BuildValue("d", fitting->vhod->at(i).nbar);
 }
 
 PyObject* py_nbar_fitting_compute(PyObject* self, PyObject* args)
