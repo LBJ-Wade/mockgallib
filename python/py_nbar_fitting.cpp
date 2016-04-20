@@ -31,6 +31,9 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
     return NULL;
   }
 
+  //
+  // Read array and copy to vector<Nbar>
+  //
   if(view.ndim != 2) {
     PyErr_SetString(PyExc_TypeError, "Expected a 2-dimensional array");
     PyBuffer_Release(&view);
@@ -45,6 +48,11 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
 
   const int n= view.shape[0];
   const int ncol= view.shape[1];
+
+  if(n == 0) {
+    PyErr_SetString(PyExc_TypeError, "no data in nbar_obs array");
+    return NULL;
+  }
   
   if(ncol < 2) {
     PyErr_SetString(PyExc_TypeError, "Expected two columns for z and nbar");
@@ -54,14 +62,13 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
     msg_printf(msg_warn, "Neglecting 4th and later columns in nbar_obs data for nbar_fitting\n");
   }
 
-  printf("hello\n");
   double* p= (double*) view.buf;
   
   const size_t next_row= view.strides[0]/sizeof(double);
   const size_t next_col= view.strides[1]/sizeof(double);
 
   Nbar nbar;
-  vector<Nbar> v;
+  vector<Nbar>* v= new vector<Nbar>;
 
   if(ncol >= 3) {
     for(int i=0; i<n; ++i) {
@@ -70,12 +77,12 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
       nbar.dnbar= *(p + 2*next_col);
       
       if(z_min <= nbar.z && nbar.z <= z_max) {
-	v.push_back(nbar);
-	printf("%e %e %e\n", nbar.z, nbar.nbar, nbar.dnbar);
+	v->push_back(nbar);
+	//printf("%e %e %e\n", nbar.z, nbar.nbar, nbar.dnbar);
       }
       p += next_row;
     }
-    msg_printf(msg_info, "Using %lu data of z, nbar, dnbar for nbar fitting\n", v.size()); 
+    msg_printf(msg_info, "Using %lu data of z, nbar, dnbar for nbar fitting\n", v->size()); 
   }
   else {
     for(int i=0; i<n; ++i) {
@@ -84,12 +91,12 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
       nbar.dnbar= nbar.nbar;
       
       if(z_min <= nbar.z && nbar.z <= z_max) {
-	v.push_back(nbar);
-	printf("%e %e\n", nbar.z, nbar.nbar);
+	v->push_back(nbar);
+	//printf("%e %e\n", nbar.z, nbar.nbar);
       }
       p += next_row;
     }
-    msg_printf(msg_info, "Using %lu data of z nbar for nbar fitting\n", v.size()); 
+    msg_printf(msg_info, "Using %lu data of z nbar for nbar fitting\n", v->size()); 
 
   }
 
@@ -110,3 +117,28 @@ void py_nbar_fitting_free(PyObject *obj)
   nbar_fitting_free(fitting);
 }
 
+PyObject* py_nbar_fitting_len(PyObject* self, PyObject* args)
+{
+  PyObject* py_fitting;
+  if(!PyArg_ParseTuple(args, "O", &py_fitting))
+    return NULL;
+
+  NbarFitting* const fitting=
+    (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
+
+  return Py_BuildValue("i", fitting->vobs->size());
+}
+
+PyObject* py_nbar_fitting_compute(PyObject* self, PyObject* args)
+{
+  PyObject* py_fitting;
+  if(!PyArg_ParseTuple(args, "O", &py_fitting))
+    return NULL;
+
+  NbarFitting* const fitting=
+    (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
+
+  nbar_fitting_compute(fitting);
+
+  Py_RETURN_NONE;
+}

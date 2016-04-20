@@ -18,10 +18,12 @@
 using namespace std;
 
 static double nbar_multimin_f (const gsl_vector *v, void *params);
+static double compute_cost_function(vector<Nbar> const * const vobs,
+				    vector<Nbar> const * const vhod);
 
 NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,
 				Hod* const hod,
-				const vector<Nbar>& vnbar_obs,
+				const vector<Nbar>* const vnbar_obs,
 				const double z_min, const double z_max)
 {
   // Setup nbar fitting
@@ -31,7 +33,7 @@ NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,
 
   NbarIntegration* ni0= nbar_integration_alloc(ps, hod);
 
-  const int n= vnbar_obs.size(); assert(n > 0);
+  const int n= vnbar_obs->size(); assert(n > 0);
   fitting->vni.reserve(n);
 
   for(int i=0; i<n; ++i) {
@@ -42,8 +44,10 @@ NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,
   fitting->hod= hod;
   fitting->z_min= z_min;
   fitting->z_max= z_max;
-  fitting->vobs= &vnbar_obs;
-  fitting->vhod= new vector<Nbar>(vnbar_obs);
+  fitting->vobs= vnbar_obs;
+  fitting->vhod= new vector<Nbar>(*vnbar_obs);
+
+  msg_printf(msg_debug, "Allocated nbar_fitting\n");
 
   return fitting;
 }
@@ -77,16 +81,15 @@ void nbar_fitting_compute(NbarFitting* fitting)
 
   // This function updates fitting->hod->c[0-3]
   const int n= fitting->vni.size();
+  
   assert(fitting->vhod->size() == n);
   assert(fitting->vobs->size() == n);
 
-
-
-
-
+  
   const int nparam= 4;
+  
   // Starting point 
-  gsl_vector* const x = gsl_vector_alloc(4);
+  gsl_vector* const x = gsl_vector_alloc(nparam);
 
   gsl_vector_set(x, 0, fitting->hod->c[0]);
   gsl_vector_set(x, 1, fitting->hod->c[1]);
@@ -100,6 +103,8 @@ void nbar_fitting_compute(NbarFitting* fitting)
   gsl_vector_set(ss, 2, 0.1);
   gsl_vector_set(ss, 3, 0.1);
 
+  gsl_vector_set_all(ss, 0.01); // debug!!!
+  
   // Initialize method and iterate
   gsl_multimin_function minex_func;
   minex_func.n = nparam;
@@ -148,23 +153,6 @@ void nbar_fitting_compute(NbarFitting* fitting)
   gsl_multimin_fminimizer_free(s);
 }
 
-//
-// Main code of minimising cost function
-//
-double compute_cost_function(vector<Nbar> const * const vobs,
-			     vector<Nbar> const * const vhod)
-{
-  // cost function is a measure how close vobs and vhod are.
-  
-  double chi2= 0.0;
-  const int m= vobs->size();
-  for(int i=0; i<m; ++i) {
-    double diff= ((*vobs)[i].nbar - (*vhod)[i].nbar)/ (*vobs)[i].dnbar;
-    chi2 += diff*diff;
-  }
-
-  return 0.5*chi2/m;
-}
 
 double nbar_multimin_f (const gsl_vector *v, void *params)
 {
@@ -188,5 +176,21 @@ double nbar_multimin_f (const gsl_vector *v, void *params)
 
   // evaluate the cost function between vobs and vhod
   return compute_cost_function(fitting->vobs, fitting->vhod);
+}
+
+
+double compute_cost_function(vector<Nbar> const * const vobs,
+			     vector<Nbar> const * const vhod)
+{
+  // cost function is a measure how close vobs and vhod are.
+  
+  double chi2= 0.0;
+  const int m= vobs->size();
+  for(int i=0; i<m; ++i) {
+    double diff= ((*vobs)[i].nbar - (*vhod)[i].nbar)/ (*vobs)[i].dnbar;
+    chi2 += diff*diff;
+  }
+
+  return 0.5*chi2/m;
 }
 

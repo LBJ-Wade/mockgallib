@@ -58,6 +58,8 @@ NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
   ni->D= 0.0;
   ni->z= 0.0;
 
+  msg_printf(msg_debug, "Allocated an nbar_integration\n");
+
   return ni;
 }
 

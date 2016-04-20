@@ -13,7 +13,7 @@ struct NbarFitting {
 
 NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,
 				Hod* const hod,
-				const std::vector<Nbar>& vnbar_obs,
+				const std::vector<Nbar>* const vnbar_obs,
 				const double z_min, const double z_max);
 void nbar_fitting_free(NbarFitting* const fitting);
 void nbar_fitting_compute(NbarFitting* fitting);

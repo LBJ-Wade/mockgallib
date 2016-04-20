@@ -91,7 +91,10 @@ static PyMethodDef methods[] = {
 
   {"_nbar_fitting_alloc", py_nbar_fitting_alloc, METH_VARARGS,
    "_nbar_fitting_alloc(_ps, _hod, array_obs, z_min, z_max); allocate an nbar fitting object"},
-
+  {"_nbar_fitting_len", py_nbar_fitting_len, METH_VARARGS,
+   "number of nbar_obs in given redshift range"},
+  {"_nbar_fitting_compute", py_nbar_fitting_compute, METH_VARARGS,
+   "_nbar_fitting_compute(_fitting); perform fitting"},
   
   {NULL, NULL, 0, NULL}
 };
