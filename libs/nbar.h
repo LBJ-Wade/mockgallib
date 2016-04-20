@@ -13,6 +13,8 @@ struct Nbar {
 };
 
 struct NbarIntegration {
+  NbarIntegration();
+  NbarIntegration(NbarIntegration const * const ni);
   gsl_integration_cquad_workspace* w;
   Sigma* s;
   MF* mf;

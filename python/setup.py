@@ -15,7 +15,7 @@ setup(name='mockgallib',
                      'py_cosmology.cpp',
                      'py_power.cpp',  'py_growth.cpp',
                      'py_sigma.cpp', 'py_mf.cpp', 'py_hod.cpp',
-                     'py_nbar.cpp',
+                     'py_nbar.cpp', 'py_nbar_fitting.cpp'
                     ],
                     include_dirs = ['../libs', np.get_include()],
                     library_dirs =  ['../libs'],

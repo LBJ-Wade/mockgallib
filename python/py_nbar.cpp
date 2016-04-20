@@ -1,3 +1,4 @@
+#include "msg.h"
 #include "nbar.h"
 #include "py_nbar.h"
 
@@ -19,9 +20,7 @@ PyObject* py_nbar_alloc(PyObject* self, PyObject* args)
 
   NbarIntegration* const ni= nbar_integration_alloc(ps, hod);
 
-  //return PyCapsule_New(ni, "_NbarIntegration", ps);
   return PyCapsule_New(ni, "_NbarIntegration", py_nbar_free);
-  //Py_RETURN_NONE; // debug!!!
 }
 
 void py_nbar_free(PyObject *obj)
@@ -29,6 +28,8 @@ void py_nbar_free(PyObject *obj)
   NbarIntegration* const ni=
       (NbarIntegration*) PyCapsule_GetPointer(obj, "_NbarIntegration");
 
+  msg_printf(msg_debug, "Freeing nbar\n");
+  
   nbar_integration_free(ni);
 }
 

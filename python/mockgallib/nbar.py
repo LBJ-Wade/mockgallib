@@ -12,4 +12,8 @@ class Nbar:
         """compute nbar(z)"""
         return c._nbar_compute(self._ni, z)
 
+class NbarFitting:
+    def __init__(self, ps, hod, array_obs, z_min, z_max):
+        self._f= c._nbar_fitting_alloc(ps._ps, hod._hod, array_obs, z_min, z_max)
+        
     

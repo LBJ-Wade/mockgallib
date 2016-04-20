@@ -9,6 +9,7 @@
 
 #include <gsl/gsl_integration.h>
 
+#include "msg.h"
 #include "const.h"      // -> delta_c
 #include "cosmology.h"
 #include "growth.h"
@@ -22,6 +23,24 @@ using namespace std;
 using namespace boost::program_options;
 
 static double integrand_n_hod(double nu, void* params);
+
+
+NbarIntegration::NbarIntegration()
+{
+
+}
+
+NbarIntegration::NbarIntegration(NbarIntegration const * const ni)
+{
+  // use same setting as ni (for different redshift)
+  w= ni->w;
+  s= ni->s;
+  mf= ni->mf;
+  hod= ni->hod;
+  rho_m= ni->rho_m;
+  D= 0.0;
+  z= 0.0;
+}
 
 NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
 					 Hod* const hod)
@@ -45,8 +64,8 @@ NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
 void nbar_integration_free(NbarIntegration* const ni)
 {
   gsl_integration_cquad_workspace_free(ni->w);
-  mf_free(ni->mf);
   sigma_free(ni->s);
+  mf_free(ni->mf);
 
   delete ni;
 }
@@ -126,9 +145,13 @@ double nbar_compute(NbarIntegration* const ni, const double z)
   ni->hod->compute_param_z(z);
 
 
-  if(ni->D == 0.0 || ni->z != z) {
+  if(ni->D == 0.0 || ni->z != z) {    
     mf_set_redshift(ni->mf, a);    
     ni->D= growth_D(a);
+    ni->z= z;
+    msg_printf(msg_verbose,
+	       "setting nbar_integration at z=%.3f, D=%.4f, mf->alpha=%.4f\n",
+	       ni->z, ni->D, ni->mf->alpha);
   }
 
   gsl_function F;

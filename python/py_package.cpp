@@ -13,6 +13,7 @@
 #include "py_mf.h"
 #include "py_hod.h"
 #include "py_nbar.h"
+#include "py_nbar_fitting.h"
 
 using namespace std;
 
@@ -87,6 +88,9 @@ static PyMethodDef methods[] = {
    "_nbar_alloc(_ps, _hod); allocate an nbar integration object"},
   {"_nbar_compute", py_nbar_compute, METH_VARARGS,
    "_nbar_compute(_ni, z); compute nbar(z)"},
+
+  {"_nbar_fitting_alloc", py_nbar_fitting_alloc, METH_VARARGS,
+   "_nbar_fitting_alloc(_ps, _hod, array_obs, z_min, z_max); allocate an nbar fitting object"},
 
   
   {NULL, NULL, 0, NULL}
