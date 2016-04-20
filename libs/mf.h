@@ -9,6 +9,7 @@ struct MF {
 };
 
 MF* mf_alloc();
+MF* mf_alloc(const double z);
 void mf_free(MF* const mf);
 void mf_set_redshift(MF* const mf, const double a);
 double mf_f(MF const * const mf, const double nu);

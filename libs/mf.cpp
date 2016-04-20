@@ -31,6 +31,15 @@ MF* mf_alloc()
   return mf;
 }
 
+MF* mf_alloc(const double z)
+{
+  MF* const mf= mf_alloc();
+  const double a= 1.0/(1.0 + z);
+  mf_set_redshift(mf, a);
+
+  return mf;
+}
+
 void mf_free(MF* const mf)
 {
   delete mf;
@@ -39,8 +48,12 @@ void mf_free(MF* const mf)
 void mf_set_redshift(MF* const mf, const double a)
 {
   // Integral is necessary to normalise mass function (mf->alpha)
+  const double z= 1.0/a - 1.0;
+  if(mf->alpha > 0.0 && mf->z == z)
+    return;
+  
   mf->alpha= 1.0;
-  mf->z= 1.0/a - 1.0;
+  mf->z= z;
 
   gsl_integration_cquad_workspace* w= 
     gsl_integration_cquad_workspace_alloc(100);

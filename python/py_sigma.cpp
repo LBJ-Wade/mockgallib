@@ -25,8 +25,8 @@ py_sigma_module_init()
 
 PyObject* py_sigma_alloc(PyObject* self, PyObject* args)
 {
-  //
-  //
+  // _sigma_alloc(_ps)
+
   PyObject* py_ps;
   if(!PyArg_ParseTuple(args, "O", &py_ps))
     return NULL;

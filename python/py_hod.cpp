@@ -5,9 +5,6 @@ static void py_hod_free(PyObject *obj);
 
 PyObject* py_hod_alloc(PyObject* self, PyObject* args)
 {
-  //
-  // Convert Python string to char* filename
-  //
   Hod* hod= new Hod();
 
   return PyCapsule_New(hod, "_HOD", py_hod_free);

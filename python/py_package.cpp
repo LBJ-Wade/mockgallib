@@ -12,6 +12,7 @@
 #include "py_sigma.h"
 #include "py_mf.h"
 #include "py_hod.h"
+#include "py_nbar.h"
 
 using namespace std;
 
@@ -81,6 +82,12 @@ static PyMethodDef methods[] = {
    "py_hod_ncen(_hod, M, z); mean number of central galaxies"},
   {"_hod_nsat", py_hod_nsat, METH_VARARGS,
    "py_hod_nsat(_hod, M, z); mean number of satellite galaxies"},
+
+  {"_nbar_alloc", py_nbar_alloc, METH_VARARGS,
+   "_nbar_alloc(_ps, _hod); allocate an nbar integration object"},
+  {"_nbar_compute", py_nbar_compute, METH_VARARGS,
+   "_nbar_compute(_ni, z); compute nbar(z)"},
+
   
   {NULL, NULL, 0, NULL}
 };
