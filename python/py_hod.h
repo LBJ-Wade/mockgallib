@@ -5,6 +5,7 @@
 
 PyObject* py_hod_alloc(PyObject* self, PyObject* args);
 PyObject* py_hod_get_coef(PyObject* self, PyObject* args);
+PyObject* py_hod_set_coef(PyObject* self, PyObject* args);
 PyObject* py_hod_ncen(PyObject* self, PyObject* args);
 PyObject* py_hod_nsat(PyObject* self, PyObject* args);
 

@@ -1,5 +1,8 @@
+#include <iostream>
 #include "hod.h"
 #include "py_hod.h"
+
+using namespace std;
 
 static void py_hod_free(PyObject *obj);
 
@@ -39,6 +42,31 @@ PyObject* py_hod_get_coef(PyObject* self, PyObject* args)
     PyList_SetItem(list, i, Py_BuildValue("d", c[i]));
 
   return list;
+}
+
+PyObject* py_hod_set_coef(PyObject* self, PyObject* args)
+{
+  // _hod_set_coef(_hod, i, c[i])
+  PyObject *py_hod;
+  int i;
+  double val;
+  
+  if(!PyArg_ParseTuple(args, "Oid", &py_hod, &i, &val))
+    return NULL;
+
+  Hod* const hod=
+    (Hod*) PyCapsule_GetPointer(py_hod, "_HOD");
+
+  const int n= hod->n;
+  double * const c= hod->c;
+
+  cerr << "setting " << i << " " << val << endl;
+  
+  if(0 <= i && i < n) {
+    c[i]= val;
+  }
+
+  Py_RETURN_NONE;
 }
 
 PyObject* py_hod_ncen(PyObject* self, PyObject* args)

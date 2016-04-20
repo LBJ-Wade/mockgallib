@@ -75,6 +75,8 @@ static PyMethodDef methods[] = {
    "allocate an hod object"},
   {"_hod_get_coef", py_hod_get_coef, METH_VARARGS,
    "get HOD coefficients c[]"},
+  {"_hod_set_coef", py_hod_set_coef,  METH_VARARGS,
+   "set HOD coefficient c[i]; _hod_set_coef(_hod, i, ci)"},
   {"_hod_ncen", py_hod_ncen, METH_VARARGS,
    "py_hod_ncen(_hod, M, z); mean number of central galaxies"},
   {"_hod_nsat", py_hod_nsat, METH_VARARGS,
