@@ -1,8 +1,5 @@
-#include <iostream>
 #include "hod.h"
 #include "py_hod.h"
-
-using namespace std;
 
 static void py_hod_free(PyObject *obj);
 
@@ -60,8 +57,6 @@ PyObject* py_hod_set_coef(PyObject* self, PyObject* args)
   const int n= hod->n;
   double * const c= hod->c;
 
-  cerr << "setting " << i << " " << val << endl;
-  
   if(0 <= i && i < n) {
     c[i]= val;
   }
