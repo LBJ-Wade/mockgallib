@@ -7,3 +7,4 @@ from mockgallib.sigma import Sigma
 from mockgallib.mf import MassFunction
 from mockgallib.hod import Hod
 from mockgallib.nbar import Nbar, NbarFitting
+from mockgallib.lightcones import LightCones

@@ -14,6 +14,7 @@
 #include "py_hod.h"
 #include "py_nbar.h"
 #include "py_nbar_fitting.h"
+#include "py_lightcones.h"
 
 using namespace std;
 
@@ -106,6 +107,13 @@ static PyMethodDef methods[] = {
 
   {"_nbar_fitting_compute", py_nbar_fitting_compute, METH_VARARGS,
    "_nbar_fitting_compute(_fitting); perform fitting"},
+
+  {"_lightcones_alloc", py_lightcones_alloc, METH_VARARGS,
+   "allocate a new _LightCones"},
+  {"_lightcones_load", py_lightcones_load, METH_VARARGS,
+   "_lightcones_load(_lightcones, filename); read a lightcone from file"},
+  {"_lightcones_len", py_lightcones_len, METH_VARARGS,
+   "number of lightcones in _LightCones"},
   
   {NULL, NULL, 0, NULL}
 };
