@@ -9,6 +9,8 @@ struct NbarFitting {
   double z_min, z_max;
   std::vector<Nbar> const * vobs;
   std::vector<Nbar>* vhod;
+  int iter;
+  double chi2;
 };
 
 NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,

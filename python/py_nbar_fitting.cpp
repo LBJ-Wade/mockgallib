@@ -182,6 +182,8 @@ PyObject* py_nbar_fitting_hod(PyObject* self, PyObject* args)
   NbarFitting* const fitting=
     (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
 
+  printf("%e %e %e\n", fitting->hod->c[0], fitting->hod->c[1], fitting->hod->c[2]);
+
   
   return PyCapsule_New(fitting->hod, "_HOD", NULL);
 }
@@ -197,5 +199,7 @@ PyObject* py_nbar_fitting_compute(PyObject* self, PyObject* args)
 
   nbar_fitting_compute(fitting);
 
-  Py_RETURN_NONE;
+  cerr << "fitting_compute " << fitting->iter << " " << fitting->chi2 << endl;
+
+  return Py_BuildValue("(id)", fitting->iter, fitting->chi2);
 }

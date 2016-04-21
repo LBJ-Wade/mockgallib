@@ -27,11 +27,10 @@ class NbarFitting:
         self.nbar_obs = [ c._nbar_fitting_nbar_obs(self._fitting, i)
                           for i in range(self.n) ]
         self.nbar_hod= [0]*self.n
-        self.hod = Hod(c._nbar_fitting_hod(self._fitting))
 
     def fit(self):
         """execute fitting"""
-        c._nbar_fitting_compute(self._fitting)
+        self.iter, self.chi2 = c._nbar_fitting_compute(self._fitting)
         self.nbar_hod = [ c._nbar_fitting_nbar_hod(self._fitting, i)
                           for i in range(self.n) ]
 

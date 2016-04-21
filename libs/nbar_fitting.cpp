@@ -46,6 +46,8 @@ NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,
   fitting->z_max= z_max;
   fitting->vobs= vnbar_obs;
   fitting->vhod= new vector<Nbar>(*vnbar_obs);
+  fitting->iter= 0;
+  fitting->chi2= 0.0;
 
   msg_printf(msg_debug, "Allocated nbar_fitting\n");
 
@@ -98,7 +100,12 @@ void nbar_fitting_compute(NbarFitting* fitting)
 
   // initial stepsize
   gsl_vector* const ss = gsl_vector_alloc(nparam);
-  gsl_vector_set_all(ss, 0.01);
+  gsl_vector_set(ss, 0, 1.0);
+  gsl_vector_set(ss, 1, 0.05);
+  gsl_vector_set(ss, 2, 0.05);
+  gsl_vector_set(ss, 3, 0.01);
+
+  //gsl_vector_set_all(ss, 0.01);
   
   // Initialize method and iterate
   gsl_multimin_function minex_func;
@@ -111,7 +118,7 @@ void nbar_fitting_compute(NbarFitting* fitting)
   gsl_multimin_fminimizer_set(s, &minex_func, x, ss);
 
   int iter = 0; int status;
-  const int max_iter= 200;
+  const int max_iter= 1000;
 
   
   do {
@@ -124,7 +131,7 @@ void nbar_fitting_compute(NbarFitting* fitting)
 
 
     if (status == GSL_SUCCESS) {
-      fprintf(stderr, "nbar converged to minimum with %d steps.\n", iter);
+      msg_printf(msg_verbose, "nbar converged to minimum with %d steps.\n", iter);
     }
 
     msg_printf(msg_verbose, "nbar_fitting %3d %e | %.4f %.5f %.5f %.5f %.3f\n",
@@ -147,15 +154,16 @@ void nbar_fitting_compute(NbarFitting* fitting)
   fitting->hod->c[1]= gsl_vector_get(s->x, 1);
   fitting->hod->c[2]= gsl_vector_get(s->x, 2);
   fitting->hod->c[3]= gsl_vector_get(s->x, 3);
+  fitting->iter= iter;
 
-  printf("final x %e %e %e %e\n",
+  msg_printf(msg_verbose, "final c[0-3] %e %e %e %e\n",
 	 gsl_vector_get(s->x, 0),
 	 gsl_vector_get(s->x, 1),
 	 gsl_vector_get(s->x, 2),
 	 gsl_vector_get(s->x, 3));
   
-  double chi2_final= nbar_multimin_f(x, fitting);
-  printf("final %e\n", chi2_final);
+  fitting->chi2= nbar_multimin_f(s->x, fitting);
+  //printf("final %e\n", chi2_final);
 
 
   gsl_vector_free(x);
@@ -170,10 +178,13 @@ double nbar_multimin_f(const gsl_vector *v, void *params)
   NbarFitting* const fitting= (NbarFitting*) params;
 
   // The minisation algorithm gives the c to evaluate
+  
   fitting->hod->c[0]= gsl_vector_get(v, 0);
   fitting->hod->c[1]= gsl_vector_get(v, 1);
   fitting->hod->c[2]= gsl_vector_get(v, 2);
   fitting->hod->c[3]= gsl_vector_get(v, 3);
+
+  //printf("hod->c %e\n", fitting->hod->c[0]);
 
   // compute n(z) from parameter hod->c[]
   const int n= fitting->vni.size();
@@ -199,7 +210,7 @@ double compute_cost_function(vector<Nbar> const * const vobs,
   for(int i=0; i<m; ++i) {
     double diff= ((*vobs)[i].nbar - (*vhod)[i].nbar)/ (*vobs)[i].dnbar;
     chi2 += diff*diff;
-    printf("%e %e %e %e\n", (*vobs)[i].z, (*vobs)[i].nbar, (*vhod)[i].nbar, diff);
+    //printf("%e %e %e %e\n", (*vobs)[i].z, (*vobs)[i].nbar, (*vhod)[i].nbar, diff);
   }
 
   return chi2;
