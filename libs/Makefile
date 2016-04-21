@@ -22,6 +22,7 @@ LIBS     += $(foreach dir, $(DIR_PATH), -L$(dir)/lib)
 OBJS     := msg.o cosmology.o growth.o
 OBJS     += power.o sigma.o mf.o
 OBJS     += hod.o nbar.o nbar_fitting.o
+OBJS     += corr_projected.o kdtree.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)
