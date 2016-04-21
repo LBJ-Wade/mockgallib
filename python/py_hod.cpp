@@ -18,7 +18,7 @@ void py_hod_free(PyObject *obj)
   delete hod;
 }
 
-PyObject* py_hod_get_coef(PyObject* self, PyObject* args)
+PyObject* py_hod_get_coef_all(PyObject* self, PyObject* args)
 {
   PyObject* py_hod;
   if(!PyArg_ParseTuple(args, "O", &py_hod))
@@ -37,6 +37,28 @@ PyObject* py_hod_get_coef(PyObject* self, PyObject* args)
 
   return list;
 }
+
+PyObject* py_hod_get_coef(PyObject* self, PyObject* args)
+{
+  // c[i] =_hod_get_coef(_hod, i)
+  PyObject* py_hod;
+  int i;
+
+  if(!PyArg_ParseTuple(args, "Oi", &py_hod, &i))
+    return NULL;
+
+  Hod* const hod=
+    (Hod*) PyCapsule_GetPointer(py_hod, "_HOD");
+
+  const int n= hod->n;
+  double const * const c= hod->c;
+
+  if(0 <= i && i < n)
+    return Py_BuildValue("d", c[i]);
+
+  Py_RETURN_NONE;  
+}
+
 
 PyObject* py_hod_set_coef(PyObject* self, PyObject* args)
 {

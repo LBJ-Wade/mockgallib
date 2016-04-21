@@ -75,8 +75,10 @@ static PyMethodDef methods[] = {
 
   {"_hod_alloc", py_hod_alloc, METH_VARARGS, 
    "allocate an hod object"},
-  {"_hod_get_coef", py_hod_get_coef, METH_VARARGS,
-   "get HOD coefficients c[]"},
+  {"_hod_get_coef_all", py_hod_get_coef_all, METH_VARARGS,
+   "get all HOD coefficients c[]"},
+  {"_hod_get_coef", py_hod_get_coef,  METH_VARARGS,
+   "get HOD coefficient c[i]; _hod_set_coef(_hod, i)"},
   {"_hod_set_coef", py_hod_set_coef,  METH_VARARGS,
    "set HOD coefficient c[i]; _hod_set_coef(_hod, i, ci)"},
   {"_hod_ncen", py_hod_ncen, METH_VARARGS,
@@ -99,6 +101,9 @@ static PyMethodDef methods[] = {
    "_nbar_fitting_nbar_obs(_fitting, z); get nbar_obs[i]"},
   {"_nbar_fitting_nbar_hod", py_nbar_fitting_nbar_hod, METH_VARARGS,
    "_nbar_fitting_nbar_hod(_fitting, z); get nbar_hod[i]"},
+  {"_nbar_fitting_hod", py_nbar_fitting_hod, METH_VARARGS,
+   "return pointer to _hod"},
+
   {"_nbar_fitting_compute", py_nbar_fitting_compute, METH_VARARGS,
    "_nbar_fitting_compute(_fitting); perform fitting"},
   

@@ -1,4 +1,5 @@
 import mockgallib._mockgallib as c
+from mockgallib.hod import Hod
 
 class Nbar:
     """Nbar(ps, hod): compute nbar(z) from power spectrum ps and HOD hod"""
@@ -26,6 +27,7 @@ class NbarFitting:
         self.nbar_obs = [ c._nbar_fitting_nbar_obs(self._fitting, i)
                           for i in range(self.n) ]
         self.nbar_hod= [0]*self.n
+        self.hod = Hod(c._nbar_fitting_hod(self._fitting))
 
     def fit(self):
         """execute fitting"""

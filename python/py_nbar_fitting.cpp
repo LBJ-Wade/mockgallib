@@ -173,6 +173,19 @@ PyObject* py_nbar_fitting_nbar_hod(PyObject* self, PyObject* args)
   return Py_BuildValue("d", fitting->vhod->at(i).nbar);
 }
 
+PyObject* py_nbar_fitting_hod(PyObject* self, PyObject* args)
+{
+  PyObject* py_fitting;
+  if(!PyArg_ParseTuple(args, "O", &py_fitting))
+    return NULL;
+
+  NbarFitting* const fitting=
+    (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
+
+  
+  return PyCapsule_New(fitting->hod, "_HOD", NULL);
+}
+
 PyObject* py_nbar_fitting_compute(PyObject* self, PyObject* args)
 {
   PyObject* py_fitting;
