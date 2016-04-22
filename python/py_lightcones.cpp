@@ -1,3 +1,4 @@
+#include "msg.h"
 #include "lightcone.h"
 #include "py_lightcones.h"
 #include "hdf5_io.h"
@@ -18,6 +19,8 @@ void py_lightcones_free(PyObject *obj)
 {
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(obj, "_LightCones");
+
+  msg_printf(msg_debug, "freeing lightcones %x\n", lightcones);
 
   delete lightcones;
 }

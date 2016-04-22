@@ -15,6 +15,8 @@
 #include "py_nbar.h"
 #include "py_nbar_fitting.h"
 #include "py_lightcones.h"
+#include "py_catalogues.h"
+
 
 using namespace std;
 
@@ -114,6 +116,12 @@ static PyMethodDef methods[] = {
    "_lightcones_load(_lightcones, filename); read a lightcone from file"},
   {"_lightcones_len", py_lightcones_len, METH_VARARGS,
    "number of lightcones in _LightCones"},
+  {"_catalogues_alloc", py_catalogues_alloc, METH_VARARGS,
+   "allocate a new _Catalogues"},   
+  {"_catalogues_generate", py_catalogues_generate, METH_VARARGS,
+   "_catalogues_generate(_catalogues, _hod, _lightcone, z_min, z_max)"},
+  {"_catalogues_len", py_catalogues_len, METH_VARARGS,
+   "number of catalogues in _Catalogues"},
   
   {NULL, NULL, 0, NULL}
 };

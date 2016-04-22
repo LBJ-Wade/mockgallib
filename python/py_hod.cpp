@@ -53,9 +53,11 @@ PyObject* py_hod_get_coef(PyObject* self, PyObject* args)
   const int n= hod->n;
   double const * const c= hod->c;
 
-  if(0 <= i && i < n)
+  if(0 <= i && i < n) {
     return Py_BuildValue("d", c[i]);
+  }
 
+  PyErr_SetString(PyExc_ValueError, "HOD coefficient out of range");
   Py_RETURN_NONE;  
 }
 
@@ -79,7 +81,8 @@ PyObject* py_hod_set_coef(PyObject* self, PyObject* args)
   if(0 <= i && i < n) {
     c[i]= val;
   }
-
+  
+  PyErr_SetString(PyExc_ValueError, "HOD coefficient out of range");
   Py_RETURN_NONE;
 }
 

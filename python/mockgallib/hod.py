@@ -23,6 +23,11 @@ class Hod:
         """set c[i]"""
         c._hod_set_coef(self._hod, i, ci)
 
+    def set(self, cs):
+        """set all coefficients c"""
+        for i, ci in enumerate(cs):
+            c._hod_set_coef(self._hod, i, ci)
+            
     def coef(self):
         return c._hod_get_coef_all(self._hod)
 
