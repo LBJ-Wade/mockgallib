@@ -14,10 +14,16 @@ class TestGrowth(unittest.TestCase):
     def test_n(self):
         self.assertEqual(self.n, 10)
         
-    def test_coef(self):
+    def test_get_coef(self):
         for i,c in enumerate(self.c):
             self.assertAlmostEqual(self.hod[i], c)
-            self.assertAlmostEqual(self.hod.coef()[i], c)
+            self.assertAlmostEqual(self.hod.get_coef()[i], c)
+
+    def test_set_coef(self):
+        c2 = [12.5, 1.5, 0.15, 0.15, 1.00, 0.15, 14.0, 1.5, 2.0, 0.20]
+        self.hod.set_coef(c2)
+        for i,cc in enumerate(c2):
+            self.assertAlmostEqual(self.hod[i], cc)
 
     def test_hod_param(self):
         z = 0.7

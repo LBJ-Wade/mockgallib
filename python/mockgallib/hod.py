@@ -9,11 +9,11 @@ class Hod:
             self._hod= c._hod_alloc()
 
     def __repr__(self):
-        return "HOD coef= " + self.coef().__repr__()
+        return "HOD coef= " + self.get_coef().__repr__()
 
     def __len__(self):
         """number of parameterisation coefficients c[i]"""
-        return len(self.coef())
+        return len(self.get_coef())
     
     def __getitem__(self, i):
         """parameterisation coefficent c[i]"""
@@ -23,36 +23,36 @@ class Hod:
         """set c[i]"""
         c._hod_set_coef(self._hod, i, ci)
 
-    def set(self, cs):
+    def set_coef(self, cs):
         """set all coefficients c"""
         for i, ci in enumerate(cs):
             c._hod_set_coef(self._hod, i, ci)
             
-    def coef(self):
+    def get_coef(self):
         return c._hod_get_coef_all(self._hod)
 
     def logMmin(self, z):
         """logMmin(z)"""
         x = z - 0.5
-        co = self.coef()
+        co = self.get_coef()
         return co[0] + co[1]*x + co[2]*x**2 + co[3]*x**3
 
     def sigma(self, z):
         """sigma(z)"""
         x = z - 0.5
-        co = self.coef()
+        co = self.get_coef()
         return co[4] + co[5]*x
 
     def logM1(self, z):
         """logM1(z)"""
         x = z - 0.5
-        co = self.coef()
+        co = self.get_coef()
         return co[6] + co[7]*x
 
     def alpha(self, z):
         """alpha(z)"""
         x = z - 0.5
-        co = self.coef()
+        co = self.get_coef()
         return co[8] + co[9]*x
 
     def ncen(self, M, z):

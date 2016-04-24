@@ -81,8 +81,9 @@ PyObject* py_hod_set_coef(PyObject* self, PyObject* args)
   if(0 <= i && i < n) {
     c[i]= val;
   }
-  
-  PyErr_SetString(PyExc_ValueError, "HOD coefficient out of range");
+  else {
+    PyErr_SetString(PyExc_ValueError, "HOD coefficient out of range");
+  }
   Py_RETURN_NONE;
 }
 
