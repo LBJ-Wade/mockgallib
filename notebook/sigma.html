@@ -11757,7 +11757,7 @@ $$
 $$
 Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=0$).</p>
 <p>s = <strong>Sigma</strong>(<em>PowerSpectrum</em>, M<em>min = $M</em>\mathrm{min}$, M_max = $M_\mathrm{max}$, *n* = $n$)</p>
-<p>Computes $n$ pairs of (<em>M</em>, 1/<em>sigma</em>) are computed in a mass range ($M_\mathrm{min}$, $M_\mathrm{max}$), and values in between are computed by spline interpolation. <em>M_min</em>, <em>M_max</em>, and <em>n</em> can be omitted and default parameters <em>M_min</em> = $10^{10}$, <em>M_max</em> = $10^{16}$, and <em>n</em> = 1001 would be used.</p>
+<p>Computes $n$ pairs of (<em>M</em>, 1/<em>sigma</em>) in a mass range ($M_\mathrm{min}$, $M_\mathrm{max}$), and values in between are available by spline interpolation. Keyword arguments <em>M_min</em>, <em>M_max</em>, and <em>n</em> can be omitted and default parameters <em>M_min</em> = $10^{10}$, <em>M_max</em> = $10^{16}$, and <em>n</em> = 1001 would be used.</p>
 <table>
 <thead><tr>
 <th>Operation</th>
@@ -11771,7 +11771,7 @@ Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=
 </tr>
 <tr>
 <td>s.inv(sigma)</td>
-<td>inverse function $\sigma_0^{-1}(\sigma_0) = M$</td>
+<td>inverse function $\sigma_0^{-1}(\texttt{sigma}) = M$</td>
 </tr>
 <tr>
 <td>len(s)</td>
@@ -11783,7 +11783,7 @@ Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=
 </tr>
 <tr>
 <td>s.M</td>
-<td>array of <em>M</em> data</td>
+<td>array of <em>M</em> [$h^{-1} M_\odot$]</td>
 </tr>
 <tr>
 <td>s.sinv</td>
@@ -11814,7 +11814,7 @@ Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
@@ -11827,7 +11827,7 @@ Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=
 
 <span class="n">sigma</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">Sigma</span><span class="p">(</span><span class="n">ps</span><span class="p">)</span>
 
-<span class="n">sigma</span>
+<span class="n">sigma</span><span class="p">(</span><span class="mf">1.0e12</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11838,18 +11838,11 @@ Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=
 <div class="output">
 
 
-<div class="output_area"><div class="prompt output_prompt">Out[11]:</div>
+<div class="output_area"><div class="prompt output_prompt">Out[2]:</div>
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>M Sigma
- 7.943e+09  3.839e+00
- 8.059e+09  3.834e+00
- 8.176e+09  3.828e+00
- 8.294e+09  3.822e+00
- 8.415e+09  3.817e+00
-......
- 1.445e+16  2.390e-01</pre>
+<pre>2.1281353676997923</pre>
 </div>
 
 </div>
