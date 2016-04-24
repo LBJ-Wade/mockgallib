@@ -11,6 +11,13 @@ class Catalogues:
     def __repr__(self):
         return "A collection of %d catalogues" % len(self)
 
+    def __getitem__(self, i):
+        """ith catalogue"""
+        n = len(self)
+        if i < 0 or i >= n:
+            raise LookupError()
+        return c._catalogues_catalogue(self._cats, i)
+
     def generate(self, hod, lightcones, z_min, z_max):
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
                                z_min, z_max)

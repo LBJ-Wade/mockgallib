@@ -2,7 +2,19 @@
 #include "hod.h"
 #include "py_catalogues.h"
 
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include "numpy/arrayobject.h"
+
+PyMODINIT_FUNC
+py_catalogues_module_init()
+{
+  import_array();
+
+  return NULL;
+}
+
 static void py_catalogues_free(PyObject *obj);
+
 
 PyObject* py_catalogues_alloc(PyObject* self, PyObject* args)
 {
@@ -75,4 +87,30 @@ PyObject* py_catalogues_len(PyObject* self, PyObject* args)
   py_assert(catalogues);
 
   return Py_BuildValue("i", (int) catalogues->size());
+}
+
+PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
+{
+  // _catalogues_catalogue(_cats, i)
+  // return ith _Catalogue
+  
+  PyObject* py_catalogues;
+  int i;
+  if(!PyArg_ParseTuple(args, "Oi", &py_catalogues, &i)) {
+    return NULL;
+  }
+
+  Catalogues* const catalogues=
+    (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
+  py_assert(catalogues);
+
+  assert(sizeof(Particle) % sizeof(double) == 0);
+
+  Catalogue* const cat= catalogues->at(i);
+  
+  int nd=2;
+  int ncol= sizeof(Particle)/sizeof(float);
+  npy_intp dims[]= {cat->size(), ncol};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(cat->front()));
 }

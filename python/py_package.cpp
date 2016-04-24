@@ -116,12 +116,15 @@ static PyMethodDef methods[] = {
    "_lightcones_load(_lightcones, filename); read a lightcone from file"},
   {"_lightcones_len", py_lightcones_len, METH_VARARGS,
    "number of lightcones in _LightCones"},
+
   {"_catalogues_alloc", py_catalogues_alloc, METH_VARARGS,
    "allocate a new _Catalogues"},   
   {"_catalogues_generate", py_catalogues_generate, METH_VARARGS,
    "_catalogues_generate(_catalogues, _hod, _lightcone, z_min, z_max)"},
   {"_catalogues_len", py_catalogues_len, METH_VARARGS,
    "number of catalogues in _Catalogues"},
+  {"_catalogues_catalogue", py_catalogues_catalogue, METH_VARARGS,
+   "_catalogues_catalogue(i); return ith _Catalogue"},
   
   {NULL, NULL, 0, NULL}
 };
@@ -139,6 +142,7 @@ PyMODINIT_FUNC
 PyInit__mockgallib(void) {
   py_power_module_init();  
   py_sigma_module_init();
+  py_catalogues_module_init();
   
   return PyModule_Create(&module);
 }
