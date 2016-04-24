@@ -24,6 +24,19 @@ class TestSigma(unittest.TestCase):
         self.assertAlmostEqual(math.log10(self.sigma.inv(0.2707947263660215)), 16.0)
         self.assertAlmostEqual(math.log10(self.sigma.inv(1.0)), math.log10(7.478911479313975e13))
 
+    def test_min(self):
+        s = mock.Sigma(self.ps, M_min = 1.0e9)
+        self.assertAlmostEqual(s.M_range[0], 1.0e9)
+        self.assertAlmostEqual(s(1.0e9), 4.686409600351472)
+
+    def test_max(self):
+        s = mock.Sigma(self.ps, M_max = 1.0e15)
+        self.assertAlmostEqual(s.M_range[1], 1.0e15)
+
+    def test_n(self):
+        s = mock.Sigma(self.ps, n = 1200)
+        self.assertEqual(len(s), 1200)
+
 
 if __name__ == '__main__':
     unittest.main()

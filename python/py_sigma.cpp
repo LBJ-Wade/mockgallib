@@ -25,17 +25,20 @@ py_sigma_module_init()
 
 PyObject* py_sigma_alloc(PyObject* self, PyObject* args)
 {
-  // _sigma_alloc(_ps)
+  // _sigma_alloc(_ps, M_min, M_max, n)
 
   PyObject* py_ps;
-  if(!PyArg_ParseTuple(args, "O", &py_ps))
+  double M_min, M_max;
+  int n;
+  
+  if(!PyArg_ParseTuple(args, "Oddi", &py_ps, &M_min, &M_max, &n))
     return NULL;
 
   PowerSpectrum* const ps=
     (PowerSpectrum*) PyCapsule_GetPointer(py_ps, "_PowerSpectrum");
   assert(ps);
 
-  Sigma* const s= sigma_alloc(ps);
+  Sigma* const s= sigma_alloc(ps, M_min, M_max, n);
 
   return PyCapsule_New(s, "_Sigma", py_sigma_free);
 }

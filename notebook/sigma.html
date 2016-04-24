@@ -11756,8 +11756,8 @@ $$
   \sigma_0^2(M) = \frac{1}{2\pi^2} \int_0^\infty W^2(k; M) P(k) dk.
 $$
 Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=0$).</p>
-<p>s = <strong>Sigma</strong>(<em>PowerSpectrum</em>)</p>
-<p>1000 pairs of (<em>M</em>, 1/<em>sigma</em>) are computed in a mass range ($10^{10}$, $10^{16}$), and values in between are computed by spline interpolation.</p>
+<p>s = <strong>Sigma</strong>(<em>PowerSpectrum</em>, M<em>min = $M</em>\mathrm{min}$, M_max = $M_\mathrm{max}$, *n* = $n$)</p>
+<p>Computes $n$ pairs of (<em>M</em>, 1/<em>sigma</em>) are computed in a mass range ($M_\mathrm{min}$, $M_\mathrm{max}$), and values in between are computed by spline interpolation. <em>M_min</em>, <em>M_max</em>, and <em>n</em> can be omitted and default parameters <em>M_min</em> = $10^{10}$, <em>M_max</em> = $10^{16}$, and <em>n</em> = 1001 would be used.</p>
 <table>
 <thead><tr>
 <th>Operation</th>
@@ -11771,7 +11771,7 @@ Amplitude (redshift) of $\sigma_0$ is that of the power spectrum (usually at $z=
 </tr>
 <tr>
 <td>s.inv(sigma)</td>
-<td>inverse function $\sigma^{-1}(\sigma) = M$</td>
+<td>inverse function $\sigma_0^{-1}(\sigma_0) = M$</td>
 </tr>
 <tr>
 <td>len(s)</td>

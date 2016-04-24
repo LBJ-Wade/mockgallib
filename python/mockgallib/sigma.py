@@ -9,8 +9,12 @@ import mockgallib._mockgallib as c
 # sigma.inv(s)  inverse function sigma -> M
 
 class Sigma:
-    def __init__(self, ps):
-        self._s = c._sigma_alloc(ps._ps)
+    def __init__(self, ps, *args, **kwargs):
+        M_min = kwargs.get('M_min', 1.0e10)
+        M_max = kwargs.get('M_max', 1.0e16)
+        n     = kwargs.get('n', 1001)
+    
+        self._s = c._sigma_alloc(ps._ps, M_min, M_max, n)
         self.n= c._sigma_n(self._s)
         self.M= c._sigma_M_array(self._s)
         self.sinv= c._sigma_sinv_array(self._s)
