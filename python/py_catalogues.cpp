@@ -1,9 +1,6 @@
-#include <iostream> // debug!!!
 #include "py_assert.h"
 #include "hod.h"
 #include "py_catalogues.h"
-
-using namespace std; // debug!!!
 
 static void py_catalogues_free(PyObject *obj);
 

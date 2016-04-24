@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "msg.h"
+#include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
 
@@ -112,18 +113,18 @@ static inline void dist_cylinder(const float x[], const float y[], float& rp, fl
 
 
 
-size_t count_num_points(const vector<Catalogue>& v)
+size_t count_num_points(Catalogues const * const v)
 {
   size_t n=0;
   
-  for(vector<Catalogue>::const_iterator cat= v.begin(); cat != v.end(); ++cat) {
-    n += cat->size();
+  for(Catalogues::const_iterator cat= v->begin(); cat != v->end(); ++cat) {
+    n += (*cat)->size();
   }
   return n;
 }
 
-void corr_projected_compute(vector<Catalogue>& vdata,
-			    vector<Catalogue>& vrandom,
+void corr_projected_compute(Catalogues* const cats_data,
+			    Catalogues* const cats_rand,
 			    vector<CorrProjected*>& vcorr)
 {
   rmax2= rp_max*rp_max + pi_max*pi_max;
@@ -131,10 +132,10 @@ void corr_projected_compute(vector<Catalogue>& vdata,
   //
   // Setup KDTree
   //
-  const int nD= vdata.size(); // number of Data catalogues
-  const int nR= vrandom.size(); // number of Random catalgues
+  const int nD= cats_data->size(); // number of Data catalogues
+  const int nR= cats_rand->size(); // number of Random catalgues
 
-  size_t nalloc= count_num_points(vdata) + count_num_points(vrandom);
+  size_t nalloc= count_num_points(cats_data) + count_num_points(cats_rand);
   const int quota = 32;
 
   if(tree_alloc == 0) {
@@ -147,24 +148,24 @@ void corr_projected_compute(vector<Catalogue>& vdata,
   size_t ntree_used= 0;
 
   // KDTree for Data
-  for(vector<Catalogue>::iterator cat= vdata.begin();
-      cat != vdata.end(); ++cat) {
-    cat->tree= tree_free;
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
+    (*cat)->tree= tree_free;
 
-    cat->ntree = kdtree_construct(cat->tree, &(cat->front()),
-				  cat->size(), quota);
-    ntree_used += cat->ntree;
-    tree_free += cat->ntree;
+    (*cat)->ntree = kdtree_construct((*cat)->tree, &((*cat)->front()),
+				     (*cat)->size(), quota);
+    ntree_used += (*cat)->ntree;
+    tree_free +=  (*cat)->ntree;
   }
 
   // KDTree for Randoms
-  for(vector<Catalogue>::iterator cat= vrandom.begin();
-      cat != vrandom.end(); ++cat) {
-    cat->tree= tree_free;
-    cat->ntree = kdtree_construct(cat->tree, &(cat->front()),
-				  cat->size(), quota);
-    ntree_used += cat->ntree;
-    tree_free += cat->ntree;
+  for(Catalogues::iterator cat= cats_rand->begin();
+      cat != cats_rand->end(); ++cat) {
+    (*cat)->tree= tree_free;
+    (*cat)->ntree = kdtree_construct((*cat)->tree, &((*cat)->front()),
+				     (*cat)->size(), quota);
+    ntree_used += (*cat)->ntree;
+    tree_free += (*cat)->ntree;
   }
 
   msg_printf(msg_verbose, "%lu trees used (%lu Mbytes)",
@@ -190,35 +191,35 @@ void corr_projected_compute(vector<Catalogue>& vdata,
   
   // RR
   rr.clear();
-  for(vector<Catalogue>::iterator rcat= vrandom.begin();
-      rcat != vrandom.end(); ++rcat) {    
-    if(!rcat->empty())
-      count_pairs_auto(rcat->tree, rcat->ntree, rr);
+  for(Catalogues::iterator cat= cats_rand->begin();
+      cat != cats_rand->end(); ++cat) {    
+    if(!(*cat)->empty())
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, rr);
 
-    npairs_RR += 0.5*rcat->size()*(rcat->size()-1);
+    npairs_RR += 0.5*(*cat)->size()*((*cat)->size()-1);
   }
 
   int icat=0;
-  for(vector<Catalogue>::iterator cat= vdata.begin();
-      cat != vdata.end(); ++cat) {
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
     npairs_DD= 0.0;
     npairs_DR= 0.0;
     dd.clear();
     dr.clear();
 
     // DD
-    if(!cat->empty())
-      count_pairs_auto(cat->tree, cat->ntree, dd);
+    if(!(*cat)->empty())
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, dd);
 
-    npairs_DD += 0.5*cat->size()*(cat->size()-1);
+    npairs_DD += 0.5*(*cat)->size()*((*cat)->size()-1);
 
     // DR
-    for(vector<Catalogue>::iterator rcat= vrandom.begin();
-      rcat != vrandom.end(); ++rcat) {    
+    for(Catalogues::iterator rcat= cats_rand->begin();
+      rcat != cats_rand->end(); ++rcat) {    
 
-      if(!cat->empty() && !rcat->empty())
-	count_pairs_cross(cat->tree, cat->ntree, rcat->tree, dr);
-      npairs_DR += cat->size()*rcat->size();
+      if(!(*cat)->empty() && !(*rcat)->empty())
+	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
+      npairs_DR += (*cat)->size()*(*rcat)->size();
     }
 
     compute_corr(dd, npairs_DD,
