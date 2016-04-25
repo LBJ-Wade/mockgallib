@@ -5,5 +5,5 @@
 
 PyObject* py_cosmology_set(PyObject* self, PyObject* args);
 PyObject* py_cosmology_rhom(PyObject* self, PyObject* args);
-
+PyObject* py_cosmology_compute_comoving_distance(PyObject* self, PyObject* args);
 #endif

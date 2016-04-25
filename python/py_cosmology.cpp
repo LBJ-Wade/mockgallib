@@ -23,3 +23,12 @@ PyObject* py_cosmology_rhom(PyObject* self, PyObject* args)
   return Py_BuildValue("d", rho_m);
 }
 
+PyObject* py_cosmology_compute_comoving_distance(PyObject* self, PyObject* args)
+{
+  double a;
+  if(!PyArg_ParseTuple(args, "d", &a))
+    return NULL;
+
+  return Py_BuildValue("d", cosmology_compute_comoving_distance(a));
+}
+

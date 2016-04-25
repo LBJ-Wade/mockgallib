@@ -24,7 +24,7 @@ OBJS     += power.o sigma.o mf.o
 OBJS     += hod.o nbar.o nbar_fitting.o
 OBJS     += lightcone.o catalogue.o satellite.o
 OBJS     += corr_projected.o kdtree.o hdf5_read.o
-OBJS     += sky.o
+OBJS     += sky.o distance.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)

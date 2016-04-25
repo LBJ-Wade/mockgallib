@@ -17,6 +17,7 @@
 #include "py_lightcones.h"
 #include "py_catalogues.h"
 #include "py_sky.h"
+#include "py_distance.h"
 
 using namespace std;
 
@@ -34,6 +35,9 @@ static PyMethodDef methods[] = {
    "set omega_m0"},
   {"cosmology_rhom", py_cosmology_rhom, METH_VARARGS,
    "get mean comoving matter density"},
+  {"cosmology_compute_comoving_distance",
+   py_cosmology_compute_comoving_distance, METH_VARARGS,
+   "compute comoving distance corresponds to scale factor a"},
    
   {"_power_alloc", py_power_alloc, METH_VARARGS,
    "read power spectrum from file"},
@@ -131,6 +135,11 @@ static PyMethodDef methods[] = {
   {"_sky_box", py_sky_box, METH_VARARGS,
    "get bounding box"},
 
+  {"_distance_init", py_distance_init, METH_VARARGS,
+   "initialise distance - redshift module"},
+  {"_distance_redshift", py_distance_redshift, METH_VARARGS,
+   "_distance_redshift(d); redshift corresponds to comoving distance d"},
+  
   
   {NULL, NULL, 0, NULL}
 };
