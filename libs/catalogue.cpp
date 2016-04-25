@@ -146,3 +146,11 @@ void catalogue_generate_mock(Hod* const hod,
   cat->ncen= ncen_total;
   cat->nsat= nsat_total;
 }
+
+void catalogue_generate_randoms(Hod* const hod,
+				LightCone const * const lightcone,
+				const double z_min, const double z_max,
+				Catalogue * const cat)
+{
+  
+}

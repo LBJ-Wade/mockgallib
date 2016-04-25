@@ -6,4 +6,6 @@ void cosmology_set_omega_m(const double omega_m_);
 double cosmology_omega_m();
 double cosmology_rho_m();
 
+double cosmology_compute_comoving_distance(const double a);
+
 #endif

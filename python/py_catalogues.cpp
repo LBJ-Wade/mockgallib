@@ -34,9 +34,9 @@ void py_catalogues_free(PyObject *obj)
   delete cats;
 }
 
-PyObject* py_catalogues_generate(PyObject* self, PyObject* args)
+PyObject* py_catalogues_generate_galaxies(PyObject* self, PyObject* args)
 {
-  // _catalogues_generate(_catalogues, _hod, _lightcone, z_min, z_max)
+  // _catalogues_generate_galaxies(_catalogues, _hod, _lightcone, z_min, z_max)
   PyObject *py_catalogues, *py_hod, *py_lightcones;
   double z_min, z_max;
   if(!PyArg_ParseTuple(args, "OOOdd", &py_catalogues, &py_hod, &py_lightcones,

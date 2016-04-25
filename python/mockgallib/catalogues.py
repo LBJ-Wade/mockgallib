@@ -18,7 +18,7 @@ class Catalogues:
             raise LookupError()
         return c._catalogues_catalogue(self._cats, i)
 
-    def generate(self, hod, lightcones, z_min, z_max):
+    def generate_galaxies(self, hod, lightcones, z_min, z_max):
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
                                z_min, z_max)
         

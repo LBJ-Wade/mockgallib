@@ -21,6 +21,7 @@ static const double H0= 100.0;                  // km/s/(1/h Mpc)
 static const double rho_crit_0= 3.0*H0*H0/(8.0*M_PI*G);
 
 static const double delta_c= 1.686;
-//static const double rho_crit_0= 2.7754e2; // solar_mass/(1/h kpc)^3
+
+static const double cH0inv= 2997.92458; // c/H0 [h^-1 Mpc]
 
 #endif

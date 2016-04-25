@@ -16,7 +16,7 @@
 #include "py_nbar_fitting.h"
 #include "py_lightcones.h"
 #include "py_catalogues.h"
-
+#include "py_sky.h"
 
 using namespace std;
 
@@ -119,12 +119,18 @@ static PyMethodDef methods[] = {
 
   {"_catalogues_alloc", py_catalogues_alloc, METH_VARARGS,
    "allocate a new _Catalogues"},   
-  {"_catalogues_generate", py_catalogues_generate, METH_VARARGS,
-   "_catalogues_generate(_catalogues, _hod, _lightcone, z_min, z_max)"},
+  {"_catalogues_generate_galaxies", py_catalogues_generate_galaxies, METH_VARARGS,
+   "_catalogues_generate_galaxies(_catalogues, _hod, _lightcone, z_min, z_max)"},
   {"_catalogues_len", py_catalogues_len, METH_VARARGS,
    "number of catalogues in _Catalogues"},
   {"_catalogues_catalogue", py_catalogues_catalogue, METH_VARARGS,
    "_catalogues_catalogue(i); return ith _Catalogue"},
+
+  {"_sky_alloc", py_sky_alloc, METH_VARARGS,
+   "allocate a new _Sky"},
+  {"_sky_box", py_sky_box, METH_VARARGS,
+   "get bounding box"},
+
   
   {NULL, NULL, 0, NULL}
 };
