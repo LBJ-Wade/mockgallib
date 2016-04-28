@@ -53,25 +53,26 @@ MfCumulative::MfCumulative(Sigma* const s, const double a) :
   const double nu_max= delta_c*s->sinv_max;
 
   for(int i=0; i<n; ++i) {
-    double M= exp(logMmin + i*(logMmax - logMmin)/(n-1));
-    M_array[i]= M;
+    double MM= exp(logMmin + (n-i-1)*(logMmax - logMmin)/(n-1));
+    M_array[i]= MM;
 
-    double nu= delta_c/D*sigma_0inv(s, M); assert(nu >= nu_min);
+    double nu= delta_c/D*sigma_0inv(s, MM); assert(nu >= nu_min);
     double result;
   
     gsl_integration_cquad(&F, 1.0e-8, nu_max, 1.0e-5, 1.0e-5, w, &result, 0, 0);
     nM_array[i]= result;
   }
+
+  nM_max= nM_array[n-1];
   
   interp= gsl_interp_alloc(gsl_interp_cspline, n);
   acc= gsl_interp_accel_alloc(); 
 
-  gsl_interp_init(interp, M_array, nM_array, n);
+  //gsl_interp_init(interp, M_array, nM_array, n);
+  gsl_interp_init(interp, nM_array, M_array, n);
 
   gsl_integration_cquad_workspace_free(w);
   mf_free(mf);
-
-
 }
 
 MfCumulative::~MfCumulative()
@@ -82,10 +83,11 @@ MfCumulative::~MfCumulative()
   free(M_array);
 }
 
-double MfCumulative::n_cumulative(const double M)
+double MfCumulative::M(const double nM)
 {
-  return gsl_interp_eval(interp, M_array, nM_array, M, acc);
+  return gsl_interp_eval(interp, nM_array, M_array, nM, acc);
 }
+
 
 double integrand_n_cumulative(double nu, void* params)
 {

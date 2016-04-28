@@ -8,4 +8,14 @@ double cosmology_rho_m();
 
 double cosmology_compute_comoving_distance(const double a);
 
+static inline double cosmology_redshift(const double a)
+{
+  return 1.0/a - 1.0;
+}
+
+static inline double cosmology_scalefactor(const double z)
+{
+  return 1.0/(1.0 + z);
+}
+
 #endif
