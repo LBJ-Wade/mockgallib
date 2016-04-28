@@ -16,7 +16,7 @@ class MassFunction:
         return "MassFunction"
 
     def dndlnM(self, M, z):
-        sigma0 = self.s.sigma0(M)
+        sigma0 = self.s(M)
         a =1.0/(1.0 + z)
         if a != self.a:
             c._mf_set_redshift(self._mf, a)
