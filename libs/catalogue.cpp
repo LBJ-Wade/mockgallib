@@ -149,7 +149,7 @@ void catalogue_generate_mock(Hod* const hod,
   cat->nsat= nsat_total;
 }
 
-
+/*
 void catalogue_generate_randoms(Hod* const hod,
 				Sky* const sky,
 				MfCumulative* const mc,
@@ -181,3 +181,4 @@ void catalogue_generate_randoms(Hod* const hod,
 
   
 }
+*/
