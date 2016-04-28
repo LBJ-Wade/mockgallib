@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "halo.h"
+#include "util.h"
 
 class Sky {
  public:
@@ -10,26 +11,24 @@ class Sky {
 
   double ra_range[2], dec_range[2], r_range[2];
   double r_min, r_max;
-  float box[3];
+  float left[3], right[3], width[3]; // bounding box
   float ra0, dec0, theta0, cos_theta0, sin_theta0;
 };
 
-Sky* sky_alloc(const float ra[], const float dec[],
-	       const double z_min,   const double z_max,
-	       const double omega_m);
 
-void sky_free(Sky* const sky);
+
 
 //void minimum_bounding_box(Sky const * const sky, float* const boxsize);
 //void compute_ra_dec(std::vector<Halo>& v, Sky const * const sky);
 
-inline void compute_ra_dec(Sky const * const sky, Halo * const h)
+template<class T>
+inline void sky_compute_ra_dec(Sky const * const sky, T* const h)
 {
-  // compute h->ra and dec from cuboid coordinate v.x
+  // compute h->ra and dec from cuboid coordinate h->x
   // ra0, dec0: RA and Dec of xaxis (y=0, z=0)
 
   //float const * const x= h->x;
-  float theta= asin(h->x[2]/h->r);
+  float theta= asin(h->x[2]/util::norm(h->x));
     
   // rotate cosO in x-z plane
   float x1= sky->cos_theta0*h->x[0] - sky->sin_theta0*h->x[2];

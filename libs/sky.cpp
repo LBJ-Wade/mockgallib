@@ -98,7 +98,9 @@ void compute_bounding_box(Sky* const sky)
   rotate_xz(x, -theta0);
   x_min= fmin(x_min, x[0]);
 
-  sky->box[0]= sky->r_max - x_min;
+  sky->right[0]= sky->r_max;
+  sky->left[0]= x_min;
+  sky->width[0]= sky->r_max - x_min;
 
   // y-range
   double y_max= 0.0;
@@ -110,10 +112,14 @@ void compute_bounding_box(Sky* const sky)
   set_cartisian(sky->r_max, theta_max, phi, x);
   rotate_xz(x, -theta0);
   y_max= fmax(y_max, x[1]);
-  
-  sky->box[1]= 2.0*y_max;
+
+  sky->left[1]= -y_max;
+  sky->right[1]= y_max;
+  sky->width[1]= 2.0*y_max;
 
   // z-range
-  sky->box[2]= 2.0*sky->r_max*sin(theta);
+  sky->right[2]= sky->r_max*sin(theta);
+  sky->left[2]= -sky->right[2];
+  sky->width[2]= 2.0*sky->right[2];
 }
 
