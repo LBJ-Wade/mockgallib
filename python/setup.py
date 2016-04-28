@@ -11,6 +11,7 @@ setup(name='mockgallib',
                   'mockgallib.mass_function', 'mockgallib.hod',
                   'mockgallib.lightcones', 'mockgallib.catalogues',
                   'mockgallib.sky', 'mockgallib.distance',
+                  'mockgallib.remap'
       ],
       ext_modules=[
           Extension('mockgallib._mockgallib',
@@ -21,6 +22,7 @@ setup(name='mockgallib',
                      'py_nbar.cpp', 'py_nbar_fitting.cpp',
                      'py_lightcones.cpp', 'py_catalogues.cpp',
                      'py_sky.cpp', 'py_distance.cpp',
+                     'py_remap.cpp'
                     ],
                     include_dirs = ['../libs', np.get_include()],
                     library_dirs =  ['../libs'],

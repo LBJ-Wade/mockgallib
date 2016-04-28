@@ -11,3 +11,4 @@ from mockgallib.nbar import Nbar, NbarFitting
 from mockgallib.lightcones import LightCones
 from mockgallib.catalogues import Catalogues
 from mockgallib.distance import Distance
+from mockgallib.remap import Remap

@@ -18,6 +18,7 @@
 #include "py_catalogues.h"
 #include "py_sky.h"
 #include "py_distance.h"
+#include "py_remap.h"
 
 using namespace std;
 
@@ -139,7 +140,11 @@ static PyMethodDef methods[] = {
    "initialise distance - redshift module"},
   {"_distance_redshift", py_distance_redshift, METH_VARARGS,
    "_distance_redshift(d); redshift corresponds to comoving distance d"},
-  
+
+  {"_remap_alloc", py_remap_alloc, METH_VARARGS,
+   "allocate _Remapping object"},
+  {"_remap_boxsize", py_remap_boxsize, METH_VARARGS,
+   "_remap_boxsize(_remap); get cuboid size after remapping"},
   
   {NULL, NULL, 0, NULL}
 };

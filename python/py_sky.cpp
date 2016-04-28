@@ -35,5 +35,5 @@ PyObject* py_sky_box(PyObject* self, PyObject* args)
     (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
   
   
-  return Py_BuildValue("(ddd)", sky->box[0], sky->box[1], sky->box[2]);
+  return Py_BuildValue("(ddd)", sky->width[0], sky->width[1], sky->width[2]);
 }
