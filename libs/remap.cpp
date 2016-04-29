@@ -40,8 +40,11 @@ static inline void assert_float(const float x, const float x0,
 // for given integer vectors u[9];
 // 3x3 matrix u must have det=1
 //
-Remapping* remap_alloc(const int u[], const float boxsize)
+
+Remap::Remap(const int u[], const float cboxsize)
 {
+  cboxsize_= cboxsize;
+  
   int det = u[0]*u[4]*u[8] - u[0]*u[5]*u[7] - u[1]*u[3]*u[8]
               + u[1]*u[5]*u[6] + u[2]*u[3]*u[7] - u[2]*u[6]*u[4];
   if(det != 1) {
@@ -51,8 +54,6 @@ Remapping* remap_alloc(const int u[], const float boxsize)
 	       det, u[0], u[1], u[2], u[3], u[4], u[5], u[6], u[7], u[8]);
     throw ErrorRemap();
   }
-
-  Remapping* const remap= new Remapping;
 
   // orthognal vectors (before normalisation)
   float w[9];
@@ -81,15 +82,15 @@ Remapping* remap_alloc(const int u[], const float boxsize)
   const float n3= util::norm(w+6);
 
   // cuboid boxsize in units of the original boxsize
-  remap->l[0]= n1;
-  remap->l[1]= n2;
-  remap->l[2]= 1.0/(n1*n2);
+  l_[0]= n1;
+  l_[1]= n2;
+  l_[2]= 1.0/(n1*n2);
 
   for(int k=0; k<3; ++k)
-    remap->boxsize[k]= boxsize*remap->l[k];
+    this->boxsize[k]= cboxsize*remap->l[k];
 
   // orthonormal basis
-  float* const e= remap->e;
+  float* const e= this->e_;
 
   e[0]= w[0]/n1;
   e[1]= w[1]/n1;
@@ -101,7 +102,7 @@ Remapping* remap_alloc(const int u[], const float boxsize)
   e[7]= w[7]/n3;
   e[8]= w[8]/n3;
   
-  assert_float(util::dot(e,e), 1.0f);
+  assert_float(util::dot(e, e), 1.0f);
   assert_float(util::dot(e, e+3), 0.0f);
   assert_float(util::dot(e, e+6), 0.0f);
   assert_float(util::dot(e+3, e+3), 1.0f);
@@ -109,20 +110,10 @@ Remapping* remap_alloc(const int u[], const float boxsize)
   assert_float(util::dot(e+6, e+6), 1.0f);
 
   // Find necessary range of periodic copies of the simulation cube
-  get_icopy(e, remap->l, remap->icopy_begin, remap->icopy_end);
-  
-  return remap;
+  get_icopy(e, l_, icopy_begin_, icopy_end_);
 }
 
-void remap_free(Remapping* const remap)
-{
-  if(no_remap > 100)
-    msg_printf(msg_warn, "Warning: no_remapping= %d\n", no_remap);
-
-  delete remap;
-}
-
-void remap_halo_coordinate(Halo* const h, Remapping const * const remap, const float boxsize)
+int Remap::coordinate(Halo* const h)
 {
   //
   // Rotate the halo coordinate to a cuboid
@@ -136,14 +127,14 @@ void remap_halo_coordinate(Halo* const h, Remapping const * const remap, const f
   //   h->x[3] is converted to cuboid coordinate
   //
 
-  float const * const e= remap->e;
-  float const * const l= remap->l;
+  float const * const e= e_;
+  float const * const l= l_;
 
   // find necessary periodic copies of the cube
 
-  const float lx= l[0]*boxsize;
-  const float ly= l[1]*boxsize;
-  const float lz= l[2]*boxsize;
+  const float lx= l[0]*cboxsize_;
+  const float ly= l[1]*cboxsize_;
+  const float lz= l[2]*cboxsize_;
 
   float x[3], r[3];
 
@@ -167,16 +158,17 @@ void remap_halo_coordinate(Halo* const h, Remapping const * const remap, const f
 	  rotate_vector(h->v, e);
 	  //rotate_vector(p->f, e);
 
-	  goto mapping_found;
+	  return true;
 	}
       }
     }
   }
   no_remap++;
-  fprintf(stderr, "Warning: cannot find remapping; halo->x= %e %e %e\n",
-	 h->x[0], h->x[1], h->x[2]);
+
+  // remapping not found
   h->x[0]= 0; h->x[1]= 0; h->x[2]= 0;
-mapping_found:; 
+
+  return false;
 }
 
 void remap_coordinate(vector<Halo>& v, Remapping const * const remap, const float boxsize)

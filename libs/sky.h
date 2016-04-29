@@ -15,12 +15,6 @@ class Sky {
   float ra0, dec0, theta0, cos_theta0, sin_theta0;
 };
 
-
-
-
-//void minimum_bounding_box(Sky const * const sky, float* const boxsize);
-//void compute_ra_dec(std::vector<Halo>& v, Sky const * const sky);
-
 template<class T>
 inline void sky_compute_ra_dec(Sky const * const sky, T* const h)
 {
