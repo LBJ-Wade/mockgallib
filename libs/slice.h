@@ -8,7 +8,7 @@
 class Slice {
  public:
   Slice(const float boxsize[], const float sky_box[], const float center[]);
-  int transform(float x[]) {
+  int transform(float x[]) const {
     // a copy is necessary because coord[] could change coordinates
     float xx[]= {x[0], x[1], x[2]};
 

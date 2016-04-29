@@ -113,7 +113,7 @@ Remap::Remap(const int u[], const float cboxsize)
   get_icopy(e, l_, icopy_begin_, icopy_end_);
 }
 
-bool Remap::coordinate(Halo* const h)
+bool Remap::coordinate(Halo* const h) const
 {
   //
   // Rotate the halo coordinate to a cuboid

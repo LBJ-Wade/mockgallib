@@ -8,7 +8,7 @@
 class Remap {
  public:
   Remap(const int u[], const float cboxsize);
-  bool coordinate(Halo* const h);
+  bool coordinate(Halo* const h) const;
   float boxsize[3];
  private:
   float cboxsize_;

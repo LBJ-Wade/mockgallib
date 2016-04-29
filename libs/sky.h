@@ -2,6 +2,7 @@
 #define SKY_H 1
 
 #include <vector>
+#include <cassert>
 #include "halo.h"
 #include "util.h"
 
