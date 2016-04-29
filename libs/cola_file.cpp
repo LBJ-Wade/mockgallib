@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cassert>
-#include "halo_file.h"
+#include "cola_file.h"
 
 using namespace std;
 

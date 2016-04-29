@@ -11,9 +11,10 @@ LightCones::~LightCones()
 }
 
 void fill_lightcone(const char filename[],
-		      Remapping const * const remap,
-		      Slice const * const slice)
+		    Remap const * const remap,
+		    Slice const * const slice)
 {
   cola_halo_file_open(filename);
 
   cola_halo_file_close();
+}

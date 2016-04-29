@@ -87,7 +87,7 @@ Remap::Remap(const int u[], const float cboxsize)
   l_[2]= 1.0/(n1*n2);
 
   for(int k=0; k<3; ++k)
-    this->boxsize[k]= cboxsize*remap->l[k];
+    this->boxsize[k]= cboxsize*l_[k];
 
   // orthonormal basis
   float* const e= this->e_;
@@ -113,7 +113,7 @@ Remap::Remap(const int u[], const float cboxsize)
   get_icopy(e, l_, icopy_begin_, icopy_end_);
 }
 
-int Remap::coordinate(Halo* const h)
+bool Remap::coordinate(Halo* const h)
 {
   //
   // Rotate the halo coordinate to a cuboid
@@ -138,12 +138,12 @@ int Remap::coordinate(Halo* const h)
 
   float x[3], r[3];
 
-  for(int ix=remap->icopy_begin[0]; ix<remap->icopy_end[0]; ++ix) {
-    x[0]= h->x[0] + ix*boxsize;
-    for(int iy=remap->icopy_begin[1]; iy<remap->icopy_end[1]; ++iy) {
-      x[1]= h->x[1] + iy*boxsize;
-      for(int iz=remap->icopy_begin[2]; iz<remap->icopy_end[2]; ++iz) {
-	x[2]= h->x[2] + iz*boxsize;
+  for(int ix=icopy_begin_[0]; ix<icopy_end_[0]; ++ix) {
+    x[0]= h->x[0] + ix*cboxsize_;
+    for(int iy=icopy_begin_[1]; iy<icopy_end_[1]; ++iy) {
+      x[1]= h->x[1] + iy*cboxsize_;
+      for(int iz=icopy_begin_[2]; iz<icopy_end_[2]; ++iz) {
+	x[2]= h->x[2] + iz*cboxsize_;
 
 	r[0]= util::dot(x, e);
 	r[1]= util::dot(x, e+3);
@@ -171,66 +171,6 @@ int Remap::coordinate(Halo* const h)
   return false;
 }
 
-void remap_coordinate(vector<Halo>& v, Remapping const * const remap, const float boxsize)
-{
-  //
-  // Rotate the halo coordinate to a cuboid
-  // Input:
-  //   v:    vector of halos
-  //   e[9]: orthonormal basis of cuboid
-  //   l[3]: cuboid boxsize / boxsize
-  //   boxsize: boxsize of the original cube
-  //
-  // Output:
-  //   v[i].x[3] is converted to cuboid coordinate
-  //
-
-  float const * const e= remap->e;
-  float const * const l= remap->l;
-
-    
-
-  // find necessary periodic copies of the cube
-  int icopy_begin[3], icopy_end[3];
-  get_icopy(e, l, icopy_begin, icopy_end);
-
-  const float lx= l[0]*boxsize;
-  const float ly= l[1]*boxsize;
-  const float lz= l[2]*boxsize;
-
-  for(vector<Halo>::iterator p= v.begin(); p != v.end(); ++p) {
-    float x[3], r[3];
-
-    for(int ix=icopy_begin[0]; ix<icopy_end[0]; ++ix) {
-     x[0]= p->x[0] + ix*boxsize;
-     for(int iy=icopy_begin[1]; iy<icopy_end[1]; ++iy) {
-      x[1]= p->x[1] + iy*boxsize;
-      for(int iz=icopy_begin[2]; iz<icopy_end[2]; ++iz) {
-	x[2]= p->x[2] + iz*boxsize;
-
-	r[0]= util::dot(x, e);
-	r[1]= util::dot(x, e+3);
-	r[2]= util::dot(x, e+6);
-
-	if(0.0f <= r[0] && r[0] < lx &&
-	   0.0f <= r[1] && r[1] < ly &&
-	   0.0f <= r[2] && r[2] < lz) {
-
-	  p->x[0]= r[0]; p->x[1]= r[1]; p->x[2]= r[2];
-	  
-	  rotate_vector(p->v, e);
-	  //rotate_vector(p->f, e);
-
-	  goto mapping_found;
-	}
-      }
-     }
-    }
-    no_remap++;
-    p->x[0]= 0; p->x[1]= 0; p->x[2]= 0;
-   mapping_found:; 
-  }
-}
 
 void get_icopy(const float e[], const float l[],
 	       int* const icopy_begin, int* const icopy_end)

@@ -7,8 +7,8 @@
 
 class Remap {
  public:
-  Remap(const int u, const float boxsize);
-  coordinate(Halo* const h);
+  Remap(const int u[], const float cboxsize);
+  bool coordinate(Halo* const h);
   float boxsize[3];
  private:
   float cboxsize_;
@@ -18,7 +18,7 @@ class Remap {
 };
 
 
-void remap_get_boxsize(Remapping const * const remap, float * const boxsize);
+//void remap_get_boxsize(Remapping const * const remap, float * const boxsize);
 
 
 
