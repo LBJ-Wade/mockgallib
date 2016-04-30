@@ -5,7 +5,7 @@ struct Particle {
   float x[3];
   float z; // debug?
   float vr;
-  float ra, dec;
+  float radec[2];
   float w;
 };
 

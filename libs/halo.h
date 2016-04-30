@@ -5,7 +5,7 @@ struct Halo {
   int nfof;
   float x[3], v[3], r;
   float M;
-  float ra, dec;
+  float radec[2];
   int slice;
   float a; // scale factor of the snapshot
   float rs; // NFW rs, physical 1/h kpc

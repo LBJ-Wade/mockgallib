@@ -79,8 +79,7 @@ void hdf5_read_lightcone(const char filename[], LightCone* const p)
     read_data_table(file, "z", &h->z, n, 1, stride);
     
     // ra-dec
-    assert(&halo.dec - &halo.ra == 1);
-    read_data_table(file, "ra-dec", &h->ra, n, 2, stride);
+    read_data_table(file, "ra-dec", h->radec, n, 2, stride);
     
     
     // M200

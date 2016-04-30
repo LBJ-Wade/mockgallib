@@ -51,10 +51,10 @@ void fill_lightcone(const char filename[],
     h->z= distance_redshift(h->r);
       
     // compute sky position
-    sky_compute_ra_dec(sky, h);
+    sky->compute_radec(h->x, h->radec);
 
-    if(h->ra < sky->ra_range[0] || h->ra > sky->ra_range[1] ||
-       h->dec < sky->dec_range[0] || h->dec > sky->dec_range[1])
+    if(h->radec[0] < sky->ra_range[0]  || h->radec[0] > sky->ra_range[1] ||
+       h->radec[1] < sky->dec_range[0] || h->radec[1] > sky->dec_range[1])
       continue;
 
     // convert nfof to halo mass

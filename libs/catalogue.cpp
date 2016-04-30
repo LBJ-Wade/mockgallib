@@ -121,8 +121,8 @@ void catalogue_generate_mock(Hod* const hod,
     p.x[2]= h->x[2];
     p.vr  = h->v[0];
     p.z   = h->z;
-    p.ra  = h->ra;
-    p.dec = h->dec;
+    p.radec[0] = h->radec[0];
+    p.radec[1] = h->radec[1];
 
     cat->push_back(p);
     ncen_total++;
@@ -139,8 +139,8 @@ void catalogue_generate_mock(Hod* const hod,
       p.x[2] += h->x[2];
       p.z     = h->z;
       p.vr   += h->v[0];
-      p.ra  = h->ra;
-      p.dec = h->dec;
+      p.radec[0] = h->radec[1];
+      p.radec[1] = h->radec[1];
 
       cat->push_back(p);
     }    
