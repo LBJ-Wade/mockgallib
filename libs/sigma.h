@@ -19,6 +19,4 @@ void sigma_free(Sigma* const s);
 double sigma_M(Sigma* const s, const double sigma0);
 double sigma_0inv(Sigma* const s, const double M);
   
-void sigma_init(PowerSpectrum const * const ps, const double M_min, const double M_max, const double omega_m);
-
 #endif

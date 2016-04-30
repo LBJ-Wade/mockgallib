@@ -10,9 +10,6 @@ PowerSpectrum {
 }
 ```
 
-
-
-
 *ps* = *PowerSpectrum*(<span class="kt">char</span> *filename[]*)
 
 > Reads tabulated power spectrum file k, P(k). Throws PowerFileError

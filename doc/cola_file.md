@@ -1,7 +1,7 @@
 Cola_file
 =========
 
-**cola_halo_file_open**(*filename*)
+**cola_halo_file_open**(<span class="kt">char</span> *filename[]*)
 
 > Opens a COLA binary file
 

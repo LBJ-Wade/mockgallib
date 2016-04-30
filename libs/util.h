@@ -14,4 +14,8 @@ namespace util {
 
 }
 
+class ErrorFile {
+
+};
+
 #endif
