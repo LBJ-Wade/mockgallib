@@ -7,7 +7,7 @@ class HaloMassFoF {
  public:
   HaloMassFoF(const char filename[], const double M0=1.0e14);
   ~HaloMassFoF();
-  double mass(const int nfof) {
+  double mass(const int nfof) const {
     // statistics if poor for large rare haloes
     if(nfof > nfof0_) return m_ * nfof;
   

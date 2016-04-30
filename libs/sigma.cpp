@@ -59,7 +59,7 @@ Sigma::~Sigma()
   free(M_);
 }
 
-double Sigma::M(const double sigma0)
+double Sigma::M(const double sigma0) const
 {
   // sigma0 is sigma(M, z=0)
   // return value: M(sigma)
@@ -72,7 +72,7 @@ double Sigma::M(const double sigma0)
   return gsl_interp_eval(interp_, sinv_, M_, 1.0/sigma0, acc_);
 }
 
-double Sigma::sigma0_inv(const double MM)
+double Sigma::sigma0_inv(const double MM) const
 {
   return gsl_interp_eval(interp2_, M_, sinv_, MM, acc2_);
 }

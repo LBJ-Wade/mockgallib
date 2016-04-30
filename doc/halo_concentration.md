@@ -12,3 +12,4 @@ PowerSpectrum or Sigma is necessary to initialise the
 > Returns NFW scale radius *rs* using halo mass *h*&rarr;M and mean concentration parameter
 
 
+

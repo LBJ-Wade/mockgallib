@@ -9,8 +9,8 @@ class Sigma {
   Sigma(PowerSpectrum const * const ps,
 	const double M_min=1.0e10, const double M_max=1.0e16, const int n=1001);
   ~Sigma();
-  double sigma0_inv(const double M);
-  double M(const double sigma0);
+  double sigma0_inv(const double M) const;
+  double M(const double sigma0) const;
 
   int n;
   double M_min, M_max;

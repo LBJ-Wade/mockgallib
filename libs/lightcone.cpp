@@ -5,6 +5,10 @@
 #include "slice.h"
 #include "cola_file.h"
 #include "distance.h"
+#include "halo_mass.h"
+#include "halo_concentration.h"
+
+
 
 LightCones::~LightCones()
 {
@@ -19,8 +23,11 @@ void fill_lightcone(const char filename[],
 		    Sky const * const sky,
 		    Remap const * const remap,
 		    Slice const * const slice,
+		    HaloMassFoF const * const halo_mass,
 		    LightCone* const lightcone)
 {
+  // halo_concentration_init is required before using this function
+  
   cola_halo_file_open(filename);
 
   Halo halo;
@@ -51,12 +58,10 @@ void fill_lightcone(const char filename[],
       continue;
 
     // convert nfof to halo mass
-    // ToDo!!!
-    //h->M= halo_mass(h->nfof);
+    h->M= halo_mass->mass(h->nfof);
 
     // set halo concentration / rs
-    // ToDo !!!
-    //h->rs= compute_halo_rs(h);
+    h->rs= halo_concentration_rs(h);
       
     lightcone->push_back(*h);
   }
