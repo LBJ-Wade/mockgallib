@@ -35,18 +35,18 @@ PyObject* py_remap_alloc(PyObject* self, PyObject* args)
 		      "Error occured reading u in _remap_alloc");
   }
 
-  Remapping* const remap= (Remapping*) remap_alloc(u, boxsize);
+  Remap* const remap= new Remap(u, boxsize);
 
-  return PyCapsule_New(remap, "_Remapping", py_remap_free);
+  return PyCapsule_New(remap, "_Remap", py_remap_free);
 }
 
 void py_remap_free(PyObject *obj)
 {
-  Remapping* const remap=
-    (Remapping*) PyCapsule_GetPointer(obj, "_Remapping");
+  Remap* const remap=
+    (Remap*) PyCapsule_GetPointer(obj, "_Remap");
   py_assert(remap);
 
-  remap_free(remap);
+  delete remap;
 }
 
 PyObject* py_remap_boxsize(PyObject* self, PyObject* args)
@@ -58,10 +58,12 @@ PyObject* py_remap_boxsize(PyObject* self, PyObject* args)
   if(!PyArg_ParseTuple(args, "O", &py_remap))
      return NULL;
 
-  Remapping* remap= (Remapping*) PyCapsule_GetPointer(py_remap, "_Remapping");
+  Remap const * const remap= (Remap*) PyCapsule_GetPointer(py_remap, "_Remap");
   py_assert(remap);
 
   return Py_BuildValue("(ddd)",
-		      remap->boxsize[0], remap->boxsize[1], remap->boxsize[2]);
+		       (double) remap->boxsize[0],
+		       (double) remap->boxsize[1],
+		       (double) remap->boxsize[2]);
 }
 

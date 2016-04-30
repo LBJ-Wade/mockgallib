@@ -7,6 +7,7 @@
 
 #include "power.h"
 #include "py_power.h"
+#include "py_assert.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ PyObject* py_power_alloc(PyObject* self, PyObject* args)
   PowerSpectrum* ps;
 
   try {
-    ps= power_alloc(filename);
+    ps= new PowerSpectrum(filename);
   }
   catch(PowerFileError) {
     Py_DECREF(bytes);
@@ -55,8 +56,9 @@ void py_power_free(PyObject *obj)
 {
   PowerSpectrum* const ps=
     (PowerSpectrum*) PyCapsule_GetPointer(obj, "_PowerSpectrum");
+  py_assert(ps);
 
-  power_free(ps);
+  delete ps;
 }
 
 
@@ -72,7 +74,7 @@ PyObject* py_power_sigma(PyObject* self, PyObject* args)
   if (!(ps =  (PowerSpectrum *) PyCapsule_GetPointer(py_ps, "_PowerSpectrum")))
     return NULL;
 
-  double sigma= power_sigma(ps, R);
+  double sigma= ps->compute_sigma(R);
 
   return Py_BuildValue("d", sigma);
 }
