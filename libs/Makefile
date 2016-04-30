@@ -25,7 +25,7 @@ OBJS     += hod.o nbar.o nbar_fitting.o
 OBJS     += lightcone.o catalogue.o satellite.o
 OBJS     += corr_projected.o kdtree.o hdf5_read.o
 OBJS     += sky.o distance.o remap.o slice.o 
-OBJS     += cola_file.o #halo_mass.o
+OBJS     += cola_file.o halo_mass.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)
