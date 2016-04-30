@@ -51,7 +51,7 @@ NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
   const double M_max= 1.0e16;
 
   ni->w= gsl_integration_cquad_workspace_alloc(100);
-  ni->s= sigma_alloc(ps, M_min, M_max);
+  ni->s= new Sigma(ps, M_min, M_max);
   ni->mf= mf_alloc();
   ni->hod= hod;
   ni->rho_m= cosmology_rho_m();
@@ -66,7 +66,7 @@ NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
 void nbar_integration_free(NbarIntegration* const ni)
 {
   gsl_integration_cquad_workspace_free(ni->w);
-  sigma_free(ni->s);
+  delete ni->s;
   mf_free(ni->mf);
 
   delete ni;
@@ -113,7 +113,7 @@ double integrand_n_hod(double nu, void* params)
   NbarIntegration* const ni= (NbarIntegration*) params;
   
   const double sigma0= delta_c/(ni->D*nu);
-  const double M= sigma_M(ni->s, sigma0);
+  const double M= ni->s->M(sigma0);
 
  return ni->hod->ncen(M)*(1.0 + ni->hod->nsat(M))*
         mf_f(ni->mf, nu)*ni->rho_m/M;

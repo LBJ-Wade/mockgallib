@@ -56,7 +56,7 @@ MfCumulative::MfCumulative(Sigma* const s, const double a) :
     double MM= exp(logMmin + (n-i-1)*(logMmax - logMmin)/(n-1));
     M_array[i]= MM;
 
-    double nu= delta_c/D*sigma_0inv(s, MM); assert(nu >= nu_min);
+    double nu= delta_c/D*s->sigma0_inv(MM); assert(nu >= nu_min);
     double result;
   
     gsl_integration_cquad(&F, 1.0e-8, nu_max, 1.0e-5, 1.0e-5, w, &result, 0, 0);
@@ -94,7 +94,7 @@ double integrand_n_cumulative(double nu, void* params)
   MfcParams* const p= (MfcParams*) params;
   
   double sigma0= delta_c/(p->D*nu);
-  double M= sigma_M(p->s, sigma0);
+  double M= p->s->M(sigma0);
 
   return mf_f(p->mf, nu)*rho_m/M;
 }

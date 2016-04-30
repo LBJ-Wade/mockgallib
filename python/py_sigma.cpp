@@ -4,13 +4,13 @@
 #include <iostream>
 #include <cassert>
 
-#include "Python.h"
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
 
 #include "power.h"
 #include "sigma.h"
 #include "py_sigma.h"
+#include "py_assert.h"
 
 using namespace std;
 static void py_sigma_free(PyObject *obj);
@@ -38,7 +38,7 @@ PyObject* py_sigma_alloc(PyObject* self, PyObject* args)
     (PowerSpectrum*) PyCapsule_GetPointer(py_ps, "_PowerSpectrum");
   assert(ps);
 
-  Sigma* const s= sigma_alloc(ps, M_min, M_max, n);
+  Sigma* const s= new Sigma(ps, M_min, M_max, n);
 
   return PyCapsule_New(s, "_Sigma", py_sigma_free);
 }
@@ -48,8 +48,9 @@ void py_sigma_free(PyObject *obj)
 {
   Sigma* const s=
     (Sigma*) PyCapsule_GetPointer(obj, "_Sigma");
+  py_assert(s);
 
-  sigma_free(s);
+  delete s;
 }
 
 PyObject* py_sigma_n(PyObject* self, PyObject* args)
@@ -81,7 +82,7 @@ PyObject* py_sigma_M(PyObject* self, PyObject* args)
   Sigma* const s=
     (Sigma*) PyCapsule_GetPointer(py_sigma, "_Sigma");
 
-  double M= sigma_M(s, sigma0);
+  double M= s->M(sigma0);
 
   return Py_BuildValue("d", M);
 }
@@ -100,7 +101,7 @@ PyObject* py_sigma_0inv(PyObject* self, PyObject* args)
   Sigma* const s=
     (Sigma*) PyCapsule_GetPointer(py_sigma, "_Sigma");
 
-  double sinv= sigma_0inv(s, M);
+  double sinv= s->sigma0_inv(M);
 
   return Py_BuildValue("d", sinv);
 }
@@ -133,7 +134,7 @@ PyObject* py_sigma_M_array(PyObject* self, PyObject* args)
   int rank=1;
   npy_intp dims[]= {s->n};
   
-  PyObject* M = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, s->M);
+  PyObject* M = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, s->M_);
   return M;
 }
 
@@ -150,7 +151,7 @@ PyObject* py_sigma_sinv_array(PyObject* self, PyObject* args)
   int rank=1;
   npy_intp dims[]= {s->n};
   
-  PyObject* sinv = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, s->sinv);
+  PyObject* sinv = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, s->sinv_);
   return sinv;
 }
 
