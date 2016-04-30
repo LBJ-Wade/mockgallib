@@ -33,7 +33,7 @@ Sigma* sigma_alloc(PowerSpectrum const * const ps,
     s->M[i]= exp(logM);
     double R= pow(s->M[i]/(4.0*M_PI/3.0*rho_m), 1.0/3.0);
 
-    s->sinv[i]= 1.0/power_sigma(ps, R);
+    s->sinv[i]= 1.0/ps->compute_sigma(R);
   }
 
   // Function: 1/sigma -> M

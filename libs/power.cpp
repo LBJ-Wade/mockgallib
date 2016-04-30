@@ -5,12 +5,10 @@
 #include "power.h"
 #include "msg.h"
 
-PowerSpectrum* power_alloc(const char filename[])
+PowerSpectrum::PowerSpectrum(const char filename[])
 {
   // Read k P from filename
   //PowerSpectrum* const ps= (PowerSpectrum*) malloc(sizeof(PowerSpectrum)); assert(ps);
-  PowerSpectrum* const ps= new PowerSpectrum();
-
   FILE* fp= fopen(filename, "r");
   if(fp == 0) {
     msg_printf(msg_error, "Error: Unable to open input power spectrum file: %s\n",filename);
@@ -22,7 +20,7 @@ PowerSpectrum* power_alloc(const char filename[])
 
   char line[128];
   int nlines= 0;
-  double k, P;
+  double kk, PP;
 
   // Read lines and push to buf as k1,P1,k2,P2, ...
   // Doubles the length of buf when the length of the array is not enough
@@ -36,9 +34,9 @@ PowerSpectrum* power_alloc(const char filename[])
     
     if(line[0] == '#')
       continue;
-    else if(sscanf(line, "%lg %lg", &k, &P) == 2) {
-      buf[2*nlines    ]= k;
-      buf[2*nlines + 1]= P;
+    else if(sscanf(line, "%lg %lg", &kk, &PP) == 2) {
+      buf[2*nlines    ]= kk;
+      buf[2*nlines + 1]= PP;
       
       nlines++;
     }
@@ -54,27 +52,25 @@ PowerSpectrum* power_alloc(const char filename[])
   
   msg_printf(msg_verbose, "Read %d pairs of k P(k) from %s\n", nlines, filename);
 
-  ps->k   = (double*) malloc(2*nlines*sizeof(double)); assert(ps->k);
-  ps->P   = ps->k + nlines;
+  this->k   = (double*) malloc(2*nlines*sizeof(double)); assert(this->k);
+  this->P   = k + nlines;
   
   for(int j=0; j<nlines; j++) {
-    ps->k[j] = buf[2*j];
-    ps->P[j] = buf[2*j + 1];
+    this->k[j] = buf[2*j];
+    this->P[j] = buf[2*j + 1];
   }
   free(buf);
   
-  ps->n= nlines;
-  
-  return ps;
+  this->n= nlines;
 }
 
-void power_free(PowerSpectrum* const ps)
+PowerSpectrum::~PowerSpectrum()
 {
-  free(ps->k);
-  delete ps;
+  free(k);
+
 }  
 
-double power_sigma(PowerSpectrum const * const ps, const double R)
+double PowerSpectrum::compute_sigma(const double R) const
 {
   // Computes sigma (rms amplituede) smoothed on scale R
   // R: smoothing length [/h Mpc] (8 for sigma_8)
@@ -82,19 +78,19 @@ double power_sigma(PowerSpectrum const * const ps, const double R)
   
   const double fac= 1.0/(2.0*M_PI*M_PI);
 
-  double k0= ps->k[0];
+  double k0= k[0];
   double f0= 0.0;
   
   double sigma2= 0.0;
-  for(int i=0; i<ps->n; i++) {
-    double k= ps->k[i];
-    double x= k*R;
+  for(int i=0; i<n; i++) {
+    double kk= k[i];
+    double x= kk*R;
     double w= 3.0*(sin(x)-x*cos(x))/(x*x*x);
-    double f1= ps->P[i]*k*k*w*w;
+    double f1= P[i]*kk*kk*w*w;
     
-    sigma2 += 0.5*(f0 + f1)*(k - k0);
+    sigma2 += 0.5*(f0 + f1)*(kk - k0);
 
-    k0= k;
+    k0= kk;
     f0= f1;
   }
 
