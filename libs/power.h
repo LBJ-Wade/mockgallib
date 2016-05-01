@@ -16,9 +16,4 @@ class PowerFileError {
   
 };
 
-//PowerSpectrum* power_alloc(const char filename[]);
-//void power_free(PowerSpectrum* ps);
-
-//double power_sigma(PowerSpectrum const * const ps, const double R);
-
 #endif

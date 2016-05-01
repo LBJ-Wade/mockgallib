@@ -8,7 +8,7 @@
 PowerSpectrum::PowerSpectrum(const char filename[])
 {
   // Read k P from filename
-  //PowerSpectrum* const ps= (PowerSpectrum*) malloc(sizeof(PowerSpectrum)); assert(ps);
+
   FILE* fp= fopen(filename, "r");
   if(fp == 0) {
     msg_printf(msg_error, "Error: Unable to open input power spectrum file: %s\n",filename);
@@ -52,13 +52,14 @@ PowerSpectrum::PowerSpectrum(const char filename[])
   
   msg_printf(msg_verbose, "Read %d pairs of k P(k) from %s\n", nlines, filename);
 
-  this->k   = (double*) malloc(2*nlines*sizeof(double)); assert(this->k);
-  this->P   = k + nlines;
+  k = (double*) malloc(2*nlines*sizeof(double)); assert(this->k);
+  P = k + nlines;
   
   for(int j=0; j<nlines; j++) {
     this->k[j] = buf[2*j];
     this->P[j] = buf[2*j + 1];
   }
+  
   free(buf);
   
   this->n= nlines;
@@ -67,7 +68,6 @@ PowerSpectrum::PowerSpectrum(const char filename[])
 PowerSpectrum::~PowerSpectrum()
 {
   free(k);
-
 }  
 
 double PowerSpectrum::compute_sigma(const double R) const
