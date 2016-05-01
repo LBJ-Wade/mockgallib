@@ -1,13 +1,13 @@
-SRC  := $(wildcard *.md)
-HTML := $(addsuffix .html, $(basename $(SRC)))
+#SRC  := $(wildcard *.md)
+#HTML := $(addsuffix .html, $(basename $(SRC)))
 
-all: $(HTML)
+#all: $(HTML)
 
-$(HTML): Makefile doc.css syntax.css
+#$(HTML): Makefile doc.css syntax.css
 
-%.html: %.md
-	@echo $<
-	pandoc --mathjax -c doc.css -c syntax.css $< -o $@
+#%.html: %.md
+#	@echo $<
+#	pandoc --mathjax -c doc.css -c syntax.css $< -o $@
 
 .PHONY: clean
 

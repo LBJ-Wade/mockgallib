@@ -113,7 +113,7 @@ double mf_b(const double nu)
   double C= 0.019 + 0.107*y + 0.19*expfy;
   double c= 2.4;
   
-  return 1.0 - A*pow(nu, a)/(pow(nu, a) + pow(delta_c, a))
+  return 1.0 - A*pow(nu, a)/(pow(nu, a) + pow(c::delta_c, a))
            + B*pow(nu, b) + C*pow(nu, c); // (6)
 }
 

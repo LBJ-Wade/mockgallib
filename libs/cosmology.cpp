@@ -18,7 +18,7 @@ double cosmology_omega_m()
 double cosmology_rho_m()
 {
   // Mean matter density at z=0, or comoving mean matter density
-  return omega_m*rho_crit_0;
+  return omega_m*c::rho_crit_0;
 }
 
 static double distance_integrand(double a, void* params) {
@@ -47,5 +47,5 @@ double cosmology_compute_comoving_distance(const double a)
 
   gsl_integration_workspace_free(w);
 
-  return cH0inv*result;
+  return c::cH0inv*result;
 }

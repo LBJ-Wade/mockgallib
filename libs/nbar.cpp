@@ -112,7 +112,7 @@ double integrand_n_hod(double nu, void* params)
 
   NbarIntegration* const ni= (NbarIntegration*) params;
   
-  const double sigma0= delta_c/(ni->D*nu);
+  const double sigma0= c::delta_c/(ni->D*nu);
   const double M= ni->s->M(sigma0);
 
  return ni->hod->ncen(M)*(1.0 + ni->hod->nsat(M))*
@@ -160,8 +160,8 @@ double nbar_compute(NbarIntegration* const ni, const double z)
   F.function= &integrand_n_hod;
   F.params= (void*) ni;
 
-  const double nu_min= delta_c*ni->s->sinv_min/ni->D;
-  const double nu_max= delta_c*ni->s->sinv_max/ni->D;
+  const double nu_min= c::delta_c*ni->s->sinv_min/ni->D;
+  const double nu_max= c::delta_c*ni->s->sinv_max/ni->D;
 
   double result;
   gsl_integration_cquad(&F, nu_min, nu_max, 1.0e-5, 1.0e-5, ni->w,
