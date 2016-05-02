@@ -139,6 +139,8 @@ static PyMethodDef methods[] = {
    "get left corner (x0, y0, z0) of the bounding box"},
   {"_sky_right", py_sky_left, METH_VARARGS,
    "get right corner (x1, y1, z1) of the bounding box"},
+  {"_sky_r_range", py_sky_r_range, METH_VARARGS,
+   "get r range"},
   {"_sky_compute_radec", py_sky_compute_radec, METH_VARARGS,
    "(ra, dec) = _sky_compute_radec(_sky, x,y,z)"},
   {"_sky_compute_x", py_sky_compute_x, METH_VARARGS,

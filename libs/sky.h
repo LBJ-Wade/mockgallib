@@ -2,6 +2,7 @@
 #define SKY_H 1
 
 #include <vector>
+#include <cstdio>
 #include <cassert>
 #include "halo.h"
 #include "util.h"
@@ -12,7 +13,6 @@ class Sky {
   inline void compute_radec(const float x[], float* const radec) const;
   inline void compute_x(const float r, const float radec[], float* const x) const;
   double ra_range[2], dec_range[2], r_range[2];
-  double r_min, r_max;
   float left[3], right[3], width[3]; // bounding box
   // r0, dec0 are the centre of ra, dec ranges, respectively.
   float ra0, dec0, theta0, cos_theta0, sin_theta0;
@@ -41,17 +41,20 @@ void Sky::compute_radec(const float x[], float* const radec) const
 void Sky::compute_x(const float r, const float radec[], float* const x) const
 {
   const float sinO = sin(radec[1]/180.0*M_PI);
-  const float cosO = sqrt(1.0 - sinO*sinO);
+  const float cosO = cos(radec[1]/180.0*M_PI); //sqrt(1.0 - sinO*sinO);
   const float cos_phi = cos((ra0 - radec[0])/180.0*M_PI);
   const float sin_phi = sin((ra0 - radec[0])/180.0*M_PI);
 
   // usual mapping from r,ra,dec to x[3] with x-axis ra=ra0
-  float x1[] = {r*sinO*cos_phi, r*sinO*sin_phi, r*cosO};
+  float x1[] = {r*cosO*cos_phi, r*cosO*sin_phi, r*sinO};
+  //printf("r1 %f %f\n", r, util::norm(x1));
+  //printf("cos_theta0= %f, sin_theta0= %f\n", cos_theta0, sin_theta0);
 
   // rotate x1[] theta0 about y axis
-  x[0]= cos_theta0*x1[0] + sin_theta0*x[2];
+  x[0]=  cos_theta0*x1[0] + sin_theta0*x1[2];
   x[1]= x1[1];
-  x[2]= cos_theta0*x1[0] - sin_theta0*x[2];
+  x[2]= -sin_theta0*x1[0] + cos_theta0*x1[2];
+  //printf("r %f %f\n", r, util::norm(x)); debug!!!
 }
 
 

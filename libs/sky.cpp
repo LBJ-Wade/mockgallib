@@ -43,8 +43,6 @@ Sky::Sky(const double ra[], const double dec[], const double z[])
   cos_theta0= cos(theta0);
   sin_theta0= sin(theta0);
 }
-  
-
 
 
 static inline void set_cartisian(const double r, const double theta, const double phi, double * const x)
@@ -88,28 +86,28 @@ void compute_bounding_box(Sky* const sky)
   double x[3];
 
   // x-range
-  double x_min= sky->r_min;
+  double x_min= sky->r_range[0];
   
-  set_cartisian(sky->r_min, theta_min, phi, x);
+  set_cartisian(sky->r_range[0], theta_min, phi, x);
   rotate_xz(x, -theta0);
   x_min= fmin(x_min, x[0]);
   
-  set_cartisian(sky->r_min, theta_max, phi, x);
+  set_cartisian(sky->r_range[0], theta_max, phi, x);
   rotate_xz(x, -theta0);
   x_min= fmin(x_min, x[0]);
 
-  sky->right[0]= sky->r_max;
+  sky->right[0]= sky->r_range[1];
   sky->left[0]= x_min;
-  sky->width[0]= sky->r_max - x_min;
+  sky->width[0]= sky->r_range[1] - x_min;
 
   // y-range
   double y_max= 0.0;
   
-  set_cartisian(sky->r_max, theta_min, phi, x);
+  set_cartisian(sky->r_range[1], theta_min, phi, x);
   rotate_xz(x, -theta0);
   y_max= fmax(y_max, x[1]);
   
-  set_cartisian(sky->r_max, theta_max, phi, x);
+  set_cartisian(sky->r_range[1], theta_max, phi, x);
   rotate_xz(x, -theta0);
   y_max= fmax(y_max, x[1]);
 
@@ -118,7 +116,7 @@ void compute_bounding_box(Sky* const sky)
   sky->width[1]= 2.0*y_max;
 
   // z-range
-  sky->right[2]= sky->r_max*sin(theta);
+  sky->right[2]= sky->r_range[1]*sin(theta);
   sky->left[2]= -sky->right[2];
   sky->width[2]= 2.0*sky->right[2];
 }

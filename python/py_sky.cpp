@@ -1,5 +1,8 @@
+#include <iostream>
 #include "py_assert.h"
 #include "py_sky.h"
+
+using namespace std; // debug !!!
 
 static void py_sky_free(PyObject *obj);
 
@@ -59,6 +62,8 @@ PyObject* py_sky_right(PyObject* self, PyObject* args)
 
   Sky* const sky=
     (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+
+  
   
   
   return Py_BuildValue("(ddd)", sky->right[0], sky->right[1], sky->right[2]);
@@ -72,9 +77,8 @@ PyObject* py_sky_r_range(PyObject* self, PyObject* args)
 
   Sky* const sky=
     (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
-  
-  
-  return Py_BuildValue("(dd)", sky->r_min, sky->r_max);
+
+  return Py_BuildValue("(dd)", sky->r_range[0], sky->r_range[1]);
 }
 
 PyObject* py_sky_compute_radec(PyObject* self, PyObject* args)
