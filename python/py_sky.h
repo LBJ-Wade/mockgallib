@@ -5,6 +5,10 @@
 #include "sky.h"
 
 PyObject* py_sky_alloc(PyObject* self, PyObject* args);
-PyObject* py_sky_box(PyObject* self, PyObject* args);
+PyObject* py_sky_boxsize(PyObject* self, PyObject* args);
+PyObject* py_sky_left(PyObject* self, PyObject* args);
+PyObject* py_sky_right(PyObject* self, PyObject* args);
 
+PyObject* py_sky_compute_radec(PyObject* self, PyObject* args);
+PyObject* py_sky_compute_x(PyObject* self, PyObject* args);
 #endif

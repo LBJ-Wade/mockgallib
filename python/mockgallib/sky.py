@@ -1,11 +1,12 @@
 import mockgallib._mockgallib as c
 
 class Sky:
-    def __init__(ra_min, ra_max, dec_min, dec_max, z_min, z_max):
-        self.ra  = [ra_min, ra_max]
-        self.dec = [dec_min, dec_max]
-        self.z   = [z_min, z_max]
+    def __init__(self, ra, dec, z):
         
-        self._sky= c._sky_alloc(ra_min, ra_max, dec_min, dec_max, z_min, z_max)
+        self.ra  = ra
+        self.dec = dec
+        self.z   = z
+        
+        self._sky= c._sky_alloc(ra[0], ra[1], dec[0], dec[1], z[0], z[1])
 
         self.bounding_box= c._sky_box(self._sky)

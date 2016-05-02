@@ -17,7 +17,7 @@ LightCones::~LightCones()
   }
 }
 
-void fill_lightcone(const char filename[],
+void fill_lightcone(const char fof_filename[],
 		    const float a_snp,
 		    const float r_min, const float r_max,
 		    Sky const * const sky,
@@ -28,7 +28,7 @@ void fill_lightcone(const char filename[],
 {
   // halo_concentration_init is required before using this function
   
-  cola_halo_file_open(filename);
+  cola_halo_file_open(fof_filename);
 
   Halo halo;
   Halo* const h= &halo;
