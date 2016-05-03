@@ -3,3 +3,4 @@
 *.a
 *.so
 *.dylib
+*.bak
