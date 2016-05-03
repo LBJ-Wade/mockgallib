@@ -1,4 +1,5 @@
 #include <vector>
+#include <cstdio>
 #include <cassert>
 #include "msg.h"
 #include "util.h"
