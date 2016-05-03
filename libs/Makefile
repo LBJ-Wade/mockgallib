@@ -31,10 +31,10 @@ libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)
 
 libmockgal.so: $(OBJS)
-	$(CXX) -shared $(LIBS) $(OBJS)  -o $@
+	$(CXX) $(OBJS) -shared $(LIBS)  -o $@
 
 libmockgal.dylib: $(OBJS)
-	$(CXX) -dynamiclib $(LIBS) $(OBJS) -o $@
+	$(CXX) $(OBJS) -dynamiclib $(LIBS) -o $@
 
 
 
