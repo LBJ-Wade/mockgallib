@@ -47,7 +47,7 @@ Sky::Sky(const double ra[], const double dec[], const double z[])
 
 static inline void set_cartisian(const double r, const double theta, const double phi, double * const x)
 {
-  // Returns cartisian coordinate corresponds to polar coordinate
+  // Return cartisian coordinate corresponds to polar coordinate
   // theta is measured from xy-plane, not from z axis
   const double rcosO= r*cos(theta);
   x[0]= rcosO*cos(phi);

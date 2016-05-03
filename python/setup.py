@@ -1,14 +1,13 @@
 from distutils.core import setup, Extension
 import numpy as np
 
-print("np.get_include()")
-print(np.get_include())
-
 setup(name='mockgallib',
       version='0.0.1',
+      description='Mock galaxy library',
       author='Jun Koda',
+      url='https://github.com/junkoda/mockgallib',
       py_modules=['mockgallib.power', 'mockgallib.const', 'mockgallib.sigma',
-                  'mockgallib.mass_function', 'mockgallib.hod',
+                  'mockgallib.mf', 'mockgallib.hod',
                   'mockgallib.lightcones', 'mockgallib.catalogues',
                   'mockgallib.sky', 'mockgallib.distance',
                   'mockgallib.remap'

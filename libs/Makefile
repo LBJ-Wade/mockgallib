@@ -2,11 +2,11 @@
 # mock_galaxy_library/lib
 #
 
-LIBRARY   = libmockgal.a libmockgal.dylib
+LIBRARY   = libmockgal.a libmockgal.so #libmockgal.dylib
 
 all: $(LIBRARY)
 
-CPPFLAGS := -O2
+CPPFLAGS := -O2 -fPIC
 LIBS     := -lm -lgsl -lgslcblas -lhdf5
 
 # options
@@ -29,6 +29,9 @@ OBJS     += cola_file.o halo_mass.o halo_concentration.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)
+
+libmockgal.so: $(OBJS)
+	$(CXX) -shared $(LIBS) $(OBJS)  -o $@
 
 libmockgal.dylib: $(OBJS)
 	$(CXX) -dynamiclib $(LIBS) $(OBJS) -o $@
