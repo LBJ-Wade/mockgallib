@@ -27,7 +27,7 @@ OBJS     += corr_projected.o kdtree.o
 OBJS     += hdf5_read.o hdf5_write.o
 OBJS     += sky.o distance.o remap.o slice.o 
 OBJS     += cola_file.o halo_mass.o halo_concentration.o
-OBJS     += cola_lightcone.o
+OBJS     += cola_lightcone.o snapshot.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)
@@ -82,3 +82,4 @@ satellite.o: satellite.cpp msg.h cosmology.h particle.h halo.h \
 sigma.o: sigma.cpp const.h sigma.h power.h cosmology.h
 sky.o: sky.cpp msg.h cosmology.h sky.h halo.h util.h
 slice.o: slice.cpp slice.h halo.h
+snapshot.o: snapshot.cpp cosmology.h snapshot.h halo_mass.h

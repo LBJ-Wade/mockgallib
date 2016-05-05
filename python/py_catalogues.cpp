@@ -111,7 +111,8 @@ PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
     cat= catalogues->at(i);
   }
   catch(const std::out_of_range) {
-    PyErr_SetString(PyExc_LookupError, "Catalogues out of range");
+    PyErr_SetNone(PyExc_IndexError);
+    return NULL;
   }
 
   

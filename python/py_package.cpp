@@ -19,6 +19,8 @@
 #include "py_sky.h"
 #include "py_distance.h"
 #include "py_remap.h"
+#include "py_halo_mass.h"
+#include "py_snapshots.h"
 
 using namespace std;
 
@@ -155,7 +157,19 @@ static PyMethodDef methods[] = {
    "allocate _Remapping object"},
   {"_remap_boxsize", py_remap_boxsize, METH_VARARGS,
    "_remap_boxsize(_remap); get cuboid size after remapping"},
+
+  {"_halo_mass_alloc", py_halo_mass_alloc, METH_VARARGS,
+   "_halo_mass_alloc(filename); allocate _HaloMass object"},
   
+  {"_snapshots_alloc", py_snapshots_alloc, METH_VARARGS,
+   "allocate _Snapshots object"},
+  {"_snapshots_insert", py_snapshots_insert, METH_VARARGS,
+   "_snapshots_insert(_snps, a_snp, a_min, a_max, halo_mass)"},
+  {"_snapshots_len", py_snapshots_len, METH_VARARGS,
+   "_snapshots_len(_snps); get the number of snapshot in _snps"},
+  {"_snapshots_get", py_snapshots_get, METH_VARARGS,
+   "_snapshot_get(_snps, i); get ith snapshot as a tuble"},
+
   {NULL, NULL, 0, NULL}
 };
 
