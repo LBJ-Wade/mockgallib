@@ -4,6 +4,7 @@
 #include <cassert>
 #include <hdf5.h>
 
+#include "msg.h"
 #include "halo.h"
 #include "hdf5_io.h"
 
@@ -14,7 +15,8 @@ static void write_data_int(hid_t loc, const char name[], const int val);
 static void write_data_float(hid_t loc, const char name[], const float val);
 static void write_data_double(hid_t loc, const char name[], const double val);
 static void write_data_table(hid_t loc, const char name[],
-		     float const * const val, const int nx, const int ny);
+		float const * const val,
+		const int nrow, const int ncol, const hsize_t stride);
 
 static inline float norm(const float x[])
 {
@@ -28,93 +30,41 @@ static inline float dot(const float x[], const float y[])
 
 //typedef float[3] float3;
 
-
-void hdf5_write(const char filename[], const vector<Halo>& v, const int slice, HDF5_IO_Params const * const params)
+void hdf5_write_lightcone(const char filename[],
+			  LightCone const * const v)
 {
-  // slice: slice number to write. Writes all slices if slice<0
-  
   hid_t file= H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
   if(file < 0) {
-    cerr << "Error: unable to create: " << filename << endl;
-    throw filename;
+    msg_printf(msg_error, "Error: unable to create: %s\n", filename);
+    throw LightconeFileError();
   }
 
-  // parameters
-  hid_t group= H5Gcreate(file, "parameters",
-			 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+  Halo const * const h= &v->front();
 
-  // comment: good to have z range, too?
-  write_data_double(group, "omega_m", params->omega_m);
+  assert(sizeof(Halo) % sizeof(float) == 0);
+  const int stride= sizeof(Halo) / sizeof(float);
+  const int n= v->size();
   
-  
-  vector<float> data;
-
   // positions
-  int n= 0;
-  for(vector<Halo>::const_iterator h= v.begin(); h != v.end(); ++h) {
-    if(slice >= 0 && h->slice != slice) continue;
-
-    data.push_back(h->x[0]);
-    data.push_back(h->x[1]);
-    data.push_back(h->x[2]);
-    n++;
-  }
-  assert(data.size() == 3*n);
-  write_data_table(file, "x", &data.front(), n, 3); data.clear();
+  write_data_table(file, "x", h->x, n, 3, stride);
 
   // radial velocities
-  for(vector<Halo>::const_iterator h= v.begin(); h != v.end(); ++h) {
-    if(slice >= 0 && h->slice != slice) continue;
-
-    data.push_back(dot(h->x, h->v)/norm(h->x));
-  }
-  assert(data.size() == n);
-  write_data_table(file, "vr", &data.front(), n, 1); data.clear();
+  write_data_table(file, "vr", &h->vr, n, 1, stride);
 
   // redshift
-  for(vector<Halo>::const_iterator h= v.begin(); h != v.end(); ++h) {
-    if(slice >= 0 && h->slice != slice) continue;
-
-    data.push_back(h->z);
-  }
-  assert(data.size() == n);
-  write_data_table(file, "z", &data.front(), n, 1); data.clear();
+  write_data_table(file, "z", &h->z, n, 1, stride);
 
   // ra-dec
-  for(vector<Halo>::const_iterator h= v.begin(); h != v.end(); ++h) {
-    if(slice >= 0 && h->slice != slice) continue;
+  write_data_table(file, "ra-dec", h->radec, n, 2, stride);
 
-    data.push_back(h->ra);
-    data.push_back(h->dec);
-  }
-  assert(data.size() == 2*n);  
-  write_data_table(file, "ra-dec", &data.front(), n, 2); data.clear();
-
-
-  if(v.front().M > 0.0f) {
+  if(h->M > 0.0f) {
     // M200
-    for(vector<Halo>::const_iterator h= v.begin(); h != v.end(); ++h) {
-      if(slice >= 0 && h->slice != slice) continue;
-      
-      data.push_back(h->M);
-    }
-    assert(data.size() == n);
-    write_data_table(file, "M", &data.front(), n, 1); data.clear();
+    write_data_table(file, "M", &h->M, n, 1, stride);
 
     // rs
-    for(vector<Halo>::const_iterator h= v.begin(); h != v.end(); ++h) {
-      if(slice >= 0 && h->slice != slice) continue;
-      
-      data.push_back(h->rs);
-    }
-    assert(data.size() == n);
-    write_data_table(file, "rs", &data.front(), n, 1); data.clear();
+    write_data_table(file, "rs", &h->rs, n, 1, stride);
   }
   
-  //write_data_float(group, "omega_m", omega_m);
-  //write_data_float(group, "lambda", lambda);
-
-
   H5Fclose(file);
 }
 
@@ -127,8 +77,8 @@ void write_data_int(hid_t loc, const char name[], const int val)
   hid_t data= H5Dcreate(loc, name, H5T_STD_I32LE, scalar, 
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if(data < 0) {
-    cerr << "Error: unable to create int data: " <<  name << endl;
-    throw name;
+    msg_printf(msg_error, "Error: unable to create int data: %s\n", name);
+    throw LightconeFileError();
   }
 
   herr_t status= H5Dwrite(data, H5T_NATIVE_INT, scalar, H5S_ALL,
@@ -145,8 +95,8 @@ void write_data_float(hid_t loc, const char name[], const float val)
   hid_t data= H5Dcreate(loc, name, H5T_IEEE_F32LE, scalar, 
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if(data < 0) {
-    cerr << "Error: unable to create float data: " << name << endl;
-    throw name;
+    msg_printf(msg_error, "Error: unable to create float data: %s\n", name);
+    throw LightconeFileError();
   }
 
   herr_t status= H5Dwrite(data, H5T_NATIVE_FLOAT, scalar, H5S_ALL,
@@ -163,8 +113,8 @@ void write_data_double(hid_t loc, const char name[], const double val)
   hid_t data= H5Dcreate(loc, name, H5T_IEEE_F64LE, scalar, 
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if(data < 0) {
-    cerr << "Error: unable to create float data: " << name << endl;
-    throw name;
+    msg_printf(msg_error, "Error: unable to create float data: %s\n", name);
+    throw LightconeFileError();
   }
 
   herr_t status= H5Dwrite(data, H5T_NATIVE_DOUBLE, scalar, H5S_ALL,
@@ -175,27 +125,26 @@ void write_data_double(hid_t loc, const char name[], const double val)
   H5Sclose(scalar);
 }
 
-void write_data_table(hid_t loc, const char name[],
-		      float const * const val, const int nx, const int ny)
+void write_data_table(hid_t loc, const char name[], float const * const val,
+		      const int nrow, const int ncol, const hsize_t stride)
 {
-  const hsize_t rank= 2;
-  const hsize_t data_size_file[]= {nx, ny};
+  const hsize_t rank= ncol == 1 ? 1 : 2;
+  const hsize_t data_size_file[]= {nrow, ncol};
 
   hid_t dataspace_file= H5Screate_simple(rank, data_size_file, 0);
   hid_t dataset= H5Dcreate(loc, name, H5T_IEEE_F32LE, dataspace_file,
 			   H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
   if(dataset < 0) {
-    cerr << "Error: unable to create dataset: " << name << endl;
-    throw name;
+    msg_printf(msg_error, "Error: unable to create dataset: %s\n", name);
+    throw LightconeFileError();
   }
 
-  const hsize_t stride= ny;
-  const hsize_t data_size_mem= nx*ny;
+  const hsize_t data_size_mem= nrow*stride;
   hid_t dataspace_mem= H5Screate_simple(1, &data_size_mem, 0);
   const hsize_t offset= 0;
-  const hsize_t block_size= ny;
-  const hsize_t block_count= nx;
+  const hsize_t block_size= ncol;
+  const hsize_t block_count= nrow;
 
   H5Sselect_hyperslab(dataspace_mem, H5S_SELECT_SET,
 		      &offset, &stride, &block_count, &block_size);

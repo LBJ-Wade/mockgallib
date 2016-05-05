@@ -19,13 +19,15 @@ DIR_PATH := # e.g. /opt/gsl
 CFLAGS   += $(foreach dir, $(DIR_PATH), -I$(dir)/include)
 LIBS     += $(foreach dir, $(DIR_PATH), -L$(dir)/lib)
 
-OBJS     := msg.o util.o cosmology.o growth.o
+OBJS     := msg.o cosmology.o growth.o
 OBJS     += power.o sigma.o mf.o mf_cumulative.o
 OBJS     += hod.o nbar.o nbar_fitting.o
 OBJS     += lightcone.o catalogue.o satellite.o
-OBJS     += corr_projected.o kdtree.o hdf5_read.o
+OBJS     += corr_projected.o kdtree.o
+OBJS     += hdf5_read.o hdf5_write.o
 OBJS     += sky.o distance.o remap.o slice.o 
 OBJS     += cola_file.o halo_mass.o halo_concentration.o
+OBJS     += cola_lightcone.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)

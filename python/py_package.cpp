@@ -173,6 +173,7 @@ PyInit__mockgallib(void) {
   py_power_module_init();  
   py_sigma_module_init();
   py_catalogues_module_init();
+  py_lightcones_module_init();
   
   return PyModule_Create(&module);
 }

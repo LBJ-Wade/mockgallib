@@ -1,9 +1,22 @@
 #include "msg.h"
+#include "py_assert.h"
 #include "lightcone.h"
 #include "py_lightcones.h"
 #include "hdf5_io.h"
 
 using namespace std;
+
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include "numpy/arrayobject.h"
+
+PyMODINIT_FUNC
+py_lightcones_module_init()
+{
+  import_array();
+
+  return NULL;
+}
+
 
 static void py_lightcones_free(PyObject *obj);
 
@@ -55,6 +68,7 @@ PyObject* py_lightcones_load(PyObject* self, PyObject* args)
 
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
+  py_assert(lightcones);
 
   lightcones->push_back(lightcone);
 
@@ -70,6 +84,39 @@ PyObject* py_lightcones_len(PyObject* self, PyObject* args)
 
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
+  py_assert(lightcones);
 
   return Py_BuildValue("i", (int) lightcones->size());
+}
+
+PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
+{
+  PyObject* py_lightcones;
+  int i;
+  
+  if(!PyArg_ParseTuple(args, "Oi", &py_lightcones, &i)) {
+    return NULL;
+  }
+
+  LightCones* const lightcones=
+    (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
+  py_assert(lightcones);
+
+
+  LightCone* lightcone= 0;
+  try {
+    lightcone= lightcones->at(i);
+  }
+  catch(const out_of_range) {
+    PyErr_SetString(PyExc_LookupError, "Lightcone out of range");
+  }
+  
+  int nd=2;
+  py_assert(sizeof(Halo) % sizeof(float) == 0);
+  int ncol= sizeof(Halo)/sizeof(float);
+  npy_intp dims[]= {lightcone->size(), ncol};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(lightcone->front()));
+
+
 }

@@ -8,7 +8,7 @@ struct HDF5_IO_Params {
 };
 
 struct LightconeFileError {
-
+  
 };
 
 void hdf5_read_lightcone(const char filename[], LightCone* const p);

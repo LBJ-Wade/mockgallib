@@ -3,7 +3,7 @@
 
 struct Halo {
   int nfof;
-  float x[3], v[3], r;
+  float x[3], v[3], r, vr;
   float M;
   float radec[2];
   int slice;
