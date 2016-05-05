@@ -15,8 +15,4 @@ static inline float dot(float const * const x, float const * const y) {
 
 }
 
-class ErrorFile {
-
-};
-
 #endif

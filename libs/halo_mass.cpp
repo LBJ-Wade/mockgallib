@@ -22,7 +22,7 @@ HaloMassFoF::HaloMassFoF(const char filename[], const double M0) :
     msg_printf(msg_fatal,
 	       "Error: unable to open FoF -> M calibration file %s\n",
 	       filename);
-    throw ErrorFile();
+    throw HaloMassFileError();
   }
 
   char buf[128];

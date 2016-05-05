@@ -17,8 +17,8 @@ class Sigma {
   double sinv_min, sinv_max;
   double *M_, *sinv_;
  private:
-  gsl_interp *interp_, *interp2_;
-  gsl_interp_accel *acc_, *acc2_;
+  gsl_interp *interp_, *interp_inv_;
+  gsl_interp_accel *acc_, *acc_inv_;
 };
 
 #endif

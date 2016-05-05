@@ -19,4 +19,8 @@ class HaloMassFoF {
   double nfof0_, M0_, m_;
 };
 
+class HaloMassFileError {
+
+};
+
 #endif

@@ -41,9 +41,9 @@ Sigma::Sigma(PowerSpectrum const * const ps,
   acc_ = gsl_interp_accel_alloc(); 
 
   // Function: M -> 1/sigma
-  interp2_ = gsl_interp_alloc(gsl_interp_cspline, n);
-  gsl_interp_init(interp2_, M_, sinv_, n); 
-  acc2_ = gsl_interp_accel_alloc();
+  interp_inv_ = gsl_interp_alloc(gsl_interp_cspline, n);
+  gsl_interp_init(interp_inv_, M_, sinv_, n); 
+  acc_inv_ = gsl_interp_accel_alloc();
 
   sinv_min= sigma0_inv(M_min);
   sinv_max= sigma0_inv(M_max);
@@ -52,9 +52,9 @@ Sigma::Sigma(PowerSpectrum const * const ps,
 Sigma::~Sigma()
 {
   gsl_interp_free(interp_);
-  gsl_interp_free(interp2_);
+  gsl_interp_free(interp_inv_);
   gsl_interp_accel_free(acc_);
-  gsl_interp_accel_free(acc2_);
+  gsl_interp_accel_free(acc_inv_);
 
   free(M_);
 }
@@ -62,7 +62,6 @@ Sigma::~Sigma()
 double Sigma::M(const double sigma0) const
 {
   // sigma0 is sigma(M, z=0)
-  // return value: M(sigma)
 #ifdef DEBUG
   if(1/sigma0 < sinv_[0] || 1/sigma0 > sinv_[n-1]) {
     cerr << "Error: sigma_M(sigma0) out of range.\n";
@@ -74,6 +73,6 @@ double Sigma::M(const double sigma0) const
 
 double Sigma::sigma0_inv(const double MM) const
 {
-  return gsl_interp_eval(interp2_, M_, sinv_, MM, acc2_);
+  return gsl_interp_eval(interp_inv_, M_, sinv_, MM, acc_inv_);
 }
 
