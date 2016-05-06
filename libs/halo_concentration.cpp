@@ -10,14 +10,6 @@
 
 static double M_star= 0.0;
 
-void halo_concentration_init(PowerSpectrum const * const ps)
-{
-  // Compute Mstar for cmean
-  Sigma s(ps);
-  M_star= s.M(1.0);
-  msg_printf(msg_verbose, "Mstar= %e\n", M_star);
-}
-
 void halo_concentration_init(Sigma const * const s)
 {
   M_star= s->M(1.0);

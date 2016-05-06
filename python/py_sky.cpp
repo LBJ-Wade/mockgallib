@@ -22,7 +22,7 @@ PyObject* py_sky_alloc(PyObject* self, PyObject* args)
 void py_sky_free(PyObject *obj)
 {
   Sky* const sky=
-    (Sky*) PyCapsule_GetPointer(obj, "_Sky"); py_assert(sky);
+    (Sky*) PyCapsule_GetPointer(obj, "_Sky"); py_assert_void(sky);
 
   msg_printf(msg_debug, "freeing sky %x\n", sky);
   delete sky;
@@ -35,7 +35,7 @@ PyObject* py_sky_boxsize(PyObject* self, PyObject* args)
     return NULL;
 
   Sky* const sky=
-    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert_ptr(sky);
   
   
   return Py_BuildValue("(ddd)", sky->width[0], sky->width[1], sky->width[2]);
@@ -48,7 +48,7 @@ PyObject* py_sky_left(PyObject* self, PyObject* args)
     return NULL;
 
   Sky* const sky=
-    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert_ptr(sky);
   
   
   return Py_BuildValue("(ddd)", sky->left[0], sky->left[1], sky->left[2]);
@@ -61,7 +61,7 @@ PyObject* py_sky_right(PyObject* self, PyObject* args)
     return NULL;
 
   Sky* const sky=
-    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert_ptr(sky);
 
   
   
@@ -76,7 +76,7 @@ PyObject* py_sky_r_range(PyObject* self, PyObject* args)
     return NULL;
 
   Sky* const sky=
-    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert_ptr(sky);
 
   return Py_BuildValue("(dd)", sky->r_range[0], sky->r_range[1]);
 }
@@ -90,7 +90,7 @@ PyObject* py_sky_compute_radec(PyObject* self, PyObject* args)
     return NULL;
 
   Sky* const sky=
-    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert_ptr(sky);
 
   float radec[2];
   sky->compute_radec(x, radec);
@@ -107,7 +107,7 @@ PyObject* py_sky_compute_x(PyObject* self, PyObject* args)
     return NULL;
 
   Sky* const sky=
-    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert_ptr(sky);
 
   float x[3];
   sky->compute_x(r, radec, x);

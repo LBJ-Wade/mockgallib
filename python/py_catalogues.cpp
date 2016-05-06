@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "py_assert.h"
 #include "hod.h"
 #include "py_catalogues.h"
@@ -28,7 +29,8 @@ PyObject* py_catalogues_alloc(PyObject* self, PyObject* args)
 void py_catalogues_free(PyObject *obj)
 {
   Catalogues* const cats=
-    (Catalogues*) PyCapsule_GetPointer(obj, "_Catalogues"); py_assert(cats);
+    (Catalogues*) PyCapsule_GetPointer(obj, "_Catalogues");
+  py_assert_void(cats);
 
   msg_printf(msg_debug, "freeing catalogues %x\n", cats);
   delete cats;
@@ -46,20 +48,20 @@ PyObject* py_catalogues_generate_galaxies(PyObject* self, PyObject* args)
 
   Catalogues* const cats=
     (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
-  py_assert(cats);
+  py_assert_ptr(cats);
 
   Hod* const hod=
     (Hod*) PyCapsule_GetPointer(py_hod, "_HOD");
-  py_assert(hod);
+  py_assert_ptr(hod);
 
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
-  py_assert(lightcones);
+  py_assert_ptr(lightcones);
 
   if(cats->empty())
     cats->allocate(lightcones->size());
 
-  py_assert(cats->size() == lightcones->size());
+  py_assert_ptr(cats->size() == lightcones->size());
 
 
   const size_t n= lightcones->size();
@@ -84,7 +86,7 @@ PyObject* py_catalogues_len(PyObject* self, PyObject* args)
 
   Catalogues* const catalogues=
     (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
-  py_assert(catalogues);
+  py_assert_ptr(catalogues);
 
   return Py_BuildValue("i", (int) catalogues->size());
 }
@@ -102,9 +104,9 @@ PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
 
   Catalogues* const catalogues=
     (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
-  py_assert(catalogues);
+  py_assert_ptr(catalogues);
 
-  py_assert(sizeof(Particle) % sizeof(double) == 0);
+  py_assert_ptr(sizeof(Particle) % sizeof(double) == 0);
 
   Catalogue* cat= 0;
   try {
@@ -118,7 +120,7 @@ PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
   
   int nd=2;
   int ncol= sizeof(Particle)/sizeof(float);
-  npy_intp dims[]= {cat->size(), ncol};
+  npy_intp dims[]= {(npy_intp) cat->size(), ncol};
 
   return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(cat->front()));
 }

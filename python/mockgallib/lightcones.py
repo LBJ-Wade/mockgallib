@@ -16,4 +16,9 @@ class LightCones:
         for filename in filenames:
             c._lightcones_load(self._lt, filename)
 
+    def create_from_snapshots(self, snapshots, sky, remap):
+        """create_from_snapshots(snapshots, sky, remap); create lightcones from halo snapshots"""
+        c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
+                               self._lt);
 
+    

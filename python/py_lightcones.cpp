@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "msg.h"
 #include "py_assert.h"
 #include "lightcone.h"
@@ -32,6 +33,7 @@ void py_lightcones_free(PyObject *obj)
 {
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(obj, "_LightCones");
+  py_assert_void(lightcones);
 
   msg_printf(msg_debug, "freeing lightcones %x\n", lightcones);
 
@@ -68,7 +70,7 @@ PyObject* py_lightcones_load(PyObject* self, PyObject* args)
 
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
-  py_assert(lightcones);
+  py_assert_ptr(lightcones);
 
   lightcones->push_back(lightcone);
 
@@ -84,7 +86,7 @@ PyObject* py_lightcones_len(PyObject* self, PyObject* args)
 
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
-  py_assert(lightcones);
+  py_assert_ptr(lightcones);
 
   return Py_BuildValue("i", (int) lightcones->size());
 }
@@ -100,7 +102,7 @@ PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
 
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
-  py_assert(lightcones);
+  py_assert_ptr(lightcones);
 
 
   LightCone* lightcone= 0;
@@ -109,12 +111,13 @@ PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
   }
   catch(const out_of_range) {
     PyErr_SetString(PyExc_LookupError, "Lightcone out of range");
+    return NULL;
   }
   
   int nd=2;
-  py_assert(sizeof(Halo) % sizeof(float) == 0);
+  py_assert_ptr(sizeof(Halo) % sizeof(float) == 0);
   int ncol= sizeof(Halo)/sizeof(float);
-  npy_intp dims[]= {lightcone->size(), ncol};
+  npy_intp dims[]= {(npy_intp)lightcone->size(), ncol};
 
   return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(lightcone->front()));
 

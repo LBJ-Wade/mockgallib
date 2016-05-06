@@ -1,20 +1,18 @@
-
-.PHONY: all libs check clean
-
-libs:
-	cd libs && $(MAKE)
-
-pypackage:
-	cd python && $(MAKE)
-
-check:
-	cd tests && sh test.sh
+.PHONY: all libs python check clean
 
 all:
 	make libs
 	make python
 	make check
 
+libs:
+	cd libs && $(MAKE)
+
+python:
+	cd python && $(MAKE)
+
+check:
+	cd tests && $(MAKE)
 
 clean:
 	cd libs && $(MAKE) clean

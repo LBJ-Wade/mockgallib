@@ -1,15 +1,14 @@
+#include <cstdio>
+#include <iostream>
 #include <vector>
 
+#include "msg.h"
 #include "util.h"
-#include "sky.h"
-#include "lightcone.h"
-#include "remap.h"
-#include "slice.h"
 #include "cola_file.h"
 #include "distance.h"
 #include "halo_mass.h"
 #include "halo_concentration.h"
-#include "snapshot.h"
+#include "cola_lightcone.h"
 
 using namespace std;
 
@@ -20,12 +19,14 @@ static void fill_lightcone(Snapshot const * const snp,
 			   LightCones* const lightcones);
 
 
-void cola_lightcone_create(Snapshots const * const snapshots,
+void cola_lightcones_create(Snapshots const * const snapshots,
 			   Sky const * const sky,
 			   Remap const * const remap,
 			   Slice const * const slice,
 			   LightCones* const lightcones)
 {
+  lightcones->clear();
+  
   for(Snapshots::const_iterator snp= snapshots->begin();
       snp != snapshots->end(); ++snp) {
     
@@ -44,6 +45,9 @@ void fill_lightcone(Snapshot const * const snp,
   if(lightcones->size() < slice->n) {
     lightcones->resize(slice->n);
   }
+
+  msg_printf(msg_verbose, "filling lightcone from %s, a=%.3f\n",
+	     snp->filename, snp->a_snp);
   
   cola_halo_file_open(snp->filename);
 
@@ -89,8 +93,14 @@ void fill_lightcone(Snapshot const * const snp,
 
     // set halo concentration / rs
     h->rs= halo_concentration_rs(h);
+
+    //cerr << "add to slice " << h->slice << endl;
       
     (*lightcones)[h->slice]->push_back(*h);
+  }
+
+  for(LightCones::iterator p=
+	lightcones->begin(); p != lightcones->end(); ++p) {
   }
    
   cola_halo_file_close();

@@ -48,7 +48,7 @@ void py_sigma_free(PyObject *obj)
 {
   Sigma* const s=
     (Sigma*) PyCapsule_GetPointer(obj, "_Sigma");
-  py_assert(s);
+  py_assert_void(s);
 
   delete s;
 }

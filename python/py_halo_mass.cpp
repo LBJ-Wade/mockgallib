@@ -39,7 +39,7 @@ void py_halo_mass_free(PyObject *obj)
 {
   HaloMassFoF* const halo_mass=
     (HaloMassFoF*) PyCapsule_GetPointer(obj, "_HaloMass");
-  py_assert(halo_mass);
+  py_assert_void(halo_mass);
 
   delete halo_mass;
 }
