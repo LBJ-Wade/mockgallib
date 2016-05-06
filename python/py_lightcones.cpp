@@ -117,7 +117,7 @@ PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
   int nd=2;
   py_assert_ptr(sizeof(Halo) % sizeof(float) == 0);
   int ncol= sizeof(Halo)/sizeof(float);
-  npy_intp dims[]= {lightcone->size(), ncol};
+  npy_intp dims[]= {(npy_intp)lightcone->size(), ncol};
 
   return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(lightcone->front()));
 

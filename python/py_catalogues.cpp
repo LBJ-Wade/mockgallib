@@ -120,7 +120,7 @@ PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
   
   int nd=2;
   int ncol= sizeof(Particle)/sizeof(float);
-  npy_intp dims[]= {cat->size(), ncol};
+  npy_intp dims[]= {(npy_intp) cat->size(), ncol};
 
   return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(cat->front()));
 }

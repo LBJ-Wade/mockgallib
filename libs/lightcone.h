@@ -12,6 +12,7 @@ class LightCone : public std::vector<Halo> {
 class LightCones : public std::vector<LightCone*> {
  public:
   ~LightCones();
+  void resize(const size_type n);
   void clear();
   
 };

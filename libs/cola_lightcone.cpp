@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 
+#include "msg.h"
 #include "util.h"
 #include "cola_file.h"
 #include "distance.h"
@@ -24,6 +25,8 @@ void cola_lightcones_create(Snapshots const * const snapshots,
 			   Slice const * const slice,
 			   LightCones* const lightcones)
 {
+  lightcones->clear();
+  
   for(Snapshots::const_iterator snp= snapshots->begin();
       snp != snapshots->end(); ++snp) {
     
@@ -42,7 +45,9 @@ void fill_lightcone(Snapshot const * const snp,
   if(lightcones->size() < slice->n) {
     lightcones->resize(slice->n);
   }
-  cerr << "lightcones->size()= " << lightcones->size() << endl;
+
+  msg_printf(msg_verbose, "filling lightcone from %s, a=%.3f\n",
+	     snp->filename, snp->a_snp);
   
   cola_halo_file_open(snp->filename);
 
@@ -88,17 +93,15 @@ void fill_lightcone(Snapshot const * const snp,
 
     // set halo concentration / rs
     h->rs= halo_concentration_rs(h);
+
+    //cerr << "add to slice " << h->slice << endl;
       
     (*lightcones)[h->slice]->push_back(*h);
   }
 
   for(LightCones::iterator p=
 	lightcones->begin(); p != lightcones->end(); ++p) {
-    cerr << (*p)->size() << " haloes in lightcone\n";
   }
-    
-
-										 
    
   cola_halo_file_close();
 }
