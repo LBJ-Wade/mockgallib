@@ -57,8 +57,8 @@ PyObject* py_hod_get_coef(PyObject* self, PyObject* args)
     return Py_BuildValue("d", c[i]);
   }
 
-  PyErr_SetString(PyExc_ValueError, "HOD coefficient out of range");
-  Py_RETURN_NONE;  
+  PyErr_SetNone(PyExc_IndexError);
+  return NULL;
 }
 
 

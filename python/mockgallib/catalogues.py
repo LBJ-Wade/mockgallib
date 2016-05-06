@@ -15,7 +15,7 @@ class Catalogues:
         """ith catalogue"""
         n = len(self)
         if i < 0 or i >= n:
-            raise LookupError()
+            raise IndexError()
         return c._catalogues_catalogue(self._cats, i)
 
     def generate_galaxies(self, hod, lightcones, z_min, z_max):

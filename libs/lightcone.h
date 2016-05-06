@@ -9,7 +9,7 @@ class LightCone : public std::vector<Halo> {
 
 };
 
-class LightCones : public std::deque<LightCone*> {
+class LightCones : public std::vector<LightCone*> {
  public:
   ~LightCones();
   

@@ -104,9 +104,17 @@ PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
     (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
   py_assert(catalogues);
 
-  assert(sizeof(Particle) % sizeof(double) == 0);
+  py_assert(sizeof(Particle) % sizeof(double) == 0);
 
-  Catalogue* const cat= catalogues->at(i);
+  Catalogue* cat= 0;
+  try {
+    cat= catalogues->at(i);
+  }
+  catch(const std::out_of_range) {
+    PyErr_SetNone(PyExc_IndexError);
+    return NULL;
+  }
+
   
   int nd=2;
   int ncol= sizeof(Particle)/sizeof(float);

@@ -1,3 +1,4 @@
+#include "py_assert.h"
 #include "py_halo_mass.h"
 #include "halo_mass.h"
 
@@ -20,11 +21,11 @@ PyObject* py_halo_mass_alloc(PyObject* self, PyObject* args)
   HaloMassFoF* halo_mass;
 
   try {
-    halo_mass= new PowerSpectrum(filename);
+    halo_mass= new HaloMassFoF(filename);
   }
   catch(HaloMassFileError) {
     Py_DECREF(bytes);
-    PyErr_SetString(PyExc_IOError, "LightconeFileError");
+    PyErr_SetString(PyExc_IOError, "HaloMassFileError");
     Py_RETURN_NONE;
   }
 
@@ -34,7 +35,7 @@ PyObject* py_halo_mass_alloc(PyObject* self, PyObject* args)
 }
 
 
-void py_power_free(PyObject *obj)
+void py_halo_mass_free(PyObject *obj)
 {
   HaloMassFoF* const halo_mass=
     (HaloMassFoF*) PyCapsule_GetPointer(obj, "_HaloMass");

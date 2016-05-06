@@ -36,5 +36,23 @@ Slice::Slice(const float boxsize[], const float sky_box[], const float center[] 
     boxsize_[k]= boxsize[k]/n_[coord_[k]];
     x0_[k]= center[k] - 0.5f*boxsize_[k];
   }
+
+  n= n_[0]*n_[1]*n_[2];
+}
+
+
+void Slice::transform(Halo* const h) const {
+  // a copy is necessary because coord[] could change coordinates
+  float x[]= {h->x[0], h->x[1], h->x[2]};
+  
+  int index= (int)(((floorf(x[coord_[0]]/boxsize_[0])*n_[1]
+		     + floorf(x[coord_[1]]/boxsize_[1]))*n_[0]
+		    + floorf(x[coord_[2]]/boxsize_[2])));
+  
+  h->x[0]= x0_[0] + fmodf(x[coord_[0]], boxsize_[0]);
+  h->x[1]= x0_[1] + fmodf(x[coord_[1]], boxsize_[1]);
+  h->x[2]= x0_[2] + fmodf(x[coord_[2]], boxsize_[2]);
+  
+  h->slice= index;
 }
 

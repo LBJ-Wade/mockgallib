@@ -13,3 +13,4 @@ from mockgallib.catalogues import Catalogues
 from mockgallib.distance import Distance
 from mockgallib.remap import Remap
 from mockgallib.sky import Sky
+from mockgallib.snapshots import Snapshots

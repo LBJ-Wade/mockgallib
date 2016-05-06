@@ -4,6 +4,9 @@
 #include "Python.h"
 #include "lightcone.h"
 
+PyMODINIT_FUNC
+py_lightcones_module_init();
+PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args);
 
 PyObject* py_lightcones_alloc(PyObject* self, PyObject* args);
 PyObject* py_lightcones_load(PyObject* self, PyObject* args);

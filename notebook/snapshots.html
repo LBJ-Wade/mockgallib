@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>sky</title>
+<title>snapshots</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
@@ -11751,25 +11751,53 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Sky">Sky<a class="anchor-link" href="#Sky">&#182;</a></h1><p>sky = <strong>Sky</strong>(<em>ra_range</em>, <em>dec_range</em>, <em>z_range</em>)</p>
+<h1 id="Snapshots">Snapshots<a class="anchor-link" href="#Snapshots">&#182;</a></h1><p>Snapshots object stores the information how a lightcone is build from snapshots</p>
+<p>snapshots = <strong>Snapshots</strong>()</p>
+<p>snapshot.<strong>insert</strong>(<em>filename_fof</em>, <em>filename_halo_mass</em>, [<em>a_snp</em>, <em>a_min</em>, <em>a_max</em>])</p>
 <table>
 <thead><tr>
-<th>Function</th>
+<th>Argument</th>
+<th>Explaination</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>filename_fof</em></td>
+<td>Filename of the halo catalogue at <em>a_snp</em></td>
+</tr>
+<tr>
+<td><em>filename_halo_mass</em></td>
+<td>Filename for the nfof - halo_mass calibration</td>
+</tr>
+<tr>
+<td><em>a_min</em>, <em>a_max</em></td>
+<td>Range of scale factor used for a lightcone</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<table>
+<thead><tr>
+<th>Method</th>
 <th>Result</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>sky.boxsize</td>
-<td>Tuple $\in \mathbb(R)^3$; size of bounding box of the volume in the sky</td>
+<td>len(snapshots)</td>
+<td>Number of snapshots inserted</td>
 </tr>
 <tr>
-<td>sky.left</td>
-<td>Tuple $\in \mathbb(R)^3$; left-bottom corner of the bounding box</td>
-</tr>
-<tr>
-<td>sky.right</td>
-<td>Tuple $\in \mathbb(R)^3$; upper-right corner of the bounding box</td>
+<td>snapshot[<em>i</em>]</td>
+<td>A tuple (<em>filename_fof</em>, <em>a_snp</em>, <em>a_min</em>, <em>a_max</em>) for <em>i</em> the snapshot</td>
 </tr>
 </tbody>
 </table>
@@ -11779,67 +11807,18 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[6]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="k">import</span> <span class="n">Axes3D</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">mockgallib</span> <span class="k">as</span> <span class="nn">mock</span>
-</pre></div>
 
-</div>
-</div>
-</div>
+<span class="c1"># Snapshot data are written in ../data/param.json file</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;../data/param.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">param</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Sky</span>
-<span class="n">ra_range</span>  <span class="o">=</span> <span class="p">[</span><span class="mf">30.1</span><span class="p">,</span> <span class="mf">38.9</span><span class="p">]</span>
-<span class="n">dec_range</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">6.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">4.1</span><span class="p">]</span>
-<span class="n">z_range</span>   <span class="o">=</span> <span class="p">[</span><span class="mf">0.38889</span><span class="p">,</span> <span class="mf">1.21239</span><span class="p">]</span>
-<span class="n">sky</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">Sky</span><span class="p">(</span><span class="n">ra_range</span><span class="p">,</span> <span class="n">dec_range</span><span class="p">,</span> <span class="n">z_range</span><span class="p">)</span>
-<span class="n">r_range</span>   <span class="o">=</span> <span class="n">sky</span><span class="o">.</span><span class="n">r</span><span class="p">;</span>
-
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
-
-<span class="n">n</span> <span class="o">=</span> <span class="mi">20</span>
-<span class="n">ras</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ra_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
-<span class="n">decs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dec_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
-<span class="n">rs</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">r_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">draw_line</span><span class="p">(</span><span class="n">r_list</span><span class="p">,</span> <span class="n">ra_list</span><span class="p">,</span> <span class="n">dec_list</span><span class="p">):</span>
-    <span class="n">x3</span> <span class="o">=</span> <span class="p">[</span> <span class="n">sky</span><span class="o">.</span><span class="n">compute_x</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">dec</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">r_list</span> <span class="k">for</span> <span class="n">ra</span> <span class="ow">in</span> <span class="n">ra_list</span> <span class="k">for</span> <span class="n">dec</span> <span class="ow">in</span> <span class="n">dec_list</span> <span class="p">]</span>
-
-    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span> <span class="n">x_</span> <span class="k">for</span> <span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">z_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">x3</span> <span class="p">]</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span> <span class="n">y_</span> <span class="k">for</span> <span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">z_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">x3</span> <span class="p">]</span>
-    <span class="n">z</span> <span class="o">=</span> <span class="p">[</span> <span class="n">z_</span> <span class="k">for</span> <span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">z_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">x3</span> <span class="p">]</span>
-    
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
-
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">ras</span><span class="p">,</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">ras</span><span class="p">,</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ras</span><span class="p">,</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">ras</span><span class="p">,</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">decs</span><span class="p">)</span>
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">decs</span><span class="p">)</span>
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">decs</span><span class="p">)</span>
-<span class="n">draw_line</span><span class="p">([</span><span class="n">r_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">decs</span><span class="p">)</span>
-
-<span class="n">draw_line</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="n">draw_line</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="n">draw_line</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-<span class="n">draw_line</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="p">[</span><span class="n">ra_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="p">[</span><span class="n">dec_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Close the window to continue.&#39;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">();</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;snapshot data in param.json&#39;</span><span class="p">)</span>
+<span class="n">param</span><span class="p">[</span><span class="s1">&#39;snapshots&#39;</span><span class="p">]</span>
 </pre></div>
 
 </div>
@@ -11852,7 +11831,67 @@ div#notebook {
 
 <div class="output_area"><div class="prompt"></div>
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Close the window to continue.
+<pre>snapshot data in param.json
+</pre>
+</div>
+</div>
+
+<div class="output_area"><div class="prompt output_prompt">Out[1]:</div>
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[{&#39;a&#39;: [0.45, 0.452, 0.475], &#39;abc&#39;: &#39;a&#39;},
+ {&#39;a&#39;: [0.5, 0.475, 0.525], &#39;abc&#39;: &#39;b&#39;},
+ {&#39;a&#39;: [0.55, 0.525, 0.575], &#39;abc&#39;: &#39;c&#39;},
+ {&#39;a&#39;: [0.6, 0.575, 0.625], &#39;abc&#39;: &#39;d&#39;},
+ {&#39;a&#39;: [0.65, 0.625, 0.675], &#39;abc&#39;: &#39;e&#39;},
+ {&#39;a&#39;: [0.7, 0.675, 0.72], &#39;abc&#39;: &#39;f&#39;}]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">snapshots</span> <span class="o">=</span> <span class="n">mock</span><span class="o">.</span><span class="n">Snapshots</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">snp</span> <span class="ow">in</span> <span class="n">param</span><span class="p">[</span><span class="s1">&#39;snapshots&#39;</span><span class="p">]:</span>
+    <span class="n">abc</span> <span class="o">=</span> <span class="n">snp</span><span class="p">[</span><span class="s1">&#39;abc&#39;</span><span class="p">]</span>
+    <span class="n">filename_fof</span> <span class="o">=</span> <span class="s1">&#39;../data/fof/</span><span class="si">%s</span><span class="s1">/fof06100</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="n">abc</span><span class="p">)</span>
+    <span class="n">filename_halo_mass</span> <span class="o">=</span> <span class="s1">&#39;../data/halo_mass/halomass_</span><span class="si">%s</span><span class="s1">.txt&#39;</span> <span class="o">%</span> <span class="n">abc</span>
+
+    <span class="n">snapshots</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">filename_fof</span><span class="p">,</span> <span class="n">filename_halo_mass</span><span class="p">,</span> <span class="n">snp</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span>
+
+    
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">snapshots</span><span class="p">))</span>
+    
+<span class="k">for</span> <span class="n">snp</span> <span class="ow">in</span> <span class="n">snapshots</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">snp</span><span class="p">)</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area"><div class="prompt"></div>
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>6
+(&#39;../data/fof/a/fof06100a&#39;, 0.45, 0.452, 0.475)
+(&#39;../data/fof/b/fof06100b&#39;, 0.5, 0.475, 0.525)
+(&#39;../data/fof/c/fof06100c&#39;, 0.55, 0.525, 0.575)
+(&#39;../data/fof/d/fof06100d&#39;, 0.6, 0.575, 0.625)
+(&#39;../data/fof/e/fof06100e&#39;, 0.65, 0.625, 0.675)
+(&#39;../data/fof/f/fof06100f&#39;, 0.7, 0.675, 0.72)
 </pre>
 </div>
 </div>
@@ -11863,7 +11902,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%</span><span class="k">html</span>
