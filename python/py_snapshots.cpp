@@ -1,9 +1,7 @@
+#include <stdexcept>
 #include "py_assert.h"
 #include "snapshot.h"
 #include "py_snapshots.h"
-#include <iostream>
-using namespace std;
-// debug!!!
 
 static void py_snapshots_free(PyObject *obj);
 

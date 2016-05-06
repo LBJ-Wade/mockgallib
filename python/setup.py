@@ -21,7 +21,8 @@ setup(name='mockgallib',
                      'py_nbar.cpp', 'py_nbar_fitting.cpp',
                      'py_lightcones.cpp', 'py_catalogues.cpp',
                      'py_sky.cpp', 'py_distance.cpp',
-                     'py_remap.cpp', 'py_halo_mass.cpp', 'py_snapshots.cpp'
+                     'py_remap.cpp', 'py_halo_mass.cpp', 'py_snapshots.cpp',
+                     'py_cola_lightcones.cpp'
                     ],
                     include_dirs = ['../libs', np.get_include()],
                     library_dirs =  ['../libs'],

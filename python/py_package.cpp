@@ -21,6 +21,7 @@
 #include "py_remap.h"
 #include "py_halo_mass.h"
 #include "py_snapshots.h"
+#include "py_cola_lightcones.h"
 
 using namespace std;
 
@@ -169,6 +170,9 @@ static PyMethodDef methods[] = {
    "_snapshots_len(_snps); get the number of snapshot in _snps"},
   {"_snapshots_get", py_snapshots_get, METH_VARARGS,
    "_snapshot_get(_snps, i); get ith snapshot as a tuble"},
+
+  {"_cola_lightcones_create", py_cola_lightcones_create, METH_VARARGS,
+   "_cola_lightcones_create(_snapshots, _sky, _remap, _lightcones)"},
 
   {NULL, NULL, 0, NULL}
 };

@@ -1,15 +1,11 @@
 #include <vector>
 
 #include "util.h"
-#include "sky.h"
-#include "lightcone.h"
-#include "remap.h"
-#include "slice.h"
 #include "cola_file.h"
 #include "distance.h"
 #include "halo_mass.h"
 #include "halo_concentration.h"
-#include "snapshot.h"
+#include "cola_lightcone.h"
 
 using namespace std;
 
@@ -20,7 +16,7 @@ static void fill_lightcone(Snapshot const * const snp,
 			   LightCones* const lightcones);
 
 
-void cola_lightcone_create(Snapshots const * const snapshots,
+void cola_lightcones_create(Snapshots const * const snapshots,
 			   Sky const * const sky,
 			   Remap const * const remap,
 			   Slice const * const slice,

@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "msg.h"
 #include "py_assert.h"
 #include "lightcone.h"
@@ -32,6 +33,7 @@ void py_lightcones_free(PyObject *obj)
 {
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(obj, "_LightCones");
+  py_assert(lightcones);
 
   msg_printf(msg_debug, "freeing lightcones %x\n", lightcones);
 

@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "py_assert.h"
 #include "hod.h"
 #include "py_catalogues.h"

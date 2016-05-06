@@ -119,5 +119,8 @@ void compute_bounding_box(Sky* const sky)
   sky->right[2]= sky->r_range[1]*sin(theta);
   sky->left[2]= -sky->right[2];
   sky->width[2]= 2.0*sky->right[2];
+
+  sky->centre[0]= sky->left[0] + 0.5f*(sky->right[0] - sky->left[0]);
+  sky->centre[1]= sky->centre[2]= 0.0f;
 }
 
