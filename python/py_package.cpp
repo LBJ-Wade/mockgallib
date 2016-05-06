@@ -160,10 +160,9 @@ static PyMethodDef methods[] = {
   {"_remap_boxsize", py_remap_boxsize, METH_VARARGS,
    "_remap_boxsize(_remap); get cuboid size after remapping"},
 
-  {"_slice_alloc", py_slice_alloc, METH_VARARGS,
-   "allocate a slice object"},
-  {"_slice_len", py_slice_len, METH_VARARGS,
-   "number of slices in _slice"},
+  {"_slice_alloc", py_slice_alloc, METH_VARARGS, "allocate a slice object"},
+  {"_slice_len", py_slice_len, METH_VARARGS, "number of slices in _slice"},
+  {"_slice_boxsize", py_slice_boxsize, METH_VARARGS, "boxsize of the slice"},
 
   {"_halo_mass_alloc", py_halo_mass_alloc, METH_VARARGS,
    "_halo_mass_alloc(filename); allocate _HaloMass object"},
