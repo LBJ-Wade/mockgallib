@@ -18,5 +18,7 @@ class LightCones:
 
     def create_from_snapshots(self, snapshots, sky, remap):
         """create_from_snapshots(snapshots, sky, remap); create lightcones from halo snapshots"""
-        cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
+        c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
                                self._lt);
+
+    

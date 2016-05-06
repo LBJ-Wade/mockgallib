@@ -17,7 +17,7 @@ void py_snapshots_free(PyObject *obj)
 {
   Snapshots* const snps=
     (Snapshots*) PyCapsule_GetPointer(obj, "_Snapshots");
-  py_assert(snps);
+  py_assert_void(snps);
 
   delete snps;
 }
@@ -43,7 +43,7 @@ PyObject* py_snapshots_insert(PyObject* self, PyObject* args)
   PyBytes_AsStringAndSize(bytes_halo_mass, &filename_halo_mass, &len);
 
   Snapshots* snps= (Snapshots*) PyCapsule_GetPointer(py_snps, "_Snapshots");
-  py_assert(snps);
+  py_assert_ptr(snps);
 
   Snapshot* snp;
   try {
@@ -74,7 +74,7 @@ PyObject* py_snapshots_len(PyObject* self, PyObject* args)
   }
 
   Snapshots* snps= (Snapshots*) PyCapsule_GetPointer(py_snps, "_Snapshots");
-  py_assert(snps);
+  py_assert_ptr(snps);
 
   return Py_BuildValue("i", (int) snps->size());
 }
@@ -90,7 +90,7 @@ PyObject* py_snapshots_get(PyObject* self, PyObject* args)
   }
 
   Snapshots* snps= (Snapshots*) PyCapsule_GetPointer(py_snps, "_Snapshots");
-  py_assert(snps);
+  py_assert_ptr(snps);
 
   Snapshot const* snp;
   try {

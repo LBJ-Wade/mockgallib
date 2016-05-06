@@ -1,3 +1,5 @@
+#include <cstdio>
+#include <iostream>
 #include <vector>
 
 #include "util.h"
@@ -40,6 +42,7 @@ void fill_lightcone(Snapshot const * const snp,
   if(lightcones->size() < slice->n) {
     lightcones->resize(slice->n);
   }
+  cerr << "lightcones->size()= " << lightcones->size() << endl;
   
   cola_halo_file_open(snp->filename);
 
@@ -88,6 +91,14 @@ void fill_lightcone(Snapshot const * const snp,
       
     (*lightcones)[h->slice]->push_back(*h);
   }
+
+  for(LightCones::iterator p=
+	lightcones->begin(); p != lightcones->end(); ++p) {
+    cerr << (*p)->size() << " haloes in lightcone\n";
+  }
+    
+
+										 
    
   cola_halo_file_close();
 }

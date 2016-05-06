@@ -19,6 +19,7 @@
 #include "py_sky.h"
 #include "py_distance.h"
 #include "py_remap.h"
+#include "py_slice.h"
 #include "py_halo_mass.h"
 #include "py_snapshots.h"
 #include "py_cola_lightcones.h"
@@ -158,6 +159,11 @@ static PyMethodDef methods[] = {
    "allocate _Remapping object"},
   {"_remap_boxsize", py_remap_boxsize, METH_VARARGS,
    "_remap_boxsize(_remap); get cuboid size after remapping"},
+
+  {"_slice_alloc", py_slice_alloc, METH_VARARGS,
+   "allocate a slice object"},
+  {"_slice_len", py_slice_len, METH_VARARGS,
+   "number of slices in _slice"},
 
   {"_halo_mass_alloc", py_halo_mass_alloc, METH_VARARGS,
    "_halo_mass_alloc(filename); allocate _HaloMass object"},

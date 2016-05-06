@@ -44,7 +44,7 @@ void py_remap_free(PyObject *obj)
 {
   Remap* const remap=
     (Remap*) PyCapsule_GetPointer(obj, "_Remap");
-  py_assert(remap);
+  py_assert_void(remap);
 
   delete remap;
 }
@@ -59,7 +59,7 @@ PyObject* py_remap_boxsize(PyObject* self, PyObject* args)
      return NULL;
 
   Remap const * const remap= (Remap*) PyCapsule_GetPointer(py_remap, "_Remap");
-  py_assert(remap);
+  py_assert_ptr(remap);
 
   return Py_BuildValue("(ddd)",
 		       (double) remap->boxsize[0],

@@ -56,7 +56,7 @@ void py_power_free(PyObject *obj)
 {
   PowerSpectrum* const ps=
     (PowerSpectrum*) PyCapsule_GetPointer(obj, "_PowerSpectrum");
-  py_assert(ps);
+  py_assert_void(ps);
 
   delete ps;
 }

@@ -14,17 +14,17 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 
   Snapshots const * const snapshots= (Snapshots*)
     PyCapsule_GetPointer(py_snapshots, "_Snapshots");
-  py_assert(snapshots);
+  py_assert_ptr(snapshots);
 
   LightCones* const lightcones=
     (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
-  py_assert(lightcones);
+  py_assert_ptr(lightcones);
 
-  Sky const * const sky=
-    (Sky*) PyCapsule_GetPointer(py_sky, "_Sky"); py_assert(sky);
+  Sky const * const sky= (Sky*) PyCapsule_GetPointer(py_sky, "_Sky");
+  py_assert_ptr(sky);
 
   Remap const * const remap= (Remap*) PyCapsule_GetPointer(py_remap, "_Remap");
-  py_assert(remap);
+  py_assert_ptr(remap);
 
   Slice slice(remap->boxsize, sky->width, sky->centre);
   
