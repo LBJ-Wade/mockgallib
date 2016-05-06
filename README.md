@@ -21,11 +21,15 @@ add `DIR_PATH` in `libs/Makefile`.
 
 This creates a static library `libs/libmockgal.a` and a shared library
 `libs/libmockgal.so`. You can copy the shared library to the standard
-location (e.g., /usr/local/lib ), or set an environment variable:
+location (e.g., /usr/local/lib ), or set an environment variable
+`LD_LIBRARY_PATH` (linux) or `DYLD_LIBRARY_PATH` (mac):
 
 ```bash
 export LD_LIBRARY_PATH=/path/to/mockgallib/libs:$LD_LIBRARY_PATH
 ```
+
+(In Mac OS El Captian, the usage of `DYLD_LIBRAY_PATH` is limitted; I
+recomend coping the so file to one of the standard locations.)
 
 
 ### Python module `python`

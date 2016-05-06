@@ -3,6 +3,7 @@ import mockgallib as mock
 
 class TestLightcones(unittest.TestCase):
     def setUp(self):
+        mock.set_loglevel(3)
         self.lightcones = mock.LightCones()
 
     def test_load_filename(self):
