@@ -1,4 +1,4 @@
-.PHONY: all libs python check clean
+.PHONY: all libs python check clean countm
 
 all:
 	make libs
@@ -17,3 +17,6 @@ check:
 clean:
 	cd libs && $(MAKE) clean
 	cd python && $(MAKE) clean
+
+count:
+	wc libs/*.cpp python/*.cpp > log/`date +%Y-%m-%d`.txt

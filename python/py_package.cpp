@@ -24,6 +24,7 @@
 #include "py_snapshots.h"
 #include "py_cola_lightcones.h"
 #include "py_halo_concentration.h"
+#include "py_hdf5_io.h"
 
 using namespace std;
 
@@ -182,6 +183,9 @@ static PyMethodDef methods[] = {
 
   {"_halo_concentration_init", py_halo_concentration_init, METH_VARARGS,
    "_halo_concentration_init(_sigma)"},
+
+  {"_hdf5_write_lightcone", py_hdf5_write_lightcone, METH_VARARGS,
+   "_hdf5_write_lightcone(filename, _lightcone)"},
   
   {NULL, NULL, 0, NULL}
 };

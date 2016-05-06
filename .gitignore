@@ -1,6 +1,8 @@
 *~
+#*#
 *.o
 *.a
 *.so
 *.dylib
 *.bak
+log

@@ -30,8 +30,7 @@ static inline float dot(const float x[], const float y[])
 
 //typedef float[3] float3;
 
-void hdf5_write_lightcone(const char filename[],
-			  LightCone const * const v)
+void hdf5_write_lightcone(const char filename[], LightCone const * const v)
 {
   hid_t file= H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
   if(file < 0) {

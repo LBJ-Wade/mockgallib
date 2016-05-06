@@ -1,5 +1,13 @@
 import mockgallib._mockgallib as c
 
+class LightCone:
+    """A Light Cone of haloes"""
+    def __init__(self, _lc):
+        self._lightcone = _lc
+
+    def save(self, filename):
+        
+
 class LightCones:
     """A collection of halo light cones"""
     def __init__(self):
@@ -10,6 +18,9 @@ class LightCones:
 
     def __repr__(self):
         return "A collection of %d lightcones" % len(self)
+
+    def __getitem__(self, i):
+        return LightCone(c._lightcones_lighcone(self._lt, i))
         
     def load(self, filenames):
         """load([filename1, filename2]); load lightcones from files"""

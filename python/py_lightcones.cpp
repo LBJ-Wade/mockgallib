@@ -23,8 +23,7 @@ static void py_lightcones_free(PyObject *obj);
 
 PyObject* py_lightcones_alloc(PyObject* self, PyObject* args)
 {
-  LightCones* const lightcones=
-    new LightCones();
+  LightCones* const lightcones= new LightCones();
 
   return PyCapsule_New(lightcones, "_LightCones", py_lightcones_free);  
 }
@@ -93,6 +92,35 @@ PyObject* py_lightcones_len(PyObject* self, PyObject* args)
 
 PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
 {
+  // _lightcones_lightcone(_lightcones, i)
+  
+  PyObject* py_lightcones;
+  int i;
+  
+  if(!PyArg_ParseTuple(args, "Oi", &py_lightcones, &i)) {
+    return NULL;
+  }
+
+  LightCones* const lightcones=
+    (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
+  py_assert_ptr(lightcones);
+
+
+  LightCone* lightcone= 0;
+  try {
+    lightcone= lightcones->at(i);
+  }
+  catch(const out_of_range) {
+    PyErr_SetNone(PyExc_IndexError);
+    return NULL;
+  }
+
+  return PyCapsule_New(lightcone, "_LightCone", NULL);
+}
+
+PyObject* py_lightcone_as_array(PyObject* self, PyObject* args)
+{
+  // _lightcone
   PyObject* py_lightcones;
   int i;
   
@@ -120,6 +148,5 @@ PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
   npy_intp dims[]= {(npy_intp)lightcone->size(), ncol};
 
   return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(lightcone->front()));
-
-
 }
+*/
