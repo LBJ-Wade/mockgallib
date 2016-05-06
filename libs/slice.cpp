@@ -20,7 +20,7 @@ Slice::Slice(const float boxsize[], const float sky_box[], const float center[] 
   n2[2]= (int) floor(boxsize[1]/sky_box[2]);
 
 
-  n_[0]= (int) floor(boxsize_[0]/sky_box[0]);
+  n_[0]= (int) floor(boxsize[0]/sky_box[0]);
   
   if(n2[1]*n2[2] > n1[1]*n1[2]) {
     // We can fit more slices by flipping y and z coordinates
