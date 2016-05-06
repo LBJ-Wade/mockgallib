@@ -23,6 +23,7 @@
 #include "py_halo_mass.h"
 #include "py_snapshots.h"
 #include "py_cola_lightcones.h"
+#include "py_halo_concentration.h"
 
 using namespace std;
 
@@ -179,6 +180,9 @@ static PyMethodDef methods[] = {
   {"_cola_lightcones_create", py_cola_lightcones_create, METH_VARARGS,
    "_cola_lightcones_create(_snapshots, _sky, _remap, _lightcones)"},
 
+  {"_halo_concentration_init", py_halo_concentration_init, METH_VARARGS,
+   "_halo_concentration_init(_sigma)"},
+  
   {NULL, NULL, 0, NULL}
 };
 
