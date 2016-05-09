@@ -18,12 +18,19 @@ static void fill_lightcone(Snapshot const * const snp,
 			   Slice const * const slice,
 			   LightCones* const lightcones);
 
+static inline void
+  randomise_position(const float boxsize, gsl_rng* const rng, float* const x)
+{
+  x[0]= boxsize*gsl_rng_uniform(rng);
+  x[1]= boxsize*gsl_rng_uniform(rng);
+  x[1]= boxsize*gsl_rng_uniform(rng);
+}
 
 void cola_lightcones_create(Snapshots const * const snapshots,
-			   Sky const * const sky,
-			   Remap const * const remap,
-			   Slice const * const slice,
-			   LightCones* const lightcones)
+			    Sky const * const sky,
+			    Remap const * const remap,
+			    Slice const * const slice,
+			    LightCones* const lightcones)
 {
   lightcones->clear();
   
@@ -94,14 +101,14 @@ void fill_lightcone(Snapshot const * const snp,
     // set halo concentration / rs
     h->rs= halo_concentration_rs(h);
 
-    //cerr << "add to slice " << h->slice << endl;
-      
     (*lightcones)[h->slice]->push_back(*h);
   }
 
+  /* ???
   for(LightCones::iterator p=
 	lightcones->begin(); p != lightcones->end(); ++p) {
   }
+  */
    
   cola_halo_file_close();
 }
