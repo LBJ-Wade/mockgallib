@@ -6,11 +6,12 @@
 
 PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 {
-  // _cola_lightcones_create(_snapshots, _sky, _remap, _slice, _lightcones)
-  PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_lightcones;
+  // _cola_lightcones_create(_snapshots, _sky, _remap, _slice, _lightcones,
+  //                         _random)
+  PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_lightcones, *py_random;
   
-  if(!PyArg_ParseTuple(args, "OOOOO",
-		 &py_snapshots, &py_sky, &py_remap, &py_slice, &py_lightcones))
+  if(!PyArg_ParseTuple(args, "OOOOOO",
+		       &py_snapshots, &py_sky, &py_remap, &py_slice, &py_lightcones, &py_random))
     return NULL;
 
   Snapshots const * const snapshots= (Snapshots*)
@@ -30,10 +31,15 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
   Slice const * const slice= (Slice*) PyCapsule_GetPointer(py_slice, "_Slice");
   py_assert_ptr(slice);
 
-  //Slice slice(remap->boxsize, sky->width, sky->centre);
+  gsl_rng* rng= 0;
+  
+  if(py_random != Py_None) {
+    rng= (gsl_rng*) PyCapsule_GetPointer(py_random, "_GSL_RNG");
+    py_assert_ptr(rng);
+  }
 
   try {
-    cola_lightcones_create(snapshots, sky, remap, slice, lightcones, 0);
+    cola_lightcones_create(snapshots, sky, remap, slice, lightcones, rng);
   }
   catch (const ColaFileError e) {
     PyErr_SetString(PyExc_IOError, "Unable to read data");

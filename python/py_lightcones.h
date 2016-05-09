@@ -11,6 +11,8 @@ PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args);
 PyObject* py_lightcones_alloc(PyObject* self, PyObject* args);
 PyObject* py_lightcones_load_h5(PyObject* self, PyObject* args);
 PyObject* py_lightcones_len(PyObject* self, PyObject* args);
+PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args);
+PyObject* py_lightcones_clear(PyObject* self, PyObject* args);
 
 PyObject* py_lightcone_len(PyObject* self, PyObject* args);
 PyObject* py_lightcone_as_array(PyObject* self, PyObject* args);

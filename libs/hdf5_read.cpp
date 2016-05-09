@@ -53,7 +53,7 @@ void hdf5_read_lightcone(const char filename[], LightCone* const p)
     read_data_table(file, "x", h->x, n, 3, stride);
     
     // radial velocities
-    read_data_table(file, "vr", h->v, n, 1, stride); // v[0]= vr
+    read_data_table(file, "vr", &h->vr, n, 1, stride);
     
     // redshift
     read_data_table(file, "z", &h->z, n, 1, stride);

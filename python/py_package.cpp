@@ -24,6 +24,7 @@
 #include "py_snapshots.h"
 #include "py_cola_lightcones.h"
 #include "py_halo_concentration.h"
+#include "py_random.h"
 
 using namespace std;
 
@@ -126,6 +127,10 @@ static PyMethodDef methods[] = {
    "_lightcones_load_h5(_lightcones, filename); read a lightcone from file"},
   {"_lightcones_len", py_lightcones_len, METH_VARARGS,
    "number of lightcones in _LightCones"},
+  {"_lightcones_lightcone", py_lightcones_lighcone, METH_VARARGS,
+   "_lightcones_lightcone(_lightcones, i); get ith lightcone"},
+  {"_lightcones_clear", py_lightcones_clear, METH_VARARGS,
+   "_lightcones_clear(_lightcones); clear all lightcone in _lightcones"},
 
   {"_lightcone_len", py_lightcone_len, METH_VARARGS,
    "_lightcone_len(_lightcone); number of haloes in _lightcone"},
@@ -193,6 +198,9 @@ static PyMethodDef methods[] = {
 
   {"_halo_concentration_init", py_halo_concentration_init, METH_VARARGS,
    "_halo_concentration_init(_sigma)"},
+
+  {"_random_alloc", py_random_alloc, METH_VARARGS,
+   "allocate a GSL random generator _Random"},
 
   {NULL, NULL, 0, NULL}
 };

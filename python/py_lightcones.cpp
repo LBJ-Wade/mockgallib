@@ -121,6 +121,24 @@ PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
   return PyCapsule_New(lightcone, "_LightCone", NULL);
 }
 
+PyObject* py_lightcones_clear(PyObject* self, PyObject* args)
+{
+  // _lightcones_clear(_lightcones)
+  PyObject* py_lightcones;
+  
+  if(!PyArg_ParseTuple(args, "O", &py_lightcones)) {
+    return NULL;
+  }
+
+  LightCones* const lightcones=
+    (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
+  py_assert_ptr(lightcones);
+
+  lightcones->clear();
+
+  Py_RETURN_NONE;
+}
+
 //
 // LightCone
 //

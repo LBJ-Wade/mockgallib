@@ -35,6 +35,11 @@ void cola_lightcones_create(Snapshots const * const snapshots,
 			    gsl_rng* const random_generator)
 {
   rng= random_generator;
+  if(rng)
+    msg_printf(msg_verbose, "Generate random lightcone\n");
+  else
+    msg_printf(msg_verbose, "Generate halo lightcone\n");    
+
   lightcones->clear();
   
   for(Snapshots::const_iterator snp= snapshots->begin();
@@ -62,6 +67,7 @@ void fill_lightcone(Snapshot const * const snp,
   float boxsize;
   
   cola_halo_file_open(snp->filename, &boxsize);
+  // may throw ColaFileError()
 
   Halo halo;
   Halo* const h= &halo;

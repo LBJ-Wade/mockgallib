@@ -30,15 +30,25 @@ class LightCones:
 
     def __getitem__(self, i):
         return LightCone(c._lightcones_lightcone(self._lt, i))
+
+    def clear(self):
+        c._lightcones_clear(self._lt)
         
     def load_h5(self, filenames):
         """load([filename1, filename2]); load lightcones from files"""
         for filename in filenames:
             c._lightcones_load_h5(self._lt, filename)
 
-    def create_from_snapshots(self, snapshots, sky, remap, slice):
+    def create_from_snapshots(self, snapshots, sky, remap, slice, rand):
         """create_from_snapshots(snapshots, sky, remap); create lightcones from halo snapshots"""
-        c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
-                                  slice._slice, self._lt);
+        if rand is None:
+            c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
+                                      slice._slice, self._lt, None);
+        else:
+            print("cola_lightcones_create _rng")
+            c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
+                                      slice._slice, self._lt, rand._rng);
+
+            
 
     
