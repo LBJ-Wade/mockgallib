@@ -133,6 +133,8 @@ static PyMethodDef methods[] = {
    "_lightcone_as_array(_lightcone); return haloes as a np array"},
   {"_lightcone_save_h5", py_lightcone_save_h5, METH_VARARGS,
    "_lightcone_save_h5(_lightcone, filename); save lightcone as HDF5 file"},
+  {"_lightcone_load_h5", py_lightcone_load_h5, METH_VARARGS,
+   "_lightcone_load_h5(_lightcone, filename); load lightcone from HDF file}"},
   
   {"_catalogues_alloc", py_catalogues_alloc, METH_VARARGS,
    "allocate a new _Catalogues"},   

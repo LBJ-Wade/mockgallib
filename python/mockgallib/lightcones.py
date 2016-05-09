@@ -13,7 +13,10 @@ class LightCone:
 
     def save_h5(self, filename):
         c._lightcone_save_h5(self._lightcone, filename)
-    
+
+    def load_h5(self, filename):
+        c._lightcone_load_h5(self._lightcone, filename)
+
 class LightCones:
     """A collection of halo light cones"""
     def __init__(self):

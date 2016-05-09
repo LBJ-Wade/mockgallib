@@ -193,3 +193,35 @@ PyObject* py_lightcone_save_h5(PyObject* self, PyObject* args)
   
   Py_RETURN_NONE;
 }
+
+PyObject* py_lightcone_load_h5(PyObject* self, PyObject* args)
+{
+  // _lightcone_save(_lightcone, filename)
+  PyObject* py_lightcone;
+  PyObject* bytes;
+
+  if(!PyArg_ParseTuple(args, "OO&", &py_lightcone,
+		       PyUnicode_FSConverter, &bytes)) {
+    return NULL;
+  }
+
+  char* filename;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(bytes, &filename, &len);
+
+  LightCone* const lc=
+    (LightCone*) PyCapsule_GetPointer(py_lightcone, "_LightCone");
+  py_assert_ptr(lc);
+
+  try {
+    hdf5_read_lightcone(filename, lc);
+  }
+  catch(LightconeFileError) {
+    Py_DECREF(bytes);
+    PyErr_SetString(PyExc_IOError, "LightconeFileError");
+    return NULL;
+  }
+  Py_DECREF(bytes);
+  
+  Py_RETURN_NONE;
+}

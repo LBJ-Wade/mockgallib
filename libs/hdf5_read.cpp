@@ -31,26 +31,6 @@ void hdf5_read_lightcone(const char filename[], LightCone* const p)
   }
 
   H5Eset_auto(H5E_DEFAULT, NULL, NULL);
-
-  //cerr << "hdf5_read " << filename << endl;
-
-  /*
-  HDF5_IO_Params* const params= new HDF5_IO_Params();
-
-  // parameters
-  
-  hid_t group= H5Gopen(file, "parameters", H5P_DEFAULT);
-  if(group < 0) {
-    msg_printf(msg_
-    throw LightconeFileError();
-    cerr << "Error: unable to open group parameters\n";
-    throw group;
-  }
-
-      //params->omega_m= read_data_double(group, "omega_m");
-
-  H5Gclose(group);
-  */
   
   // Get size of the data
   const int n= read_data_length(file, "x");
