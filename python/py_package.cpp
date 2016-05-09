@@ -185,6 +185,8 @@ static PyMethodDef methods[] = {
    "_snapshots_len(_snps); get the number of snapshot in _snps"},
   {"_snapshots_get", py_snapshots_get, METH_VARARGS,
    "_snapshot_get(_snps, i); get ith snapshot as a tuble"},
+  {"_snapshots_clear", py_snapshots_clear, METH_VARARGS,
+   "clear snapshot deque"},
 
   {"_cola_lightcones_create", py_cola_lightcones_create, METH_VARARGS,
    "_cola_lightcones_create(_snapshots, _sky, _remap, _slice, _lightcones)"},

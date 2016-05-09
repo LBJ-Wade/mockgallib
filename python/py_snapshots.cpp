@@ -52,6 +52,7 @@ PyObject* py_snapshots_insert(PyObject* self, PyObject* args)
   }
   catch(const HaloMassFileError) {
     PyErr_SetString(PyExc_IOError, "Unable to read halo mass file");
+    return NULL;
   }
 
   snps->push_back(snp);
@@ -103,4 +104,21 @@ PyObject* py_snapshots_get(PyObject* self, PyObject* args)
 
   return Py_BuildValue("(sddd)", snp->filename,
 		       snp->a_snp, snp->a_min, snp->a_max);
+}
+
+PyObject* py_snapshots_clear(PyObject* self, PyObject* args)
+{
+  // _snapshots_get(_snps)
+  PyObject *py_snps;
+  
+  if(!PyArg_ParseTuple(args, "O", &py_snps)) {
+    return NULL;
+  }
+
+  Snapshots* snps= (Snapshots*) PyCapsule_GetPointer(py_snps, "_Snapshots");
+  py_assert_ptr(snps);
+
+  snps->clear();
+
+  Py_RETURN_NONE;
 }

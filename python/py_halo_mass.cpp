@@ -26,7 +26,7 @@ PyObject* py_halo_mass_alloc(PyObject* self, PyObject* args)
   catch(HaloMassFileError) {
     Py_DECREF(bytes);
     PyErr_SetString(PyExc_IOError, "HaloMassFileError");
-    Py_RETURN_NONE;
+    return NULL;
   }
 
   Py_DECREF(bytes);

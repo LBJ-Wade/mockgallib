@@ -13,6 +13,8 @@ class Snapshots:
         
     def insert(self, fof_filename, halo_mass_filename, a_snp):
         c._snapshots_insert(self._snps, fof_filename, halo_mass_filename,
-                            a_snp[0], a_snp[1], a_snp[2]);
+                            a_snp[0], a_snp[1], a_snp[2])
 
+    def clear(self):
+        c._snapshots_clear(self._snps)
     

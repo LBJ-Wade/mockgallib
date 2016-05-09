@@ -1,3 +1,4 @@
+#include "cola_file.h"
 #include "cola_lightcone.h"
 #include "py_assert.h"
 #include "py_cola_lightcones.h"
@@ -26,12 +27,18 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
   Remap const * const remap= (Remap*) PyCapsule_GetPointer(py_remap, "_Remap");
   py_assert_ptr(remap);
 
-  Slice const * const slice= (Slice*) PyCapsule_GetPointer(py_remap, "_Slice");
+  Slice const * const slice= (Slice*) PyCapsule_GetPointer(py_slice, "_Slice");
   py_assert_ptr(slice);
 
   //Slice slice(remap->boxsize, sky->width, sky->centre);
-  
-  cola_lightcones_create(snapshots, sky, remap, slice, lightcones);
+
+  try {
+    cola_lightcones_create(snapshots, sky, remap, slice, lightcones, 0);
+  }
+  catch (const ColaFileError e) {
+    PyErr_SetString(PyExc_IOError, "Unable to read data");
+    return NULL;
+  }
 
   Py_RETURN_NONE;
 }

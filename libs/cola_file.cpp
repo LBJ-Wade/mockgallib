@@ -1,6 +1,7 @@
-#include <iostream>
 #include <cstdio>
 #include <cassert>
+
+#include "msg.h"
 #include "cola_file.h"
 
 using namespace std;
@@ -13,8 +14,8 @@ void cola_halo_file_open(const char filename[],
 {
   fp= fopen(filename, "r");
   if(fp == 0) {
-    cerr << "Error: unable to open " << filename << endl;
-    throw filename;
+    msg_printf(msg_fatal, "Error: unable to open cola fof file, %s", filename);
+    throw ColaFileError();
   }
 
   float params[3];

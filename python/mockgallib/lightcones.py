@@ -29,7 +29,7 @@ class LightCones:
         return "A collection of %d lightcones" % len(self)
 
     def __getitem__(self, i):
-        return LightCone(c._lightcones_lighcone(self._lt, i))
+        return LightCone(c._lightcones_lightcone(self._lt, i))
         
     def load_h5(self, filenames):
         """load([filename1, filename2]); load lightcones from files"""
