@@ -7,7 +7,7 @@ class TestLightcones(unittest.TestCase):
         self.lightcones = mock.LightCones()
 
     def test_load_filename(self):
-        self.lightcones.load(['../data/halo_lightcone_mini.h5'])
+        self.lightcones.load_h5(['../data/halo_lightcone_mini.h5'])
         self.assertEqual(len(self.lightcones), 1)
 
 

@@ -8,7 +8,8 @@ using namespace std;
 FILE* fp;
 static int nhalo;
 
-void cola_halo_file_open(const char filename[])
+void cola_halo_file_open(const char filename[],
+			 float* const boxsize)
 {
   fp= fopen(filename, "r");
   if(fp == 0) {
@@ -19,6 +20,8 @@ void cola_halo_file_open(const char filename[])
   float params[3];
   int ret= fread(params, sizeof(float), 3, fp); assert(ret == 3);
 
+  *boxsize= params[0];
+  
   nhalo= 0;
 }
 

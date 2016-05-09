@@ -7,6 +7,6 @@ test_%:
 .PHONY: check
 
 check:
-	for t in $(TESTS); do python3 $$t; done
+	for t in $(TESTS); do python3 $$t || exit 1; done
 
 

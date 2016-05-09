@@ -11,6 +11,7 @@
 #include "cola_lightcone.h"
 
 using namespace std;
+static gsl_rng* rng= 0;
 
 static void fill_lightcone(Snapshot const * const snp,
 			   Sky const * const sky,
@@ -19,7 +20,7 @@ static void fill_lightcone(Snapshot const * const snp,
 			   LightCones* const lightcones);
 
 static inline void
-  randomise_position(const float boxsize, gsl_rng* const rng, float* const x)
+  randomise_position(const float boxsize, float* const x)
 {
   x[0]= boxsize*gsl_rng_uniform(rng);
   x[1]= boxsize*gsl_rng_uniform(rng);
@@ -30,8 +31,10 @@ void cola_lightcones_create(Snapshots const * const snapshots,
 			    Sky const * const sky,
 			    Remap const * const remap,
 			    Slice const * const slice,
-			    LightCones* const lightcones)
+			    LightCones* const lightcones,
+			    gsl_rng* const random_generator)
 {
+  rng= random_generator;
   lightcones->clear();
   
   for(Snapshots::const_iterator snp= snapshots->begin();
@@ -55,8 +58,10 @@ void fill_lightcone(Snapshot const * const snp,
 
   msg_printf(msg_verbose, "filling lightcone from %s, a=%.3f\n",
 	     snp->filename, snp->a_snp);
+
+  float boxsize;
   
-  cola_halo_file_open(snp->filename);
+  cola_halo_file_open(snp->filename, &boxsize);
 
   Halo halo;
   Halo* const h= &halo;
@@ -69,6 +74,10 @@ void fill_lightcone(Snapshot const * const snp,
   const float dec_max= sky->dec_range[1];
 
   while(cola_halo_file_read_one(h)) {
+    // randomise the coordinate if rng != 0
+    if(rng)
+      randomise_position(boxsize, h->x);
+
     // remap cube to cuboid
     if(!remap->coordinate(h))
       continue;

@@ -187,7 +187,7 @@ static PyMethodDef methods[] = {
    "_snapshot_get(_snps, i); get ith snapshot as a tuble"},
 
   {"_cola_lightcones_create", py_cola_lightcones_create, METH_VARARGS,
-   "_cola_lightcones_create(_snapshots, _sky, _remap, _lightcones)"},
+   "_cola_lightcones_create(_snapshots, _sky, _remap, _slice, _lightcones)"},
 
   {"_halo_concentration_init", py_halo_concentration_init, METH_VARARGS,
    "_halo_concentration_init(_sigma)"},

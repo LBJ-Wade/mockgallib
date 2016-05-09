@@ -5,11 +5,11 @@
 
 PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 {
-  // _cola_lightcones_create(_snapshots, _sky, _remap, _lightcones)
-  PyObject *py_snapshots, *py_sky, *py_remap, *py_lightcones;
+  // _cola_lightcones_create(_snapshots, _sky, _remap, _slice, _lightcones)
+  PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_lightcones;
   
-  if(!PyArg_ParseTuple(args, "OOOO",
-		       &py_snapshots, &py_sky, &py_remap, &py_lightcones))
+  if(!PyArg_ParseTuple(args, "OOOOO",
+		 &py_snapshots, &py_sky, &py_remap, &py_slice, &py_lightcones))
     return NULL;
 
   Snapshots const * const snapshots= (Snapshots*)
@@ -26,9 +26,12 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
   Remap const * const remap= (Remap*) PyCapsule_GetPointer(py_remap, "_Remap");
   py_assert_ptr(remap);
 
-  Slice slice(remap->boxsize, sky->width, sky->centre);
+  Slice const * const slice= (Slice*) PyCapsule_GetPointer(py_remap, "_Slice");
+  py_assert_ptr(slice);
+
+  //Slice slice(remap->boxsize, sky->width, sky->centre);
   
-  cola_lightcones_create(snapshots, sky, remap, &slice, lightcones);
+  cola_lightcones_create(snapshots, sky, remap, slice, lightcones);
 
   Py_RETURN_NONE;
 }
