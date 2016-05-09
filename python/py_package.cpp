@@ -24,7 +24,6 @@
 #include "py_snapshots.h"
 #include "py_cola_lightcones.h"
 #include "py_halo_concentration.h"
-#include "py_hdf5_io.h"
 
 using namespace std;
 
@@ -123,11 +122,18 @@ static PyMethodDef methods[] = {
 
   {"_lightcones_alloc", py_lightcones_alloc, METH_VARARGS,
    "allocate a new _LightCones"},
-  {"_lightcones_load", py_lightcones_load, METH_VARARGS,
-   "_lightcones_load(_lightcones, filename); read a lightcone from file"},
+  {"_lightcones_load_h5", py_lightcones_load_h5, METH_VARARGS,
+   "_lightcones_load_h5(_lightcones, filename); read a lightcone from file"},
   {"_lightcones_len", py_lightcones_len, METH_VARARGS,
    "number of lightcones in _LightCones"},
 
+  {"_lightcone_len", py_lightcone_len, METH_VARARGS,
+   "_lightcone_len(_lightcone); number of haloes in _lightcone"},
+  {"_lightcone_as_array", py_lightcone_as_array, METH_VARARGS,
+   "_lightcone_as_array(_lightcone); return haloes as a np array"},
+  {"_lightcone_save_h5", py_lightcone_save_h5, METH_VARARGS,
+   "_lightcone_save_h5(_lightcone, filename); save lightcone as HDF5 file"},
+  
   {"_catalogues_alloc", py_catalogues_alloc, METH_VARARGS,
    "allocate a new _Catalogues"},   
   {"_catalogues_generate_galaxies", py_catalogues_generate_galaxies, METH_VARARGS,
@@ -184,9 +190,6 @@ static PyMethodDef methods[] = {
   {"_halo_concentration_init", py_halo_concentration_init, METH_VARARGS,
    "_halo_concentration_init(_sigma)"},
 
-  {"_hdf5_write_lightcone", py_hdf5_write_lightcone, METH_VARARGS,
-   "_hdf5_write_lightcone(filename, _lightcone)"},
-  
   {NULL, NULL, 0, NULL}
 };
 

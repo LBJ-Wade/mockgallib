@@ -5,9 +5,15 @@ class LightCone:
     def __init__(self, _lc):
         self._lightcone = _lc
 
-    def save(self, filename):
-        
+    def __len__(self, _lc):
+        return c._lightcone_len(self._lightcone)
 
+    def as_array(self):
+        return c._lightcone_as_array(self._lightcone)
+
+    def save_h5(self, filename):
+        c._lightcone_save_h5(self._lightcone, filename)
+    
 class LightCones:
     """A collection of halo light cones"""
     def __init__(self):
@@ -22,10 +28,10 @@ class LightCones:
     def __getitem__(self, i):
         return LightCone(c._lightcones_lighcone(self._lt, i))
         
-    def load(self, filenames):
+    def load_h5(self, filenames):
         """load([filename1, filename2]); load lightcones from files"""
         for filename in filenames:
-            c._lightcones_load(self._lt, filename)
+            c._lightcones_load_h5(self._lt, filename)
 
     def create_from_snapshots(self, snapshots, sky, remap):
         """create_from_snapshots(snapshots, sky, remap); create lightcones from halo snapshots"""

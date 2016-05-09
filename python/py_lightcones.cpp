@@ -18,6 +18,9 @@ py_lightcones_module_init()
   return NULL;
 }
 
+//
+// LightCones
+//
 
 static void py_lightcones_free(PyObject *obj);
 
@@ -39,18 +42,18 @@ void py_lightcones_free(PyObject *obj)
   delete lightcones;
 }
 
-PyObject* py_lightcones_load(PyObject* self, PyObject* args)
+PyObject* py_lightcones_load_h5(PyObject* self, PyObject* args)
 {
   PyObject* py_lightcones;
   PyObject* bytes;
-  char* filename;
-  Py_ssize_t len;
 
   if(!PyArg_ParseTuple(args, "OO&", &py_lightcones,
 		       PyUnicode_FSConverter, &bytes)) {
     return NULL;
   }
-  
+
+  char* filename;
+  Py_ssize_t len;
   PyBytes_AsStringAndSize(bytes, &filename, &len);
 
   LightCone* const lightcone= new LightCone();
@@ -118,35 +121,75 @@ PyObject* py_lightcones_lighcone(PyObject* self, PyObject* args)
   return PyCapsule_New(lightcone, "_LightCone", NULL);
 }
 
-PyObject* py_lightcone_as_array(PyObject* self, PyObject* args)
+//
+// LightCone
+//
+
+PyObject* py_lightcone_len(PyObject* self, PyObject* args)
 {
   // _lightcone
-  PyObject* py_lightcones;
-  int i;
+  PyObject* py_lightcone;
+  if(!PyArg_ParseTuple(args, "O", &py_lightcone)) {
+    return NULL;
+  }
+   
+  LightCone* const lc=
+    (LightCone*) PyCapsule_GetPointer(py_lightcone, "_LightCone");
+  py_assert_ptr(lc);
+
+
+  return Py_BuildValue("i", (int) lc->size());
+}
+
+PyObject* py_lightcone_as_array(PyObject* self, PyObject* args)
+{
+  // _lightcone_as_array(_lightcone)
+  PyObject* py_lightcone;
   
-  if(!PyArg_ParseTuple(args, "Oi", &py_lightcones, &i)) {
+  if(!PyArg_ParseTuple(args, "O", &py_lightcone)) {
     return NULL;
   }
 
-  LightCones* const lightcones=
-    (LightCones*) PyCapsule_GetPointer(py_lightcones, "_LightCones");
-  py_assert_ptr(lightcones);
-
-
-  LightCone* lightcone= 0;
-  try {
-    lightcone= lightcones->at(i);
-  }
-  catch(const out_of_range) {
-    PyErr_SetString(PyExc_LookupError, "Lightcone out of range");
-    return NULL;
-  }
+  LightCone* const lc=
+    (LightCone*) PyCapsule_GetPointer(py_lightcone, "_LightCone");
+  py_assert_ptr(lc);
   
   int nd=2;
   py_assert_ptr(sizeof(Halo) % sizeof(float) == 0);
   int ncol= sizeof(Halo)/sizeof(float);
-  npy_intp dims[]= {(npy_intp)lightcone->size(), ncol};
+  npy_intp dims[]= {(npy_intp)lc->size(), ncol};
 
-  return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(lightcone->front()));
+  return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, &(lc->front()));
 }
-*/
+
+PyObject* py_lightcone_save_h5(PyObject* self, PyObject* args)
+{
+  // _lightcone_save(_lightcone, filename)
+  PyObject* py_lightcone;
+  PyObject* bytes;
+
+  if(!PyArg_ParseTuple(args, "OO&", &py_lightcone,
+		       PyUnicode_FSConverter, &bytes)) {
+    return NULL;
+  }
+
+  char* filename;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(bytes, &filename, &len);
+
+  LightCone* const lc=
+    (LightCone*) PyCapsule_GetPointer(py_lightcone, "_LightCone");
+  py_assert_ptr(lc);
+
+  try {
+    hdf5_write_lightcone(filename, lc);
+  }
+  catch(LightconeFileError) {
+    Py_DECREF(bytes);
+    PyErr_SetString(PyExc_IOError, "LightconeFileError");
+    return NULL;
+  }
+  Py_DECREF(bytes);
+  
+  Py_RETURN_NONE;
+}
