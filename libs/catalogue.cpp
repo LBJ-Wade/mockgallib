@@ -149,6 +149,50 @@ void catalogue_generate_mock(Hod* const hod,
   cat->nsat= nsat_total;
 }
 
+void catalogue_generate_centrals(Hod* const hod,
+      LightCone const * const lightcone, const double z_min, const double z_max,
+      Catalogue * const cat)
+{
+  assert(hod);
+  assert(lightcone);
+  assert(cat);
+
+  cat->clear();
+  
+  Particle p; p.w= 1.0;
+  int ncen_total= 0, nsat_total= 0;
+
+  for(LightCone::const_iterator h=
+	lightcone->begin(); h != lightcone->end(); ++h) {
+    if(h->z < z_min || h->z >= z_max)
+      continue;
+
+    hod->compute_param_z(h->z);
+
+    // centrals
+    double ncen= hod->ncen(h->M);
+
+    if(gsl_rng_uniform(rng) > ncen)
+      continue;
+
+    p.x[0]= h->x[0];
+    p.x[1]= h->x[1];
+    p.x[2]= h->x[2];
+    p.vr  = h->v[0];
+    p.z   = h->z;
+    p.radec[0] = h->radec[0];
+    p.radec[1] = h->radec[1];
+
+    cat->push_back(p);
+    ncen_total++;
+
+  }
+  cat->ncen= ncen_total;
+  cat->nsat= 0;
+}
+
+
+
 /*
 void catalogue_generate_randoms(Hod* const hod,
 				Sky* const sky,

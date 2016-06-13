@@ -17,6 +17,7 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
   PyObject *bufobj;
   Py_buffer view;
 
+  
   if(!PyArg_ParseTuple(args, "OOOdd", &py_ps, &py_hod, &bufobj, &z_min, &z_max))
     return NULL;
 
