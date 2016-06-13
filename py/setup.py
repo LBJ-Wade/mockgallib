@@ -34,5 +34,3 @@ setup(name='mockgallib',
       ],
       packages=['mockgallib'],
 )
-
-

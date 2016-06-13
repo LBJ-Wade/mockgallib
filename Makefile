@@ -1,18 +1,21 @@
-.PHONY: all libs python check clean countm
+.PHONY: all lib py test check clean count
 
 all:
 	make lib
 	make py
 	make check
 
-libs:
+lib:
 	cd lib && $(MAKE)
 
-python:
+py:
 	cd py && $(MAKE)
 
-check:
+test:
 	cd test && $(MAKE)
+
+check:
+	cd py && $(MAKE) check
 
 clean:
 	cd lib && $(MAKE) clean
