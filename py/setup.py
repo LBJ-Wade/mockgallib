@@ -27,8 +27,8 @@ setup(name='mockgallib',
                      'py_cola_lightcones.cpp', 'py_halo_concentration.cpp',
                      'py_hdf5_io.cpp', 'py_random.cpp'
                     ],
-                    include_dirs = ['../libs', np.get_include()],
-                    library_dirs =  ['../libs'],
+                    include_dirs = ['../lib', np.get_include()],
+                    library_dirs =  ['../lib'],
                     libraries = ['mockgal'],
           )
       ],
