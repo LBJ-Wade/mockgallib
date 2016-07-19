@@ -1,14 +1,26 @@
 import mockgallib._mockgallib as c
 
-# Sigma sigma(PowerSpectrum ps)
-#   Amplitude (redshift) of sigma is that of power spectrum
-#
-# sigma.M       array of Mass [1/h Solar mass]
-# sigma.sinv    array of 1/sigma(M)
-# sigma(M)      sigma function of M (double) -> sigma
-# sigma.inv(s)  inverse function sigma -> M
 
 class Sigma:
+    """Sigma0(M): Density fluctuation at z = 0 on mass scale M.
+
+    s = Sigma(s, M_min=1.0e10, M_max=1.0e16, n=1001)
+
+    Args:
+        ps (PowerSpectrum).
+        [M_min (float)]: minimum mass for sigma(M).
+        [M_max (float)]: maximum mass for sigma(M).
+        [n (int)]: Number of data points for interpolation.
+
+    Attributes:
+        s.M:  array of mass [1/h Solar mass]
+        s.sinv: array of 1/sigma(M)
+        s(M): sigma0(M)
+        s.inv(M): inverse function sigma0 = M(sigma0)
+        s.M_range: (M_min, M_max)
+        s.sigma0_range: (sigma0(M_max), sigma0(M_min))
+    """
+    
     def __init__(self, ps, *args, **kwargs):
         M_min = kwargs.get('M_min', 1.0e10)
         M_max = kwargs.get('M_max', 1.0e16)
@@ -21,13 +33,12 @@ class Sigma:
         self.M_range= c._sigma_M_range(self._s)
         self.sigma0_range= (self(self.M_range[0]),
                             self(self.M_range[1]))
-        
+
     def __len__(self):
+        """number of precomputed data points; length of M and sinv"""
         return self.n
 
     def __getitem__(self, i):
-        if i < 0 or i > self.n:
-            return None
         return (self.M[i], 1.0/self.sinv[i])
 
     def __repr__(self):

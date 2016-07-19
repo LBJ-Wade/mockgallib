@@ -1,5 +1,5 @@
+import mockgallib.cosmology
 from mockgallib._mockgallib import set_loglevel
-from mockgallib._mockgallib import cosmology_set
 from mockgallib._mockgallib import cosmology_compute_comoving_distance
 from mockgallib._mockgallib import growth_D
 from mockgallib.power import PowerSpectrum
@@ -16,4 +16,4 @@ from mockgallib.sky import Sky
 from mockgallib.slice import Slice
 from mockgallib.snapshots import Snapshots
 from mockgallib.halo_concentration import halo_concentration_init
-from mockgallib.random import Random
+#from mockgallib.random import Random

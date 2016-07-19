@@ -1,3 +1,7 @@
+//
+// Generate a lightcone from snapshots
+//
+
 #include <cstdio>
 #include <iostream>
 #include <vector>

@@ -12,6 +12,7 @@ setup(name='mockgallib',
                   'mockgallib.sky', 'mockgallib.distance', 'mockgallib.slice',
                   'mockgallib.remap', 'mockgallib.snapshots',
                   'mockgallib.halo_concentration', 'mockgallib.random',
+                  'mockgallib.cosmology',
       ],
       ext_modules=[
           Extension('mockgallib._mockgallib',

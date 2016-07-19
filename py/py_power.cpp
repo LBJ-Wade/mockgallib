@@ -27,13 +27,13 @@ PyObject* py_power_alloc(PyObject* self, PyObject* args)
   // Convert Python string to char* filename
   //
   PyObject* bytes;
-  char* filename;
-  Py_ssize_t len;
-
+  
   if(!PyArg_ParseTuple(args, "O&", PyUnicode_FSConverter, &bytes)) {
     return NULL;
   }
-
+  
+  char* filename;
+  Py_ssize_t len;
   PyBytes_AsStringAndSize(bytes, &filename, &len);
 
   PowerSpectrum* ps;
@@ -43,7 +43,8 @@ PyObject* py_power_alloc(PyObject* self, PyObject* args)
   }
   catch(PowerFileError) {
     Py_DECREF(bytes);
-    Py_RETURN_NONE;
+    PyErr_SetNone(PyExc_IOError);
+    return NULL;
   }
 
   Py_DECREF(bytes);
@@ -145,7 +146,9 @@ PyObject* py_power_ki(PyObject* self, PyObject* args)
   if(0 <= i && i < ps->n)
     return Py_BuildValue("d", ps->k[i]);
 
-  Py_RETURN_NONE;
+
+  PyErr_SetNone(PyExc_IndexError);
+  return NULL;
 }
 
 PyObject* py_power_Pi(PyObject* self, PyObject* args)
@@ -163,5 +166,6 @@ PyObject* py_power_Pi(PyObject* self, PyObject* args)
   if(0 <= i && i < ps->n)
     return Py_BuildValue("d", ps->P[i]);
 
-  Py_RETURN_NONE;
+  PyErr_SetNone(PyExc_IndexError);
+  return NULL;
 }
