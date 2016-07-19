@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <queue>
 #include <cassert>
 
 #include <gsl/gsl_rng.h>
@@ -15,6 +17,38 @@ using namespace std;
 
 
 static gsl_rng* rng= 0;
+
+//
+// Satelite queue class
+//
+
+struct SatelliteRandom {
+  double M;
+  int n;
+};
+  
+class SatelitteQueue {
+ public:
+  bool empty() const {
+    return q.empty();
+  }
+  double pop() {
+    double M= q.front().M;
+    if(q.front().n == 1)
+      q.pop();
+    else
+      q.front().n--;
+    return M;
+  }
+  void push(const double M, const int n) {
+    SatelliteRandom s;
+    s.M= M; s.n= n;
+    q.push(s);
+  }
+      
+ private:
+  queue<SatelliteRandom> q;
+};
 
 
 //
@@ -84,7 +118,6 @@ void catalogue_free()
 // Generate a mock catalogue from a lightcone
 //
 
-
 void catalogue_generate_mock(Hod* const hod,
 			     LightCone const * const lightcone,
 			     const double z_min, const double z_max,
@@ -149,6 +182,7 @@ void catalogue_generate_mock(Hod* const hod,
   cat->nsat= nsat_total;
 }
 
+
 void catalogue_generate_centrals(Hod* const hod,
       LightCone const * const lightcone, const double z_min, const double z_max,
       Catalogue * const cat)
@@ -193,36 +227,71 @@ void catalogue_generate_centrals(Hod* const hod,
 
 
 
-/*
+
 void catalogue_generate_randoms(Hod* const hod,
-				Sky* const sky,
-				MfCumulative* const mc,
+				LightCone const * const lightcone,
+				const double z_min, const double z_max,
 				Catalogue * const cat)
 {
-  Particle particle;
-  Particle* p= &particle;
+  // lightcone: random lightcone
+  assert(hod);
+  assert(lightcone);
+  assert(cat);
 
-  const double vol= sky->width[0]*sky->width[1]*sky->width[2];
-  const int nhalo= vol*mc->nM_max;
+  cat->clear();
+  
+  Particle p; p.w= 1.0;
+  int ncen_total= 0, nsat_total= 0;
 
-  // Centrals
-  for(int i=0; i<nhalo; ++i) {
-    for(int k=0; k<3; ++k)
-      p->x[k]= sky->left[k] + sky->width[k]*gsl_rng_uniform(rng);
-
-    sky_compute_ra_dec(sky, p);
-    if(p->ra < sky->ra_range[0] ||  p->ra > sky->ra_range[1] ||
-       p->dec < sky->dec_range[0] || p->dec > sky->dec_range[1])
+  const double dz= 0.02;
+  const int n_zbin= (int) ceil((z_max - z_min)/dz);
+  vector<SatelitteQueue> qsat(n_zbin);
+  
+  for(LightCone::const_iterator h=
+	lightcone->begin(); h != lightcone->end(); ++h) {
+    if(h->z < z_min || h->z >= z_max)
       continue;
 
-    double nM= mc->nM_max*gsl_rng_uniform(rng);
-    double M= mc->M(nM);
+    hod->compute_param_z(h->z);
 
+    // centrals
     double ncen= hod->ncen(h->M);
-    //if(gsl_rng_uniform(rng) > ncen)
+    int iz= (int)((h->z - z_min)/dz); assert(0 <= iz && iz < n_zbin);
+    
+    if(gsl_rng_uniform(rng) <= ncen) {
+      p.x[0]= h->x[0];
+      p.x[1]= h->x[1];
+      p.x[2]= h->x[2];
+      p.vr  = h->v[0];
+      p.z   = h->z;
+      p.radec[0] = h->radec[0];
+      p.radec[1] = h->radec[1];
 
+      cat->push_back(p);
+      ncen_total++;
+
+      double nsat_mean= hod->nsat(h->M);
+      int nsat= gsl_ran_poisson(rng, nsat_mean);
+
+      qsat[iz].push(h->M, nsat);
+      nsat_total += nsat;
+    }
+    else if(!qsat[iz].empty()) {
+      // put satellites
+      Halo hh= *h;
+      hh.M= qsat[iz].pop();
+      satellite(&hh, &p);
+      p.x[0] += h->x[0];
+      p.x[1] += h->x[1];
+      p.x[2] += h->x[2];
+      p.z     = h->z;
+      p.vr   += h->v[0];
+      p.radec[0] = h->radec[1];
+      p.radec[1] = h->radec[1];
+
+      cat->push_back(p);
+    }    
   }
-
-  
+  cat->ncen= ncen_total;
+  cat->nsat= nsat_total;
 }
-*/
