@@ -16,4 +16,4 @@ from mockgallib.sky import Sky
 from mockgallib.slice import Slice
 from mockgallib.snapshots import Snapshots
 from mockgallib.halo_concentration import halo_concentration_init
-#from mockgallib.random import Random
+from mockgallib.random import Random

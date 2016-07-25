@@ -6,8 +6,11 @@
 
 PyMODINIT_FUNC
 py_power_module_init();
-//void py_power_add_methods(std::vector<PyMethodDef>& methods);
-PyObject* py_power_alloc(PyObject* self, PyObject* args);
+
+PyObject* py_power_init(PyObject* self, PyObject* args);
+PyObject* py_power_free(PyObject* self, PyObject* args);
+
+
 PyObject* py_power_sigma(PyObject* self, PyObject* args);
 PyObject* py_power_n(PyObject* self, PyObject* args);
 PyObject* py_power_k(PyObject* self, PyObject* args);

@@ -6,7 +6,9 @@
 PyMODINIT_FUNC
 py_sigma_module_init();
 
-PyObject* py_sigma_alloc(PyObject* self, PyObject* args);
+PyObject* py_sigma_init(PyObject* self, PyObject* args);
+PyObject* py_sigma_free(PyObject* self, PyObject* args);
+
 PyObject* py_sigma_n(PyObject* self, PyObject* args);
 PyObject* py_sigma_M_range(PyObject* self, PyObject* args);
 PyObject* py_sigma_M(PyObject* self, PyObject* args);

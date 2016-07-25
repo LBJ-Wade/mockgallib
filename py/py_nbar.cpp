@@ -8,20 +8,18 @@ PyObject* py_nbar_alloc(PyObject* self, PyObject* args)
 {
   // _nbar_alloc(_ps, _hod)
   
-  PyObject *py_ps, *py_hod;
-  if(!PyArg_ParseTuple(args, "OO", &py_ps, &py_hod))
+  PyObject *py_hod;
+  if(!PyArg_ParseTuple(args, "O", &py_hod))
     return NULL;
-
-  PowerSpectrum* const ps=
-    (PowerSpectrum*) PyCapsule_GetPointer(py_ps, "_PowerSpectrum");
 
   Hod* const hod=
     (Hod*) PyCapsule_GetPointer(py_hod, "_HOD");
 
-  NbarIntegration* const ni= nbar_integration_alloc(ps, hod);
+  NbarIntegration* const ni= nbar_integration_alloc(hod);
 
   return PyCapsule_New(ni, "_NbarIntegration", py_nbar_free);
 }
+
 
 void py_nbar_free(PyObject *obj)
 {

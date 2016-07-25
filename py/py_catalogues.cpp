@@ -36,13 +36,16 @@ void py_catalogues_free(PyObject *obj)
   delete cats;
 }
 
-PyObject* py_catalogues_generate_galaxies(PyObject* self, PyObject* args)
+PyObject* py_catalogues_generate(PyObject* self, PyObject* args)
 {
-  // _catalogues_generate_galaxies(_catalogues, _hod, _lightcone, z_min, z_max)
+  // _catalogues_generate_galaxies(_catalogues, _hod, _lightcone, z_min, z_max, random)
+  // random: 0 for mock catalogue, 1 for randoms
+  
   PyObject *py_catalogues, *py_hod, *py_lightcones;
   double z_min, z_max;
-  if(!PyArg_ParseTuple(args, "OOOdd", &py_catalogues, &py_hod, &py_lightcones,
-		       &z_min, &z_max)) {
+  int random;
+  if(!PyArg_ParseTuple(args, "OOOddi", &py_catalogues, &py_hod, &py_lightcones,
+		       &z_min, &z_max, &random)) {
     return NULL;
   }
 
@@ -66,19 +69,34 @@ PyObject* py_catalogues_generate_galaxies(PyObject* self, PyObject* args)
 
   const size_t n= lightcones->size();
 
-  for(size_t i=0; i<n; ++i) {
-    catalogue_generate_mock(hod, lightcones->at(i),
-			    z_min, z_max, cats->at(i));
-
-    msg_printf(msg_verbose, "mock catalogue %lu generated with %lu galaxies\n",
-	       i, cats->at(i)->size());
+  if(random) {
+    for(size_t i=0; i<n; ++i) {
+      catalogue_generate_random(hod, lightcones->at(i),
+				z_min, z_max, cats->at(i));
+      msg_printf(msg_verbose,
+		 "random catalogue %lu generated with %lu galaxies\n",
+		 i, cats->at(i)->size());
+      
+    }
+  }
+  else {
+    for(size_t i=0; i<n; ++i) {
+      catalogue_generate_mock(hod, lightcones->at(i),
+			      z_min, z_max, cats->at(i));
+      
+      msg_printf(msg_verbose,
+		 "mock catalogue %lu generated with %lu galaxies\n",
+		 i, cats->at(i)->size());
+    }
   }
 
   Py_RETURN_NONE;
 }
 
+
 PyObject* py_catalogues_len(PyObject* self, PyObject* args)
 {
+  // return number of catalogue in the catalogues
   PyObject* py_catalogues;
   if(!PyArg_ParseTuple(args, "O", &py_catalogues)) {
     return NULL;
@@ -94,7 +112,7 @@ PyObject* py_catalogues_len(PyObject* self, PyObject* args)
 PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
 {
   // _catalogues_catalogue(_cats, i)
-  // return ith _Catalogue
+  // return ith catalogue as an np.array
   
   PyObject* py_catalogues;
   int i;

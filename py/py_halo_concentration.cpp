@@ -13,11 +13,7 @@ PyObject* py_halo_concentration_init(PyObject* self, PyObject* args)
   if(!PyArg_ParseTuple(args, "O", &py_sigma))
      return NULL;
 
-  Sigma* const s=
-    (Sigma *) PyCapsule_GetPointer(py_sigma, "_Sigma");
-  py_assert_ptr(s);
-
-  halo_concentration_init(s);
+  halo_concentration_init();
 
   Py_RETURN_NONE;
 }

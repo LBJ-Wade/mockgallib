@@ -13,16 +13,13 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
   // _nbar_fitting_alloc(_ps, _hod, _nbar_obs, z_min, z_max)
 
   double z_min, z_max;
-  PyObject *py_ps, *py_hod;
+  PyObject *py_hod;
   PyObject *bufobj;
   Py_buffer view;
 
   
-  if(!PyArg_ParseTuple(args, "OOOdd", &py_ps, &py_hod, &bufobj, &z_min, &z_max))
+  if(!PyArg_ParseTuple(args, "OOdd", &py_hod, &bufobj, &z_min, &z_max))
     return NULL;
-
-  PowerSpectrum* const ps=
-    (PowerSpectrum*) PyCapsule_GetPointer(py_ps, "_PowerSpectrum");
 
   Hod* const hod=
     (Hod*) PyCapsule_GetPointer(py_hod, "_HOD");
@@ -103,7 +100,7 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
 
   
   NbarFitting* const fitting=
-    nbar_fitting_alloc(ps, hod, v, z_min, z_max);
+    nbar_fitting_alloc(hod, v, z_min, z_max);
 
   return PyCapsule_New(fitting, "_NbarFitting", py_nbar_fitting_free);
 }

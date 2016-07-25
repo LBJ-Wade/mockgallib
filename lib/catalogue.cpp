@@ -134,10 +134,10 @@ void catalogue_generate_mock(Hod* const hod,
 
 
   cerr << "src lightcone " << lightcone->size() << endl;
-  cerr << "target catalogue" << cat->size() << endl;
   
   for(LightCone::const_iterator h=
 	lightcone->begin(); h != lightcone->end(); ++h) {
+    
     if(h->z < z_min || h->z >= z_max)
       continue;
 
@@ -145,6 +145,7 @@ void catalogue_generate_mock(Hod* const hod,
 
     // centrals
     double ncen= hod->ncen(h->M);
+    
 
     if(gsl_rng_uniform(rng) > ncen)
       continue;
@@ -180,6 +181,8 @@ void catalogue_generate_mock(Hod* const hod,
   }
   cat->ncen= ncen_total;
   cat->nsat= nsat_total;
+
+  cerr << ncen_total << " centrals, " << nsat_total << " statellites\n";
 }
 
 
@@ -226,12 +229,10 @@ void catalogue_generate_centrals(Hod* const hod,
 }
 
 
-
-
-void catalogue_generate_randoms(Hod* const hod,
-				LightCone const * const lightcone,
-				const double z_min, const double z_max,
-				Catalogue * const cat)
+void catalogue_generate_random(Hod* const hod,
+			       LightCone const * const lightcone,
+			       const double z_min, const double z_max,
+			       Catalogue * const cat)
 {
   // lightcone: random lightcone
   assert(hod);

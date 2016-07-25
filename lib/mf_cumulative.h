@@ -7,7 +7,7 @@
 
 class MfCumulative {
  public:
-  MfCumulative(Sigma* const s, const double a);
+  MfCumulative(const double a);
   ~MfCumulative();
   //double n_cumulative(const double M);
   double M(const double nM);

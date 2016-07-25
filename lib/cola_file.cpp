@@ -14,7 +14,8 @@ void cola_halo_file_open(const char filename[],
 {
   fp= fopen(filename, "r");
   if(fp == 0) {
-    msg_printf(msg_fatal, "Error: unable to open cola fof file, %s", filename);
+    msg_printf(msg_fatal, "Error: unable to open cola fof file, %s\n",
+	       filename);
     throw ColaFileError();
   }
 

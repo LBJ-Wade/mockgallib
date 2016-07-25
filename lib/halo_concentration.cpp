@@ -10,9 +10,9 @@
 
 static double M_star= 0.0;
 
-void halo_concentration_init(Sigma const * const s)
+void halo_concentration_init()
 {
-  M_star= s->M(1.0);
+  M_star= sigma_M(1.0);
   msg_printf(msg_verbose, "Mstar= %e\n", M_star);
 }
 
@@ -25,9 +25,6 @@ static inline double cmean(const double M, const double a)
 #endif
 
   return 11.0*a*pow(M/M_star, -0.13);
-
-  // 2.34e12 /h M_solar is M* at z=0 which depends on cosmology
-  // ToDo: check M* is correct
 }
 
 float halo_concentration_rs(Halo const * const h)

@@ -6,12 +6,11 @@
 #include "numpy/arrayobject.h"
 
 #include "power.h"
+#include "error.h"
 #include "py_power.h"
 #include "py_assert.h"
 
 using namespace std;
-
-static void py_power_free(PyObject *obj);
 
 PyMODINIT_FUNC
 py_power_module_init()
@@ -21,7 +20,8 @@ py_power_module_init()
   return NULL;
 }
 
-PyObject* py_power_alloc(PyObject* self, PyObject* args)
+
+PyObject* py_power_init(PyObject* self, PyObject* args)
 {
   //
   // Convert Python string to char* filename
@@ -36,135 +36,93 @@ PyObject* py_power_alloc(PyObject* self, PyObject* args)
   Py_ssize_t len;
   PyBytes_AsStringAndSize(bytes, &filename, &len);
 
-  PowerSpectrum* ps;
-
   try {
-    ps= new PowerSpectrum(filename);
+    power_init(filename);
   }
-  catch(PowerFileError) {
+  catch(FileNotFoundError) {
     Py_DECREF(bytes);
-    PyErr_SetNone(PyExc_IOError);
+    PyErr_SetNone(PyExc_FileNotFoundError);
     return NULL;
   }
 
   Py_DECREF(bytes);
 
-  return PyCapsule_New(ps, "_PowerSpectrum", py_power_free);
+  Py_RETURN_NONE;
 }
 
 
-void py_power_free(PyObject *obj)
+PyObject* py_power_free(PyObject* self, PyObject* args)
 {
-  PowerSpectrum* const ps=
-    (PowerSpectrum*) PyCapsule_GetPointer(obj, "_PowerSpectrum");
-  py_assert_void(ps);
+  power_free();
 
-  delete ps;
+  Py_RETURN_NONE;
 }
 
 
 PyObject* py_power_sigma(PyObject* self, PyObject* args)
 {
-  PyObject* py_ps;
   double R;
   
-  if(!PyArg_ParseTuple(args, "Od", &py_ps, &R))
+  if(!PyArg_ParseTuple(args, "d", &R))
     return NULL;
 
-  PowerSpectrum* ps;
-  if (!(ps =  (PowerSpectrum *) PyCapsule_GetPointer(py_ps, "_PowerSpectrum")))
-    return NULL;
-
-  double sigma= ps->compute_sigma(R);
+  double sigma= power_compute_sigma(R);
 
   return Py_BuildValue("d", sigma);
 }
 
+
 PyObject* py_power_n(PyObject* self, PyObject* args)
 {
-  PyObject* py_ps;
-  
-  if(!PyArg_ParseTuple(args, "O", &py_ps))
-     return NULL;
-
-  PowerSpectrum* ps;
-  if (!(ps =  (PowerSpectrum *) PyCapsule_GetPointer(py_ps, "_PowerSpectrum")))
-    return NULL;
-
-  return Py_BuildValue("i", ps->n);
+  return Py_BuildValue("i", power_n());
 }
 
   
 PyObject* py_power_k(PyObject* self, PyObject* args)
 {
-  PyObject* py_ps;
-  
-  if(!PyArg_ParseTuple(args, "O", &py_ps))
-     return NULL;
-
-  PowerSpectrum* ps;
-  if (!(ps =  (PowerSpectrum *) PyCapsule_GetPointer(py_ps, "_PowerSpectrum")))
-    return NULL;
-
   int rank=1;
-  npy_intp dims[]= {ps->n};
-  
-  PyObject* k = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, ps->k);
+  npy_intp dims[]= {power_n()};
+  PyObject* k = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, power_k());
+
   return k;
 }
 
+
 PyObject* py_power_P(PyObject* self, PyObject* args)
 {
-  PyObject* py_ps;
-  
-  if(!PyArg_ParseTuple(args, "O", &py_ps))
-     return NULL;
-
-  PowerSpectrum* ps;
-  if (!(ps =  (PowerSpectrum *) PyCapsule_GetPointer(py_ps, "_PowerSpectrum")))
-    return NULL;
-
   int rank=1;
-  npy_intp dims[]= {ps->n};
-  
-  PyObject* P = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, ps->P);
+  npy_intp dims[]= {power_n()};
+  PyObject* P = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, power_P());
+
   return P;
 }
 
+
 PyObject* py_power_ki(PyObject* self, PyObject* args)
 {
-  PyObject* py_ps;
   int i;
   
-  if(!PyArg_ParseTuple(args, "Oi", &py_ps, &i))
+  if(!PyArg_ParseTuple(args, "i", &i))
      return NULL;
 
-  PowerSpectrum* ps;
-  if (!(ps =  (PowerSpectrum *) PyCapsule_GetPointer(py_ps, "_PowerSpectrum")))
-    return NULL;
-
-  if(0 <= i && i < ps->n)
-    return Py_BuildValue("d", ps->k[i]);
+  if(0 <= i && i < power_n())
+    return Py_BuildValue("d", power_k()[i]);
 
 
   PyErr_SetNone(PyExc_IndexError);
   return NULL;
 }
 
+
 PyObject* py_power_Pi(PyObject* self, PyObject* args)
 {
-  PyObject* py_ps;
   int i;
   
-  if(!PyArg_ParseTuple(args, "Oi", &py_ps, &i))
+  if(!PyArg_ParseTuple(args, "i", &i))
      return NULL;
 
-  PowerSpectrum* ps;
-  if (!(ps =  (PowerSpectrum *) PyCapsule_GetPointer(py_ps, "_PowerSpectrum")))
-    return NULL;
-
-  if(0 <= i && i < ps->n)
-    return Py_BuildValue("d", ps->P[i]);
+  if(0 <= i && i < power_n())
+    return Py_BuildValue("d", power_P()[i]);
 
   PyErr_SetNone(PyExc_IndexError);
   return NULL;

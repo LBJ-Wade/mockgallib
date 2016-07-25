@@ -13,7 +13,6 @@
 #include "py_assert.h"
 
 using namespace std;
-static void py_sigma_free(PyObject *obj);
 
 PyMODINIT_FUNC
 py_sigma_module_init()
@@ -23,135 +22,78 @@ py_sigma_module_init()
   return NULL;
 }
 
-PyObject* py_sigma_alloc(PyObject* self, PyObject* args)
+
+PyObject* py_sigma_init(PyObject* self, PyObject* args)
 {
   // _sigma_alloc(_ps, M_min, M_max, n)
 
-  PyObject* py_ps;
   double M_min, M_max;
   int n;
   
-  if(!PyArg_ParseTuple(args, "Oddi", &py_ps, &M_min, &M_max, &n))
+  if(!PyArg_ParseTuple(args, "ddi", &M_min, &M_max, &n))
     return NULL;
 
-  PowerSpectrum* const ps=
-    (PowerSpectrum*) PyCapsule_GetPointer(py_ps, "_PowerSpectrum");
-  assert(ps);
-
-  Sigma* const s= new Sigma(ps, M_min, M_max, n);
-
-  return PyCapsule_New(s, "_Sigma", py_sigma_free);
+  Py_RETURN_NONE;
 }
 
 
-void py_sigma_free(PyObject *obj)
+PyObject* py_sigma_free(PyObject* self, PyObject* args)
 {
-  Sigma* const s=
-    (Sigma*) PyCapsule_GetPointer(obj, "_Sigma");
-  py_assert_void(s);
+  sigma_free();
 
-  delete s;
+  Py_RETURN_NONE;
 }
 
 PyObject* py_sigma_n(PyObject* self, PyObject* args)
 {
-  PyObject* py_sigma;
-  
-  if(!PyArg_ParseTuple(args, "O", &py_sigma))
-     return NULL;
-
-  Sigma* s;
-  if(!(s = (Sigma *) PyCapsule_GetPointer(py_sigma, "_Sigma")))
-    return NULL;
-
-  return Py_BuildValue("i", s->n);
+  return Py_BuildValue("i", sigma_n());
 }
-
 
 
 PyObject* py_sigma_M(PyObject* self, PyObject* args)
 {
-  // py_sigma_M(_Sigma py_sigma, sigma0) = M(sigma0)
+  // py_sigma_M(sigma0) = M(sigma0)
   
-  PyObject* py_sigma;
   double sigma0;
   
-  if(!PyArg_ParseTuple(args, "Od", &py_sigma, &sigma0))
+  if(!PyArg_ParseTuple(args, "d", &sigma0))
     return NULL;
 
-  Sigma* const s=
-    (Sigma*) PyCapsule_GetPointer(py_sigma, "_Sigma");
-
-  double M= s->M(sigma0);
-
-  return Py_BuildValue("d", M);
+  return Py_BuildValue("d", sigma_M(sigma0));
 }
 
 
 PyObject* py_sigma_0inv(PyObject* self, PyObject* args)
 {
-  // py_sigma_0inv(_Sigma py_sigma, M) = 1.0/sigma0(M)
+  // py_sigma_0inv(M) = 1.0/sigma0(M)
   
-  PyObject* py_sigma;
   double M;
   
-  if(!PyArg_ParseTuple(args, "Od", &py_sigma, &M))
+  if(!PyArg_ParseTuple(args, "d", &M))
     return NULL;
 
-  Sigma* const s=
-    (Sigma*) PyCapsule_GetPointer(py_sigma, "_Sigma");
-
-  double sinv= s->sigma0_inv(M);
-
-  return Py_BuildValue("d", sinv);
+  return Py_BuildValue("d", sigma_inv(M));
 }
 
 PyObject* py_sigma_M_range(PyObject* self, PyObject* args)
 {
   // py_sigma_0inv(_Sigma py_sigma, M) = 1.0/sigma0(M)
   
-  PyObject* py_sigma;
-  
-  if(!PyArg_ParseTuple(args, "O", &py_sigma))
-    return NULL;
-
-  Sigma* const s=
-    (Sigma*) PyCapsule_GetPointer(py_sigma, "_Sigma");
-
-  return Py_BuildValue("(dd)", s->M_min, s->M_max);
+  return Py_BuildValue("(dd)", sigma_M_min(), sigma_M_max());
 }
 
 PyObject* py_sigma_M_array(PyObject* self, PyObject* args)
 {
-  PyObject* py_sigma;
-  
-  if(!PyArg_ParseTuple(args, "O", &py_sigma))
-    return NULL;
-
-  Sigma* const s=
-    (Sigma*) PyCapsule_GetPointer(py_sigma, "_Sigma");
-
   int rank=1;
-  npy_intp dims[]= {s->n};
+  npy_intp dims[]= {sigma_n()};
   
-  PyObject* M = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, s->M_);
-  return M;
+  return PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, sigma_M_array());
 }
 
 PyObject* py_sigma_sinv_array(PyObject* self, PyObject* args)
 {
-  PyObject* py_sigma;
-  
-  if(!PyArg_ParseTuple(args, "O", &py_sigma))
-    return NULL;
-
-  Sigma* const s=
-    (Sigma*) PyCapsule_GetPointer(py_sigma, "_Sigma");
-
   int rank=1;
-  npy_intp dims[]= {s->n};
+  npy_intp dims[]= {sigma_n()};
   
-  PyObject* sinv = PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, s->sinv_);
-  return sinv;
+  return PyArray_SimpleNewFromData(rank, dims, NPY_DOUBLE, sigma_sinv_array());
 }
-

@@ -1,19 +1,12 @@
 #ifndef POWER_H
 #define POWER_H 1
 
-class PowerSpectrum {
- public:
-  PowerSpectrum(const char filename[]);
-  ~PowerSpectrum();
-  double compute_sigma(const double R) const;
-  
-  int n;
-  double* k;
-  double* P;
-};
+void power_init(const char filename[]);
+void power_free();
+double power_compute_sigma(const double R);
 
-class PowerFileError {
-  
-};
+int power_n();
+double * power_P();
+double * power_k();
 
 #endif

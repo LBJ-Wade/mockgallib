@@ -5,8 +5,7 @@
 #include "sigma.h"
 #include "halo.h"
 
-void halo_concentration_init(PowerSpectrum const * const ps);
-void halo_concentration_init(Sigma const * const s);
+void halo_concentration_init();
 
 float halo_concentration_rs(Halo const * const h);
 

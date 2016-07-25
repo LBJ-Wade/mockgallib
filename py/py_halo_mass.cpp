@@ -43,4 +43,3 @@ void py_halo_mass_free(PyObject *obj)
 
   delete halo_mass;
 }
-

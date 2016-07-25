@@ -46,8 +46,10 @@ static PyMethodDef methods[] = {
    py_cosmology_compute_comoving_distance, METH_VARARGS,
    "compute comoving distance corresponds to scale factor a"},
    
-  {"_power_alloc", py_power_alloc, METH_VARARGS,
+  {"_power_init", py_power_init, METH_VARARGS,
    "read power spectrum from file"},
+  {"_power_free", py_power_free, METH_VARARGS,
+   "free power spectrum module"},
   {"_power_sigma", py_power_sigma, METH_VARARGS,
    "compute sigma(R); density fluctuation smoothed with radius R"},
   {"_power_n", py_power_n, METH_VARARGS,
@@ -65,7 +67,7 @@ static PyMethodDef methods[] = {
    "growth_D(a); linear growth factor at scale factor a"},
 
 
-  {"_sigma_alloc", py_sigma_alloc, METH_VARARGS,
+  {"_sigma_init", py_sigma_init, METH_VARARGS,
    "allocate sigma(M) module"},
   {"_sigma_M", py_sigma_M, METH_VARARGS,
    "get sigma0(M)"},
@@ -143,8 +145,8 @@ static PyMethodDef methods[] = {
   
   {"_catalogues_alloc", py_catalogues_alloc, METH_VARARGS,
    "allocate a new _Catalogues"},   
-  {"_catalogues_generate_galaxies", py_catalogues_generate_galaxies, METH_VARARGS,
-   "_catalogues_generate_galaxies(_catalogues, _hod, _lightcone, z_min, z_max)"},
+  {"_catalogues_generate", py_catalogues_generate, METH_VARARGS,
+   "_catalogues_generate(_catalogues, _hod, _lightcone, z_min, z_max, random)"},
   {"_catalogues_len", py_catalogues_len, METH_VARARGS,
    "number of catalogues in _Catalogues"},
   {"_catalogues_catalogue", py_catalogues_catalogue, METH_VARARGS,

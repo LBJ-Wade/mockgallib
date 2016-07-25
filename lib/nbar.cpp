@@ -34,7 +34,6 @@ NbarIntegration::NbarIntegration(NbarIntegration const * const ni)
 {
   // use same setting as ni (for different redshift)
   w= ni->w;
-  s= ni->s;
   mf= ni->mf;
   hod= ni->hod;
   rho_m= ni->rho_m;
@@ -42,8 +41,7 @@ NbarIntegration::NbarIntegration(NbarIntegration const * const ni)
   z= 0.0;
 }
 
-NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
-					 Hod* const hod)
+NbarIntegration* nbar_integration_alloc(Hod* const hod)
 {
   NbarIntegration* const ni= new NbarIntegration();
   
@@ -51,7 +49,6 @@ NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
   const double M_max= 1.0e16;
 
   ni->w= gsl_integration_cquad_workspace_alloc(100);
-  ni->s= new Sigma(ps, M_min, M_max);
   ni->mf= mf_alloc();
   ni->hod= hod;
   ni->rho_m= cosmology_rho_m();
@@ -66,7 +63,6 @@ NbarIntegration* nbar_integration_alloc(PowerSpectrum const * const ps,
 void nbar_integration_free(NbarIntegration* const ni)
 {
   gsl_integration_cquad_workspace_free(ni->w);
-  delete ni->s;
   mf_free(ni->mf);
 
   delete ni;
@@ -113,7 +109,7 @@ double integrand_n_hod(double nu, void* params)
   NbarIntegration* const ni= (NbarIntegration*) params;
   
   const double sigma0= c::delta_c/(ni->D*nu);
-  const double M= ni->s->M(sigma0);
+  const double M= sigma_M(sigma0);
 
  return ni->hod->ncen(M)*(1.0 + ni->hod->nsat(M))*
         mf_f(ni->mf, nu)*ni->rho_m/M;
@@ -160,8 +156,8 @@ double nbar_compute(NbarIntegration* const ni, const double z)
   F.function= &integrand_n_hod;
   F.params= (void*) ni;
 
-  const double nu_min= c::delta_c*ni->s->sinv_min/ni->D;
-  const double nu_max= c::delta_c*ni->s->sinv_max/ni->D;
+  const double nu_min= c::delta_c*sigma_sinv_min()/ni->D;
+  const double nu_max= c::delta_c*sigma_sinv_max()/ni->D;
 
   double result;
   gsl_integration_cquad(&F, nu_min, nu_max, 1.0e-5, 1.0e-5, ni->w,

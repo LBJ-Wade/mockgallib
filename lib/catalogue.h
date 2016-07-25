@@ -34,4 +34,10 @@ void catalogue_generate_mock(Hod* const hod,
 			     const double z_min, const double z_max,
 			     Catalogue * const cat);
 
+void catalogue_generate_random(Hod* const hod,
+			       LightCone const * const lightcone,
+			       const double z_min, const double z_max,
+			       Catalogue * const cat);
+
+
 #endif

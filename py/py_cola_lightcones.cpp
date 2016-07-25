@@ -48,4 +48,3 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 
   Py_RETURN_NONE;
 }
-

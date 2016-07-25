@@ -4,21 +4,18 @@
 #include <gsl/gsl_interp.h>
 #include "power.h"
 
-class Sigma {
- public:
-  Sigma(PowerSpectrum const * const ps,
-	const double M_min=1.0e10, const double M_max=1.0e16, const int n=1001);
-  ~Sigma();
-  double sigma0_inv(const double M) const;
-  double M(const double sigma0) const;
 
-  int n;
-  double M_min, M_max;
-  double sinv_min, sinv_max;
-  double *M_, *sinv_;
- private:
-  gsl_interp *interp_, *interp_inv_;
-  gsl_interp_accel *acc_, *acc_inv_;
-};
+void sigma_init(const double M_min=1.0e10, const double M_max=1.0e16,
+	   const int n=1001);
+void sigma_free();
+double sigma_M(const double sigma0);
+double sigma_inv(const double M);
 
+double* sigma_M_array();
+double* sigma_sinv_array();
+double sigma_M_min();
+double sigma_M_max();
+double sigma_sinv_min();
+double sigma_sinv_max();
+int sigma_n();
 #endif

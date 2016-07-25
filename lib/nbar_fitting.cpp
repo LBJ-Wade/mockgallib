@@ -21,8 +21,7 @@ static double nbar_multimin_f (const gsl_vector *v, void *params);
 static double compute_cost_function(vector<Nbar> const * const vobs,
 				    vector<Nbar> const * const vhod);
 
-NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,
-				Hod* const hod,
+NbarFitting* nbar_fitting_alloc(Hod* const hod,
 				const vector<Nbar>* const vnbar_obs,
 				const double z_min, const double z_max)
 {
@@ -31,7 +30,7 @@ NbarFitting* nbar_fitting_alloc(PowerSpectrum const * const ps,
   
   NbarFitting* fitting= new NbarFitting();
 
-  NbarIntegration* ni0= nbar_integration_alloc(ps, hod);
+  NbarIntegration* ni0= nbar_integration_alloc(hod);
 
   const int n= vnbar_obs->size(); assert(n > 0);
   fitting->vni.reserve(n);

@@ -17,7 +17,7 @@ using namespace std;
 static double om= 0.0;
 static gsl_interp_accel *acc= 0;
 static gsl_spline* spline;
-static double z_max, d_max;
+static double z_max, d_max= 0.0;
 
 void distance_init(const double z_max_)
 {
@@ -62,6 +62,9 @@ void distance_free()
 
 double distance_redshift(const double d)
 {
+#ifdef DEBUG
+  assert(spline);
+#endif
   if(d > d_max) return -1.0;
   
   return gsl_spline_eval(spline, d, acc);

@@ -1,5 +1,9 @@
 import mockgallib._mockgallib as c
 
+def init(z_max):
+    c._distance_init(z_max)
+
+
 class Distance:
     def __init__(self, z_max):
         self.z_max = z_max

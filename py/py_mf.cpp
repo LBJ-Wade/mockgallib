@@ -49,4 +49,3 @@ PyObject* py_mf_f(PyObject* self, PyObject* args)
   double f= mf_f(mf, nu);
   return Py_BuildValue("d", f);
 }
-

@@ -4,15 +4,22 @@
 #include <assert.h>
 #include "power.h"
 #include "msg.h"
+#include "error.h"
 
-PowerSpectrum::PowerSpectrum(const char filename[])
+static int n=0;
+static double* k= 0;
+static double* P;
+
+void power_init(const char filename[])
 {
   // Read k P from filename
 
   FILE* fp= fopen(filename, "r");
   if(fp == 0) {
-    msg_printf(msg_error, "Error: Unable to open input power spectrum file: %s\n",filename);
-    throw PowerFileError();
+    msg_printf(msg_error,
+	       "Error: Unable to open input power spectrum file: %s\n",
+	       filename);
+    throw FileNotFoundError();
   }
 
   int nalloc= 1000;
@@ -52,32 +59,31 @@ PowerSpectrum::PowerSpectrum(const char filename[])
   
   msg_printf(msg_verbose, "Read %d pairs of k P(k) from %s\n", nlines, filename);
 
-  k = (double*) malloc(2*nlines*sizeof(double)); assert(this->k);
+  k = (double*) malloc(2*nlines*sizeof(double)); assert(k);
   P = k + nlines;
   
   for(int j=0; j<nlines; j++) {
-    this->k[j] = buf[2*j];
-    this->P[j] = buf[2*j + 1];
+    k[j] = buf[2*j];
+    P[j] = buf[2*j + 1];
   }
   
   free(buf);
   
-  this->n= nlines;
+  n= nlines;
 }
 
-PowerSpectrum::~PowerSpectrum()
+void power_free()
 {
   free(k);
 }  
 
-double PowerSpectrum::compute_sigma(const double R) const
+double power_compute_sigma(const double R)
 {
   // Computes sigma (rms amplituede) smoothed on scale R
   // R: smoothing length [/h Mpc] (8 for sigma_8)
   // 1/(2*pi^2) \int P(k) W(k*R) k^2 dk
+  assert(k);
   
-  const double fac= 1.0/(2.0*M_PI*M_PI);
-
   double k0= k[0];
   double f0= 0.0;
   
@@ -94,5 +100,22 @@ double PowerSpectrum::compute_sigma(const double R) const
     f0= f1;
   }
 
-  return sqrt(fac*sigma2);
+  return sqrt(1.0/(2.0*M_PI*M_PI)*sigma2);
+}
+
+int power_n()
+{
+  return n;
+}
+
+double * power_P()
+{
+  assert(k);
+  return P;
+}
+
+double * power_k()
+{
+  assert(k);
+  return k;
 }
