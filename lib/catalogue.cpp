@@ -19,7 +19,7 @@ using namespace std;
 //
 
 struct SatelliteRandom {
-  double M;
+  float M, rs;
   int n;
 };
   
@@ -28,17 +28,22 @@ class SatelitteQueue {
   bool empty() const {
     return q.empty();
   }
-  double pop() {
-    double M= q.front().M;
-    if(q.front().n == 1)
+  void pop(Halo& h) {
+    assert(q.front().n > 0);
+    h.M= q.front().M;
+    h.rs= q.front().rs;
+
+
+    if(q.front().n == 1) {
       q.pop();
-    else
+    }
+    else {
       q.front().n--;
-    return M;
+    }
   }
-  void push(const double M, const int n) {
+  void push(const float M, const float rs, const int n) {
     SatelliteRandom s;
-    s.M= M; s.n= n;
+    s.M= M; s.rs= rs; s.n= n;
     q.push(s);
   }
       
@@ -92,7 +97,6 @@ void Catalogues::allocate(const size_t n)
 void catalogue_init()
 {
   rand_init();
-
   satellite_init();
 
   msg_printf(msg_debug, "catalogue module initialised\n");
@@ -264,13 +268,16 @@ void catalogue_generate_random(Hod* const hod,
       double nsat_mean= hod->nsat(h->M);
       int nsat= rand_poisson(nsat_mean);
 
-      qsat[iz].push(h->M, nsat);
-      nsat_total += nsat;
+      if(nsat > 0) {
+	qsat[iz].push(h->M, h->rs, nsat);
+	nsat_total += nsat;
+      }
     }
     else if(!qsat[iz].empty()) {
-      // put satellites
+      // pop satellites
       Halo hh= *h;
-      hh.M= qsat[iz].pop();
+      qsat[iz].pop(hh);
+      
       satellite(&hh, &p);
       p.x[0] += h->x[0];
       p.x[1] += h->x[1];
@@ -281,7 +288,7 @@ void catalogue_generate_random(Hod* const hod,
       p.radec[1] = h->radec[1];
 
       cat->push_back(p);
-    }    
+    }
   }
   cat->ncen= ncen_total;
   cat->nsat= nsat_total;

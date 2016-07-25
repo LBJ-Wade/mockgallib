@@ -12,13 +12,22 @@ class Catalogues:
         return "A collection of %d catalogues" % len(self)
 
     def __getitem__(self, i):
-        """ith catalogue"""
+        """ith catalogue as an np.array
+        Column 0-2: x;
+        Column 3:   redshift;
+        Column 4:   vr;
+        Column 5-6: ra, dec
+        Column 7:   M;
+        Column 8:   w;
+        Column 9:   flag;
+        """
         n = len(self)
         if i < 0 or i >= n:
             raise IndexError()
         return c._catalogues_catalogue(self._cats, i)
 
     def generate_galaxies(self, hod, lightcones, z_min, z_max):
+        """Generates n mock catalogues from n lightcones."""
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
                                z_min, z_max, 0)
 

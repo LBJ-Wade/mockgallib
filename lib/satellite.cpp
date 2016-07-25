@@ -83,8 +83,8 @@ void satellite(Halo const * const h, Particle* const g)
     // physical 1/h kpc
   const double rs= h->rs; // physical 1/h kpc.
   const double c200m= r200m/rs;
-
-  //fprintf(stderr, "r200m c rs %e %e %e\n", r200m, c200m, rs);
+  
+  //fprintf(stderr, "r200m c rs %e %e %e %e\n", r200m, c200m, rs, h->M);
 
   // draw random mass M(r)/M0 between [0, f(c200m)]
   const double fmax= f(c200m);
