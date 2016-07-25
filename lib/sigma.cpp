@@ -6,6 +6,7 @@
 
 #include <gsl/gsl_interp.h>
 
+#include "msg.h"
 #include "const.h"
 #include "sigma.h"
 #include "power.h"
@@ -24,7 +25,10 @@ static gsl_interp_accel *acc, *acc_inv;
 
 void sigma_init(const double M_min_, const double M_max_, const int n_)
 {
-  if(M) return;
+  if(M) {
+    msg_printf(msg_debug, "sigma already initialised\n");
+    return;
+  }
   
   const double rho_m= cosmology_rho_m(); assert(rho_m >= 0.0);
 
@@ -57,6 +61,8 @@ void sigma_init(const double M_min_, const double M_max_, const int n_)
 
   sinv_min= sigma_inv(M_min);
   sinv_max= sigma_inv(M_max);
+
+  msg_printf(msg_verbose, "sigma initialised\n");
 }
 
 void sigma_free()

@@ -25,13 +25,15 @@ py_sigma_module_init()
 
 PyObject* py_sigma_init(PyObject* self, PyObject* args)
 {
-  // _sigma_alloc(_ps, M_min, M_max, n)
+  // _sigma_init(M_min, M_max, n)
 
   double M_min, M_max;
   int n;
   
   if(!PyArg_ParseTuple(args, "ddi", &M_min, &M_max, &n))
     return NULL;
+
+  sigma_init(M_min, M_max, n);
 
   Py_RETURN_NONE;
 }

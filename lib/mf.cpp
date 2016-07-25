@@ -4,12 +4,6 @@
 
 // Tinker et al (2010) ApJ 724, 878
 
-//
-// MF* mf= mf_alloc();        // allocate
-// double a= 1.0/(1.0 + z);   // scale factor
-// mf_set_redshift(mf, a);    // set redshift
-//
-// mf_free(mf);
 
 #include <cstdio>
 #include <cmath>

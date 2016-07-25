@@ -12,7 +12,7 @@ class Sky {
   Sky(const double ra[], const double dec[], const double z[] );
   inline void compute_radec(const float x[], float* const radec) const;
   inline void compute_x(const float r, const float radec[], float* const x) const;
-  double ra_range[2], dec_range[2], r_range[2];
+  double ra_range[2], dec_range[2], r_range[2], z_range[2];
   float left[3], right[3], width[3], centre[3]; // bounding box
   // r0, dec0 are the centre of ra, dec ranges, respectively.
   float ra0, dec0, theta0, cos_theta0, sin_theta0;

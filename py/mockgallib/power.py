@@ -20,7 +20,7 @@ def init(filename):
         FileNotFoundError: If unable to open file
     """
 
-    c._power_alloc(filename)
+    c._power_init(filename)
     n = c._power_n()
     k = c._power_k()
     P = c._power_P()

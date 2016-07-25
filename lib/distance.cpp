@@ -1,6 +1,8 @@
 //
 // Compute redshift from distance r
 //
+// Dependence: cosmology::omega_m
+//
 #include <cstdlib>
 #include <cassert>
 
@@ -14,24 +16,23 @@
 
 using namespace std;
 
-static double om= 0.0;
 static gsl_interp_accel *acc= 0;
-static gsl_spline* spline;
+static gsl_spline* spline= 0;
 static double z_max, d_max= 0.0;
 
 void distance_init(const double z_max_)
 {
-  size_t n= 1001;
-
   if(acc) {
     if(z_max == z_max_)
       return;
     else
       msg_abort("distance already initialzed");
   }
-  
-  acc= gsl_interp_accel_alloc();  
+
+  static size_t n= 1001;
+
   spline= gsl_spline_alloc(gsl_interp_cspline, n);
+  acc= gsl_interp_accel_alloc();  
   z_max= z_max_;
 
   double* const d= (double*) malloc(sizeof(double)*n*2); assert(d);
@@ -56,8 +57,8 @@ void distance_init(const double z_max_)
 
 void distance_free()
 {
-  gsl_spline_free(spline);
-  gsl_interp_accel_free(acc);
+  if(spline) gsl_spline_free(spline);
+  if(acc) gsl_interp_accel_free(acc);
 }
 
 double distance_redshift(const double d)

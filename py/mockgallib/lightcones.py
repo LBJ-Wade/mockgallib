@@ -46,12 +46,7 @@ class LightCones:
             c._lightcones_load_h5(self._lt, filename)
 
 
-    def create_from_snapshots(self, snapshots, sky, remap, slice, rand):
+    def create_from_snapshots(self, snapshots, sky, remap, slice, random=False):
         """create_from_snapshots(snapshots, sky, remap); create lightcones from halo snapshots"""
-        if rand is None:
-            c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
-                                      slice._slice, self._lt, None);
-        else:
-            print("cola_lightcones_create _rng")
-            c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
-                                      slice._slice, self._lt, rand._rng);
+        c._cola_lightcones_create(snapshots._snps, sky._sky, remap._remap,
+                                  slice._slice, self._lt, int(random));

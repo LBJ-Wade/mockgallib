@@ -18,6 +18,7 @@
 //
 // Dependence:
 //     sigma_init() - power_init()
+//     distance(z_max)
 //
 using namespace std;
 
@@ -45,6 +46,7 @@ void cola_lightcones_create(Snapshots const * const snapshots,
 {
   // Prerequisite: sigma_init()
   halo_concentration_init();
+  distance_init(sky->z_range[1]);
       
   if(random) {
     rand_init();

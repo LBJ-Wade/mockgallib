@@ -1,6 +1,7 @@
 #include "Python.h"
 #include "cosmology.h"
 #include "const.h"
+#include "py_assert.h"
 #include "mf.h"
 
 static void py_mf_free(PyObject *obj);
@@ -8,7 +9,7 @@ static void py_mf_free(PyObject *obj);
 PyObject* py_mf_alloc(PyObject* self, PyObject* args)
 {
   // py_mf_alloc()
-  MF* const mf= mf_alloc();
+  MF* const mf= new MF();
 
   return PyCapsule_New(mf, "_MassFunction", py_mf_free);
 }
@@ -16,8 +17,9 @@ PyObject* py_mf_alloc(PyObject* self, PyObject* args)
 void py_mf_free(PyObject *obj)
 {
   MF* const mf= (MF*) PyCapsule_GetPointer(obj, "_MassFunction");
+  py_assert_void(mf);
 
-  mf_free(mf);
+  delete mf;
 }
 
 PyObject* py_mf_set_redshift(PyObject* self, PyObject* args)
@@ -30,8 +32,9 @@ PyObject* py_mf_set_redshift(PyObject* self, PyObject* args)
 
   MF* const mf=
     (MF*) PyCapsule_GetPointer(py_mf, "_MassFunction");
-
-  mf_set_redshift(mf, a);
+  py_assert_ptr(mf);
+  
+  mf->set_redshift(a);
 
   Py_RETURN_NONE;
 }  
@@ -45,7 +48,8 @@ PyObject* py_mf_f(PyObject* self, PyObject* args)
 
   MF* const mf=
     (MF*) PyCapsule_GetPointer(py_mf, "_MassFunction");
-
-  double f= mf_f(mf, nu);
+  py_assert_ptr(mf);
+  
+  double f= mf->f(nu);
   return Py_BuildValue("d", f);
 }

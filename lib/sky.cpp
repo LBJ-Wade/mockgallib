@@ -27,6 +27,7 @@ Sky::Sky(const double ra[], const double dec[], const double z[])
 {
   ra_range[0]= ra[0]; ra_range[1]= ra[1];
   dec_range[0]= dec[0]; dec_range[1]= dec[1];
+  z_range[0]= z[0]; z_range[1]= z[1];
 
   const double a_min= 1.0/(1.0 + z[0]);
   const double a_max= 1.0/(1.0 + z[1]);

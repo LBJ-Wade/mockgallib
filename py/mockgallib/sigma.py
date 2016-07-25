@@ -23,10 +23,12 @@ def init(*args, **kwargs):
        M_max = 1.0e16: interpolation range maximum of sigma(M)
        n = 1001: number of interpolation points
     """
+
+    print("sigma.init")
     
     M_min = kwargs.get('M_min', 1.0e10)
     M_max = kwargs.get('M_max', 1.0e16)
-    n     = kwargs.get('n', 1001)
+    n = kwargs.get('n', 1001)
     
     c._sigma_init(M_min, M_max, n)
 
