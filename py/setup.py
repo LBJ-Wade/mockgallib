@@ -11,7 +11,7 @@ setup(name='mockgallib',
                   'mockgallib.lightcones', 'mockgallib.catalogues',
                   'mockgallib.sky', 'mockgallib.distance', 'mockgallib.slice',
                   'mockgallib.remap', 'mockgallib.snapshots',
-                  'mockgallib.halo_concentration', 'mockgallib.random',
+                  'mockgallib.halo_concentration', 'mockgallib.rand',
                   'mockgallib.cosmology',
       ],
       ext_modules=[
@@ -26,7 +26,7 @@ setup(name='mockgallib',
                      'py_remap.cpp', 'py_slice.cpp', 'py_halo_mass.cpp',
                      'py_snapshots.cpp',
                      'py_cola_lightcones.cpp', 'py_halo_concentration.cpp',
-                     'py_hdf5_io.cpp', 'py_random.cpp'
+                     'py_hdf5_io.cpp', 'py_rand.cpp'
                     ],
                     include_dirs = ['../lib', np.get_include()],
                     library_dirs =  ['../lib'],

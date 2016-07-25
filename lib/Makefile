@@ -21,6 +21,7 @@ LIBS     += $(foreach dir, $(DIR_PATH), -L$(dir)/lib)
 
 OBJS     := msg.o cosmology.o growth.o
 OBJS     += power.o sigma.o mf.o mf_cumulative.o
+OBJS     += rand.o
 OBJS     += hod.o nbar.o nbar_fitting.o
 OBJS     += lightcone.o catalogue.o satellite.o
 #OBJS     += corr_projected.o kdtree.o

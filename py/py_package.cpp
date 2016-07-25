@@ -24,7 +24,7 @@
 #include "py_snapshots.h"
 #include "py_cola_lightcones.h"
 #include "py_halo_concentration.h"
-#include "py_random.h"
+#include "py_rand.h"
 
 using namespace std;
 
@@ -201,8 +201,10 @@ static PyMethodDef methods[] = {
   {"_halo_concentration_init", py_halo_concentration_init, METH_VARARGS,
    "_halo_concentration_init(_sigma)"},
 
-  {"_random_alloc", py_random_alloc, METH_VARARGS,
-   "allocate a GSL random generator _Random"},
+  {"_rand_init", py_rand_init, METH_VARARGS,
+   "initialise random number generator"},
+  {"_rand_free", py_rand_free, METH_VARARGS,
+   "free random number generator"},
 
   {NULL, NULL, 0, NULL}
 };
