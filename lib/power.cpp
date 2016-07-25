@@ -12,6 +12,8 @@ static double* P;
 
 void power_init(const char filename[])
 {
+  if(k) return;
+  
   // Read k P from filename
 
   FILE* fp= fopen(filename, "r");
@@ -59,8 +61,8 @@ void power_init(const char filename[])
   
   msg_printf(msg_verbose, "Read %d pairs of k P(k) from %s\n", nlines, filename);
 
-  k = (double*) malloc(2*nlines*sizeof(double)); assert(k);
-  P = k + nlines;
+  k= (double*) malloc(2*nlines*sizeof(double)); assert(k);
+  P= k + nlines;
   
   for(int j=0; j<nlines; j++) {
     k[j] = buf[2*j];

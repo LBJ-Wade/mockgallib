@@ -1,6 +1,7 @@
 //
 // n(>M) = \int dlnM dn/dlnM
 //
+// Dependence: sigma
 
 #include <cassert>
 
@@ -23,14 +24,16 @@ struct MfcParams {
 MfCumulative::MfCumulative(const double a) :
   n(1001)
 {
+  assert(sigma_initilised());
+  
   M_array= (double*) malloc(sizeof(double)*n*2); assert(M_array);
   nM_array= M_array + n;
   
   rho_m= cosmology_rho_m();
 
   const double z= 1.0/a - 1.0;
-  MF* const mf= mf_alloc();
-  mf_set_redshift(mf, a);
+  MF* const mf= new MF();
+  mf->set_redshift(a);
 
   const double D= growth_D(a);
   MfcParams params;
@@ -66,11 +69,10 @@ MfCumulative::MfCumulative(const double a) :
   interp= gsl_interp_alloc(gsl_interp_cspline, n);
   acc= gsl_interp_accel_alloc(); 
 
-  //gsl_interp_init(interp, M_array, nM_array, n);
   gsl_interp_init(interp, nM_array, M_array, n);
 
   gsl_integration_cquad_workspace_free(w);
-  mf_free(mf);
+  delete mf;
 }
 
 MfCumulative::~MfCumulative()
@@ -94,5 +96,5 @@ double integrand_n_cumulative(double nu, void* params)
   double sigma0= c::delta_c/(p->D*nu);
   double M= sigma_M(sigma0);
 
-  return mf_f(p->mf, nu)*rho_m/M;
+  return p->mf->f(nu)*rho_m/M;
 }

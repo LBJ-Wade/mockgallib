@@ -81,7 +81,7 @@ void satellite(Halo const * const h, Particle* const g)
   const double rho_m= cosmology_rho_m()/(a*a*a); // physical [1/h Mpc]^-3
   const double r200m= 1000.0*pow(h->M/(4.0*M_PI/3.0*200.0*rho_m), 1.0/3.0);
     // physical 1/h kpc
-  const double rs= 1000.0*h->rs;
+  const double rs= h->rs; // physical 1/h kpc.
   const double c200m= r200m/rs;
 
   //fprintf(stderr, "r200m c rs %e %e %e\n", r200m, c200m, rs);

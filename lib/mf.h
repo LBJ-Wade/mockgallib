@@ -3,17 +3,18 @@
 
 #include <gsl/gsl_integration.h>
 
-struct MF {
-  double z;
+class MF {
+ public:
+  MF();
+  MF(const double z);
+
+  void set_redshift(const double a);
+  double f(const double nu) const;
+  static double b(const double nu);
+ private:
+  double redshift;
   double alpha;
 };
-
-MF* mf_alloc();
-MF* mf_alloc(const double z);
-void mf_free(MF* const mf);
-void mf_set_redshift(MF* const mf, const double a);
-double mf_f(MF const * const mf, const double nu);
-double mf_b(const double nu);
 
 #endif
 

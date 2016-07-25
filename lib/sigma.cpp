@@ -24,6 +24,8 @@ static gsl_interp_accel *acc, *acc_inv;
 
 void sigma_init(const double M_min_, const double M_max_, const int n_)
 {
+  if(M) return;
+  
   const double rho_m= cosmology_rho_m(); assert(rho_m >= 0.0);
 
   M_min= M_min_;
@@ -65,6 +67,11 @@ void sigma_free()
   gsl_interp_accel_free(acc_inv);
 
   free(M);
+}
+
+bool sigma_initilised()
+{
+  return !(M == 0);
 }
 
 double sigma_M(const double sigma0)

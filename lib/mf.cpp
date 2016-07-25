@@ -22,61 +22,49 @@ using namespace std;
 
 static double integrand_mf_normalisation(double nu, void* params);
 
-MF* mf_alloc()
+MF::MF()
 {
-  MF* const mf= new MF();
-  mf->z= 0.0;
-  mf->alpha= 0.0;
-
-  return mf;
+  alpha= 0.0;
 }
 
-MF* mf_alloc(const double z)
+MF::MF(const double z)
 {
-  MF* const mf= mf_alloc();
   const double a= 1.0/(1.0 + z);
-  mf_set_redshift(mf, a);
-
-  return mf;
+  set_redshift(a);
 }
 
-void mf_free(MF* const mf)
-{
-  delete mf;
-}
-
-void mf_set_redshift(MF* const mf, const double a)
+void MF::set_redshift(const double a)
 {
   // Integral is necessary to normalise mass function (mf->alpha)
   const double z= 1.0/a - 1.0;
-  if(mf->alpha > 0.0 && mf->z == z)
+  if(alpha > 0.0 && redshift == z)
     return;
   
-  mf->alpha= 1.0;
-  mf->z= z;
+  alpha= 1.0;
+  redshift= z;
 
   gsl_integration_cquad_workspace* w= 
     gsl_integration_cquad_workspace_alloc(100);
       
   gsl_function F;
   F.function= &integrand_mf_normalisation;
-  F.params= (void*) mf;
+  F.params= (void*) this;
        
   double result;
   gsl_integration_cquad(&F, 1.0e-8, 10.0, 1.0e-5, 1.0e-5, w, &result, 0, 0);
 
   gsl_integration_cquad_workspace_free(w);
 
-  mf->alpha = 1.0/result;
+  alpha = 1.0/result;
 }
 
-double mf_f(MF const * const mf, const double nu)
+double MF::f(const double nu) const
 {
 #ifdef DEBUG
-  assert(mf->alpha > 0.0);
+  assert(alpha > 0.0);
 #endif
   
-  const double z= mf->z;
+  const double z= redshift;
   
   // Table 4 and Equations (8-12) for Delta=200
   // nu= delta_c/sigma
@@ -90,11 +78,11 @@ double mf_f(MF const * const mf, const double nu)
 
   // normalization constant needs to be determined from
   // S b(nu)f(nu)dnu = 1    ... (7)
-  return mf->alpha*(1.0 + pow(beta*nu, -2.0*phi))*
+  return alpha*(1.0 + pow(beta*nu, -2.0*phi))*
          pow(nu, 2*eta)*exp(-gamma*nu*nu/2.0);    // (8)
 }
 
-double mf_b(const double nu)
+double MF::b(const double nu)
 {
   // assert(sigma > 0.0);
   // halo bias b(M) from Tinker et al  (2010) ApJ 724, 878
@@ -121,6 +109,5 @@ double mf_b(const double nu)
 static double integrand_mf_normalisation(double nu, void* params)
 {
   MF const * const mf= (MF const *) params;
-  return mf_f(mf, nu)*mf_b(nu);
+  return mf->f(nu)*MF::b(nu);
 }
-

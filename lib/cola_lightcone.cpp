@@ -13,22 +13,27 @@
 #include "halo_mass.h"
 #include "halo_concentration.h"
 #include "cola_lightcone.h"
+#include "rand.h"
 
+//
+// Dependence:
+//     sigma_init() - power_init()
+//
 using namespace std;
-static gsl_rng* rng= 0;
 
 static void fill_lightcone(Snapshot const * const snp,
 			   Sky const * const sky,
 			   Remap const * const remap,
 			   Slice const * const slice,
+			   const bool random,
 			   LightCones* const lightcones);
 
 static inline void
   randomise_position(const float boxsize, float* const x)
 {
-  x[0]= boxsize*gsl_rng_uniform(rng);
-  x[1]= boxsize*gsl_rng_uniform(rng);
-  x[1]= boxsize*gsl_rng_uniform(rng);
+  x[0]= boxsize*rand_uniform();
+  x[1]= boxsize*rand_uniform();
+  x[1]= boxsize*rand_uniform();
 }
 
 void cola_lightcones_create(Snapshots const * const snapshots,
@@ -36,20 +41,24 @@ void cola_lightcones_create(Snapshots const * const snapshots,
 			    Remap const * const remap,
 			    Slice const * const slice,
 			    LightCones* const lightcones,
-			    gsl_rng* const random_generator)
+			    const bool random)
 {
-  rng= random_generator;
-  if(rng)
+  // Prerequisite: sigma_init()
+  halo_concentration_init();
+      
+  if(random) {
+    rand_init();
     msg_printf(msg_verbose, "Generate random lightcone\n");
+  }
   else
     msg_printf(msg_verbose, "Generate halo lightcone\n");    
-
+  
   lightcones->clear();
   
   for(Snapshots::const_iterator snp= snapshots->begin();
       snp != snapshots->end(); ++snp) {
     
-    fill_lightcone(*snp, sky, remap, slice, lightcones);
+    fill_lightcone(*snp, sky, remap, slice, random, lightcones);
   }
 }	   
 
@@ -57,9 +66,13 @@ void fill_lightcone(Snapshot const * const snp,
 		    Sky const * const sky,
 		    Remap const * const remap,
 		    Slice const * const slice,
+		    const bool random,
 		    LightCones* const lightcones)
 {
-  // halo_concentration_init is required before using this function
+  // Prerequisite:
+  //   
+  // halo_concentration_init() -- sigma_init() -- power_init()
+  //
 
   if(lightcones->size() < slice->n) {
     lightcones->resize(slice->n);
@@ -71,7 +84,7 @@ void fill_lightcone(Snapshot const * const snp,
   float boxsize;
   
   cola_halo_file_open(snp->filename, &boxsize);
-  // may throw ColaFileError()
+  // May throw ColaFileError()
 
   Halo halo;
   Halo* const h= &halo;
@@ -84,8 +97,8 @@ void fill_lightcone(Snapshot const * const snp,
   const float dec_max= sky->dec_range[1];
 
   while(cola_halo_file_read_one(h)) {
-    // randomise the coordinate if rng != 0
-    if(rng)
+    // randomise the coordinate if random = true
+    if(random)
       randomise_position(boxsize, h->x);
 
     // remap cube to cuboid
@@ -122,12 +135,6 @@ void fill_lightcone(Snapshot const * const snp,
 
     (*lightcones)[h->slice]->push_back(*h);
   }
-
-  /* ???
-  for(LightCones::iterator p=
-	lightcones->begin(); p != lightcones->end(); ++p) {
-  }
-  */
    
   cola_halo_file_close();
 }

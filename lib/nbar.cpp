@@ -49,7 +49,7 @@ NbarIntegration* nbar_integration_alloc(Hod* const hod)
   const double M_max= 1.0e16;
 
   ni->w= gsl_integration_cquad_workspace_alloc(100);
-  ni->mf= mf_alloc();
+  ni->mf= new MF();
   ni->hod= hod;
   ni->rho_m= cosmology_rho_m();
   ni->D= 0.0;
@@ -63,7 +63,7 @@ NbarIntegration* nbar_integration_alloc(Hod* const hod)
 void nbar_integration_free(NbarIntegration* const ni)
 {
   gsl_integration_cquad_workspace_free(ni->w);
-  mf_free(ni->mf);
+  delete ni->mf;
 
   delete ni;
 }
@@ -112,7 +112,7 @@ double integrand_n_hod(double nu, void* params)
   const double M= sigma_M(sigma0);
 
  return ni->hod->ncen(M)*(1.0 + ni->hod->nsat(M))*
-        mf_f(ni->mf, nu)*ni->rho_m/M;
+        ni->mf->f(nu)*ni->rho_m/M;
 }
 
 /*
@@ -144,12 +144,12 @@ double nbar_compute(NbarIntegration* const ni, const double z)
 
 
   if(ni->D == 0.0 || ni->z != z) {
-    mf_set_redshift(ni->mf, a);    
+    ni->mf->set_redshift(a);    
     ni->D= growth_D(a);
     ni->z= z;
     msg_printf(msg_verbose,
-	       "setting nbar_integration at z=%.3f, D=%.4f, mf->alpha=%.4f\n",
-	       ni->z, ni->D, ni->mf->alpha);
+	       "setting nbar_integration at z=%.3f, D=%.4f\n",
+	       ni->z, ni->D);
   }
 
   gsl_function F;

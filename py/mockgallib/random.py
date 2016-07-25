@@ -1,7 +1,9 @@
 import mockgallib._mockgallib as c
 
-class Random:
-    def __init__(self):
-        self._rng= c._random_alloc()
+def init():
+    c._rand_init()
+
+def free():
+    c._rand_free()
 
     
