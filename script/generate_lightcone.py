@@ -1,13 +1,6 @@
-import sys
-import os
-import argparse
-import json
-import numpy as np
-import mockgallib as mock
-
 """ lightcone generator
 
-This script generates lightcone 
+This script generates lightcone
 
 python3 lightcone.py [--random] --ibegin=6001 --iend=6001 w1
 
@@ -15,7 +8,7 @@ Options:
     --param [=param.json]: parameter file
     --random:              generate lightcone with randomised points
 
-Input: 
+Input:
     <fof_dir>/<abc>/fof<isnp><abc>.b
 
 Output:
@@ -23,14 +16,27 @@ Output:
     rand_lightcone/lightcone_<n>.h5 for --random
 """
 
+import sys
+import os
+import argparse
+import json
+import numpy as np
+import mockgallib as mock
+
+
+def redshift_from_a(a):
+    return 1.0/a - 1.0
+
 
 #
 # Command-line options
 #
 parser = argparse.ArgumentParser()
 parser.add_argument('reg', help='region w1 or w4')
-parser.add_argument('--param', default='param.json', help='parameter json file')
-parser.add_argument('--ibegin', type=int, default=1, help='first index of output')
+parser.add_argument('--param', default='param.json',
+                    help='parameter json file')
+parser.add_argument('--ibegin', type=int, default=1,
+                    help='first index of output')
 parser.add_argument('--iend', type=int, default=1, help='last index of output')
 parser.add_argument('--random', help='generate random lightcone',
                     action="store_true")
@@ -52,7 +58,7 @@ for reg in param['reg']:
         break
 
 if reg['name'] != arg.reg:
-    raise Exception('region %s not found in parameter file %s' % 
+    raise Exception('region %s not found in parameter file %s' %
                     (arg.reg, arg.param))
 
 print('Region: %s' % reg['name'])
@@ -82,9 +88,6 @@ else:
 isnp0 = reg['index'][0]
 
 # redshift range
-def redshift_from_a(a):
-    return 1.0/a - 1.0
-    
 z_mins = []
 z_maxs = []
 
@@ -134,7 +137,6 @@ for isnp in range(arg.ibegin, arg.iend+1):
         filename_halo_mass = '%s/halomass_%s.txt' % (halomass_dir, abc)
 
         snapshots.insert(filename_fof, filename_halo_mass, snp['a'])
-
 
     lightcones.create_from_snapshots(snapshots, sky, remap, slice, random)
 

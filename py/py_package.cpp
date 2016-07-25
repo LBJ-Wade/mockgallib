@@ -38,11 +38,11 @@ static PyMethodDef methods[] = {
   {"_const_deltac", py_const_deltac, METH_VARARGS,
    "return critial overdensity"},
 
-  {"cosmology_set", py_cosmology_set, METH_VARARGS,
+  {"_cosmology_set", py_cosmology_set, METH_VARARGS,
    "set omega_m0"},
-  {"cosmology_rhom", py_cosmology_rhom, METH_VARARGS,
+  {"_cosmology_rhom", py_cosmology_rhom, METH_VARARGS,
    "get mean comoving matter density"},
-  {"cosmology_compute_comoving_distance",
+  {"_cosmology_compute_comoving_distance",
    py_cosmology_compute_comoving_distance, METH_VARARGS,
    "compute comoving distance corresponds to scale factor a"},
    
