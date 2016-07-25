@@ -2,8 +2,6 @@
 #include <cstdio>
 #include <cmath>
 #include <cassert>
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
 #include <gsl/gsl_integration.h>
 // #include <gsl/gsl_roots.h>
 #include <gsl/gsl_spline.h>
@@ -13,10 +11,10 @@
 #include "particle.h"
 #include "halo.h"
 #include "satellite.h"
+#include "rand.h"
 
 using namespace std;
 
-static gsl_rng* random_generator= 0;
 
 //static gsl_root_fdfsolver* solver= 0;
 static const int ninterp= 1001;
@@ -33,14 +31,12 @@ static void random_direction(float e[]);
 
 static inline double f(const double x)
 {
-  return log(1.0+x) - x/(1.0+x);
+  return log(1.0 + x) - x/(1.0 + x);
 }
 
-void satellite_init(gsl_rng* const rng)
+void satellite_init()
 {
   cerr << "satelitte_init\n";
-  random_generator= rng;
-
   
   double* x= (double*) malloc(sizeof(double)*2*ninterp); assert(x);
   double* y= x + ninterp;
@@ -78,7 +74,6 @@ void satellite_free()
 void satellite(Halo const * const h, Particle* const g)
 {
 #ifdef DEBUG
-  assert(random_generator);
   assert(spline);
 #endif
 
@@ -93,7 +88,7 @@ void satellite(Halo const * const h, Particle* const g)
 
   // draw random mass M(r)/M0 between [0, f(c200m)]
   const double fmax= f(c200m);
-  const double fx= fmax*gsl_rng_uniform(random_generator);
+  const double fx= fmax*rand_uniform();
 
   // solve for f(x) = fx, where x= r/r_s
   //double x= c200m*fx/fmax; // initial guess
@@ -117,7 +112,7 @@ void satellite(Halo const * const h, Particle* const g)
   g->x[1] = r_sat*e[1];
   g->x[2] = r_sat*e[2];
 
-  g->vr= vrms*gsl_ran_ugaussian(random_generator);
+  g->vr= vrms*rand_gaussian();
 }
 
 //
@@ -236,13 +231,13 @@ void random_direction(float e[])
   float y1, y2, r2;
 
   do{
-    y1= 1.0f-2.0f*gsl_rng_uniform(random_generator);
-    y2= 1.0f-2.0f*gsl_rng_uniform(random_generator);
+    y1= 1.0f-2.0f*rand_uniform();
+    y2= 1.0f-2.0f*rand_uniform();
     r2= y1*y1 + y2*y2;
   } while(r2 > 1.0f);
 
   float sq1r= sqrt(1.0f-r2);
   e[0]= 2*y1*sq1r;
   e[1]= 2*y2*sq1r;
-  e[2]= 1.0f-2.0f*r2;
+  e[2]= 1.0f - 2.0f*r2;
 }

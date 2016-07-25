@@ -5,7 +5,7 @@
 #include "particle.h"
 
 
-void satellite_init(gsl_rng* const rng);
+void satellite_init();
 void satellite_free();
 void satellite(Halo const * const h, Particle* const g);
 

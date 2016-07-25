@@ -3,11 +3,9 @@
 #include <queue>
 #include <cassert>
 
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-
 #include "msg.h"
 #include "hod.h"
+#include "rand.h"
 #include "catalogue.h"
 #include "satellite.h"
 
@@ -15,8 +13,6 @@
 #include "mf_cumulative.h"
 using namespace std;
 
-
-static gsl_rng* rng= 0;
 
 //
 // Satelite queue class
@@ -95,22 +91,16 @@ void Catalogues::allocate(const size_t n)
 //
 void catalogue_init()
 {
-  if(rng)
-    return;
-  
-  const unsigned int seed= (unsigned int) time(NULL);
-  rng= gsl_rng_alloc(gsl_rng_ranlxd1);
-  gsl_rng_set(rng, seed);
+  rand_init();
 
-  satellite_init(rng);
+  satellite_init();
 
-  msg_printf(msg_info, "# catalogue random initialised with %u\n", seed);
+  msg_printf(msg_debug, "catalogue module initialised\n");
 }
 
 void catalogue_free()
 {
   satellite_free();
-  gsl_rng_free(rng);
 }
 
 
@@ -147,7 +137,7 @@ void catalogue_generate_mock(Hod* const hod,
     double ncen= hod->ncen(h->M);
     
 
-    if(gsl_rng_uniform(rng) > ncen)
+    if(rand_uniform() > ncen)
       continue;
 
     p.x[0]= h->x[0];
@@ -162,7 +152,7 @@ void catalogue_generate_mock(Hod* const hod,
     ncen_total++;
 
     double nsat_mean= hod->nsat(h->M);
-    int nsat= gsl_ran_poisson(rng, nsat_mean);
+    int nsat= rand_poisson(nsat_mean);
     nsat_total += nsat;
 
     // satellites
@@ -209,7 +199,7 @@ void catalogue_generate_centrals(Hod* const hod,
     // centrals
     double ncen= hod->ncen(h->M);
 
-    if(gsl_rng_uniform(rng) > ncen)
+    if(rand_uniform() > ncen)
       continue;
 
     p.x[0]= h->x[0];
@@ -259,7 +249,7 @@ void catalogue_generate_random(Hod* const hod,
     double ncen= hod->ncen(h->M);
     int iz= (int)((h->z - z_min)/dz); assert(0 <= iz && iz < n_zbin);
     
-    if(gsl_rng_uniform(rng) <= ncen) {
+    if(rand_uniform() <= ncen) {
       p.x[0]= h->x[0];
       p.x[1]= h->x[1];
       p.x[2]= h->x[2];
@@ -272,7 +262,7 @@ void catalogue_generate_random(Hod* const hod,
       ncen_total++;
 
       double nsat_mean= hod->nsat(h->M);
-      int nsat= gsl_ran_poisson(rng, nsat_mean);
+      int nsat= rand_poisson(nsat_mean);
 
       qsat[iz].push(h->M, nsat);
       nsat_total += nsat;

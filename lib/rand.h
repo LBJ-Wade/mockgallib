@@ -5,5 +5,6 @@ void rand_init();
 void rand_free();
 double rand_uniform();
 double rand_poisson(const double lmbda);
+double rand_gaussian();
 
 #endif
