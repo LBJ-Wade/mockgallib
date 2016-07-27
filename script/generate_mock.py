@@ -1,7 +1,7 @@
 """
 This script generates a mock/random catalogue from a lightcone 
 
-python3 lightcone.py [--random] <n>
+python3 generate_mock.py [--random] <n>
 
 Args:
     n: index of lightcone

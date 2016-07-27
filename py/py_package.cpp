@@ -25,6 +25,7 @@
 #include "py_cola_lightcones.h"
 #include "py_halo_concentration.h"
 #include "py_rand.h"
+#include "py_corr_projected.h"
 
 using namespace std;
 
@@ -151,6 +152,9 @@ static PyMethodDef methods[] = {
    "number of catalogues in _Catalogues"},
   {"_catalogues_catalogue", py_catalogues_catalogue, METH_VARARGS,
    "_catalogues_catalogue(i); return ith _Catalogue"},
+  {"_catalogues_append", py_catalogues_append, METH_VARARGS,
+   "append a catalogue to catalogues"},   
+
 
   {"_sky_alloc", py_sky_alloc, METH_VARARGS,
    "allocate a new _Sky"},
@@ -206,6 +210,13 @@ static PyMethodDef methods[] = {
   {"_rand_free", py_rand_free, METH_VARARGS,
    "free random number generator"},
 
+  {"_corr_projected_alloc", py_corr_projected_alloc, METH_VARARGS,
+   "allocate corr projected"},
+  {"_corr_projected_compute", py_corr_projected_compute, METH_VARARGS,
+   "compute correlation function from catalogues"},
+  {"_corr_as_array", py_corr_as_array, METH_VARARGS,
+   "return correlation function as np.array"},
+
   {NULL, NULL, 0, NULL}
 };
 
@@ -224,6 +235,7 @@ PyInit__mockgallib(void) {
   py_sigma_module_init();
   py_catalogues_module_init();
   py_lightcones_module_init();
+  py_corr_projected_module_init();
   
   return PyModule_Create(&module);
 }

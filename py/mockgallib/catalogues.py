@@ -6,6 +6,7 @@ class Catalogues:
         self._cats = c._catalogues_alloc()
 
     def __len__(self):
+        """Returns number of catalogues stored"""
         return c._catalogues_len(self._cats)
 
     def __repr__(self):
@@ -35,3 +36,14 @@ class Catalogues:
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
                                z_min, z_max, 1)
 
+    def append(self, arr):
+        """Append a catalogue
+        
+        Input: arr is an array with 3 or 4 columns
+           Column 0 (a[:,0]): x
+           Column 1 (a[:,1]): y
+           Column 2 (a[:,2]): z
+           Column 3 (a[:,3], optional): weight
+        """
+
+        c._catalogues_append(self._cats, arr)

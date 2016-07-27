@@ -13,6 +13,7 @@
 #include "mf_cumulative.h"
 using namespace std;
 
+static bool initialised= false;
 
 //
 // Satelite queue class
@@ -96,15 +97,19 @@ void Catalogues::allocate(const size_t n)
 //
 void catalogue_init()
 {
-  rand_init();
-  satellite_init();
+  if(!initialised) {
+    rand_init();
+    satellite_init();
 
-  msg_printf(msg_debug, "catalogue module initialised\n");
+    msg_printf(msg_debug, "catalogue module initialised\n");
+    initialised= true;    
+  }
 }
 
 void catalogue_free()
 {
-  satellite_free();
+  if(initialised)
+    satellite_free();
 }
 
 
@@ -117,6 +122,7 @@ void catalogue_generate_mock(Hod* const hod,
 			     const double z_min, const double z_max,
 			     Catalogue * const cat)
 {
+  catalogue_init();
   assert(hod);
   assert(lightcone);
   assert(cat);
@@ -184,6 +190,7 @@ void catalogue_generate_centrals(Hod* const hod,
       LightCone const * const lightcone, const double z_min, const double z_max,
       Catalogue * const cat)
 {
+  catalogue_init();
   assert(hod);
   assert(lightcone);
   assert(cat);
@@ -229,6 +236,7 @@ void catalogue_generate_random(Hod* const hod,
 			       Catalogue * const cat)
 {
   // lightcone: random lightcone
+  catalogue_init();
   assert(hod);
   assert(lightcone);
   assert(cat);

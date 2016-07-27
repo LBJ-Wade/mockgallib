@@ -3,16 +3,24 @@
 
 #include <vector>
 #include "particle.h"
-#include "kdtree.h"
+#include "catalogue.h"
+//#include "kdtree.h"
 
 struct CorrProjected {
   CorrProjected(const int nbin);
   ~CorrProjected();
+  void print(FILE* fp);
   int n;
   double* rp;
   double* wp;
   double* dwp;
 };
+
+void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int nbin_pi_);
+
+void corr_projected_compute(Catalogues* const cats_data,
+			    Catalogues* const cats_rand,
+			    CorrProjected* const corr);
 
 /*
 struct Catalogue: std::vector<Particle>
@@ -26,9 +34,6 @@ struct Catalogue: std::vector<Particle>
 void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int pi_nbin_);
 void corr_projected_free();
 
-void corr_projected_compute(std::vector<Catalogue>& vdata,
-			    std::vector<Catalogue>& vrandom,
-			    std::vector<CorrProjected*>& vcorr);
 
 void corr_alloc(const int n_data_cat, const int nbin, std::vector<CorrProjected*>& vcorr);
 

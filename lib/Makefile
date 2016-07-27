@@ -24,11 +24,11 @@ OBJS     += power.o sigma.o mf.o mf_cumulative.o
 OBJS     += rand.o
 OBJS     += hod.o nbar.o nbar_fitting.o
 OBJS     += lightcone.o catalogue.o satellite.o
-#OBJS     += corr_projected.o kdtree.o
 OBJS     += hdf5_read.o hdf5_write.o
 OBJS     += sky.o distance.o remap.o slice.o 
 OBJS     += cola_file.o halo_mass.o halo_concentration.o
 OBJS     += cola_lightcone.o snapshot.o
+OBJS     += corr_projected.o kdtree.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)

@@ -17,5 +17,5 @@ from mockgallib.remap import Remap
 from mockgallib.sky import Sky
 from mockgallib.slice import Slice
 from mockgallib.snapshots import Snapshots
-
+from mockgallib.corr import CorrelationFunction
 

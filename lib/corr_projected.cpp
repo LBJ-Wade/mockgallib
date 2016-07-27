@@ -12,27 +12,34 @@
 using namespace std;
 
 static float rmax2;
-static float rp_min, rp_max, nbin, pi_max, nbin_pi;
+static int nbin, nbin_pi;
+static float rp_min, rp_max, pi_max;
 static KDTree* tree_alloc= 0;
+static vector<CorrProjected*> vcorr;
 
-void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int pi_nbin_)
+
+void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int nbin_pi_)
 {
   rp_min= rp_min_;
   rp_max= rp_max_;
   nbin=   nbin_;
   pi_max= pi_max_;
-  nbin_pi= pi_nbin_;
+  nbin_pi= nbin_pi_;
 }
+
 
 void corr_projected_free()
 {
   if(tree_alloc)
     free(tree_alloc);
 }
-  
+
+
 //
 // Local function declairations
 //
+static void allocate_vcorr(const size_t n_data_cat);
+
 static size_t count_pairs_auto(KDTree const * const tree,
 			const size_t ntree,
 			Histogram2D<LogBin, LinearBin>& hist);
@@ -41,7 +48,8 @@ static size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
 			 KDTree const * const tree2,
 			 Histogram2D<LogBin, LinearBin>& hist);
 
-static void compute_corr(const Histogram2D<LogBin, LinearBin>& dd,
+static void compute_corr_from_histogram2d(
+			 const Histogram2D<LogBin, LinearBin>& dd,
 			 const double npairs_dd,
 			 const Histogram2D<LogBin, LinearBin>& dr,
 			 const double npairs_dr,
@@ -49,6 +57,8 @@ static void compute_corr(const Histogram2D<LogBin, LinearBin>& dd,
 			 const double npairs_rr,
 			 const double pi_max,
 			 CorrProjected* const corr);
+
+static void corr_projected_summarise(CorrProjected* const corr);
 
 //
 // Inline helper functions
@@ -65,10 +75,12 @@ static inline float dist1(const float left1, const float right1,
   return 0.0f;
 }
 
+
 static inline float sq(const float x[])
 {
   return (double) x[0]*x[0] + x[1]*x[1] + x[2]*x[2];
 }
+
 
 static inline float norm(const float x[])
 {
@@ -112,9 +124,9 @@ static inline void dist_cylinder(const float x[], const float y[], float& rp, fl
 }
 
 
-
 size_t count_num_points(Catalogues const * const v)
 {
+  // Counts total number of points in the catalogues
   size_t n=0;
   
   for(Catalogues::const_iterator cat= v->begin(); cat != v->end(); ++cat) {
@@ -123,12 +135,21 @@ size_t count_num_points(Catalogues const * const v)
   return n;
 }
 
+
 void corr_projected_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand,
-			    vector<CorrProjected*>& vcorr)
+			    CorrProjected* const corr)
 {
+  //
+  // Compute 2D correlation function
+  //
+  
   rmax2= rp_max*rp_max + pi_max*pi_max;
 
+  // Setup vcorr
+  allocate_vcorr(cats_data->size());
+
+  
   //
   // Setup KDTree
   //
@@ -140,7 +161,7 @@ void corr_projected_compute(Catalogues* const cats_data,
 
   if(tree_alloc == 0) {
     tree_alloc= (KDTree*) malloc(sizeof(KDTree)*nalloc);
-    msg_printf(msg_verbose, "%lu trees allocated (%lu Mbytes)",
+    msg_printf(msg_verbose, "%lu trees allocated (%lu Mbytes)\n",
 	       nalloc, nalloc*sizeof(KDTree)/(1024*1024));
   }
 
@@ -168,7 +189,7 @@ void corr_projected_compute(Catalogues* const cats_data,
     tree_free += (*cat)->ntree;
   }
 
-  msg_printf(msg_verbose, "%lu trees used (%lu Mbytes)",
+  msg_printf(msg_verbose, "%lu trees used (%lu Mbytes)\n",
 	     ntree_used, ntree_used*sizeof(KDTree)/(1024*1024));
 
   
@@ -222,15 +243,18 @@ void corr_projected_compute(Catalogues* const cats_data,
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
 
-    compute_corr(dd, npairs_DD,
-		 dr, npairs_DR,
-		 rr, npairs_RR,		 
-		 pi_max, vcorr[icat]);
+    compute_corr_from_histogram2d(dd, npairs_DD,
+				  dr, npairs_DR,
+				  rr, npairs_RR,		 
+				  pi_max, vcorr.at(icat));
 
     icat++;
   }
-}
 
+  corr_projected_summarise(corr);
+
+  corr->print(stdout);
+}
 
 
 static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
@@ -299,7 +323,8 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 
   return count;
 }
-  
+
+
 size_t count_pairs_auto(KDTree const * const tree,
 			const size_t ntree,
 			Histogram2D<LogBin, LinearBin>& hist)
@@ -319,6 +344,7 @@ size_t count_pairs_auto(KDTree const * const tree,
 
   return count;
 }
+
 
 static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 				   KDTree const * const tree,
@@ -369,7 +395,8 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 
   return count;
 }
-  
+
+
 size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
 			 KDTree const * const tree2,
 			 Histogram2D<LogBin, LinearBin>& hist)
@@ -391,7 +418,9 @@ size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
 }
 
 
-// Corr Projected
+//
+// Struct CorrProjected
+//
 CorrProjected::CorrProjected(const int nbin) :
   n(nbin)
 {
@@ -405,17 +434,28 @@ CorrProjected::~CorrProjected()
   free(rp);
 }
 
-void corr_alloc(const int n_data_cat, const int nbin, vector<CorrProjected*>& vcorr)
+void CorrProjected::print(FILE* fp)
 {
-  assert(vcorr.empty());
+  for(int i=0; i<n; ++i) {
+    fprintf(fp, "%e %e %e\n", rp[i], wp[i], dwp[i]);
+  }
+}
 
+void allocate_vcorr(const size_t n_data_cat)
+{
+  assert(nbin > 0);
+  if(vcorr.size() == n_data_cat)
+    return;
+
+  vcorr.clear();
   for(int i=0; i<n_data_cat; ++i) {
     CorrProjected* corr= new CorrProjected(nbin);
     vcorr.push_back(corr);
   }
 }
 
-void compute_corr(const Histogram2D<LogBin, LinearBin>& dd,
+
+void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
 		  const double npairs_dd,
 		  const Histogram2D<LogBin, LinearBin>& dr,
 		  const double npairs_dr,
@@ -425,7 +465,8 @@ void compute_corr(const Histogram2D<LogBin, LinearBin>& dd,
 		  CorrProjected* const corr)
 
 {
-  // Compute xi(rp, pi) and project to wp(rp)
+  // Project 2D historgram DD, DR, DD
+  // to projected correlation function to wp(rp)
   const int nx= dd.x_nbin();
   const int ny= dd.y_nbin();
   const double dpi= 2.0*pi_max/ny;
@@ -446,6 +487,7 @@ void compute_corr(const Histogram2D<LogBin, LinearBin>& dd,
     corr->wp[ix]= wp;
   }
 }
+
 
 void corr_projected_write(const int index, const vector<CorrProjected*>& vcorr)
 {
@@ -475,9 +517,12 @@ void corr_projected_write(const int index, const vector<CorrProjected*>& vcorr)
   fclose(fp);
 }
 
-void corr_projected_summarise(const vector<CorrProjected*>& vcorr,
-			      CorrProjected* corr_out)
+
+void corr_projected_summarise(CorrProjected* const corr)
 {
+  //
+  // Take average of multiple projected correlation functions vcorr
+  //
   assert(!vcorr.empty());
   const int nbin= vcorr.front()->n;
   const int ndat= vcorr.size();
@@ -495,9 +540,8 @@ void corr_projected_summarise(const vector<CorrProjected*>& vcorr,
     double wp= wp_sum/ndat;
     double dwp= ndat > 1 ? sqrt((wp2_sum - ndat*wp*wp)/(ndat-1)) : wp;
 
-    corr_out->rp[i]= rp;
-    corr_out->wp[i]= wp;
-    corr_out->dwp[i]= dwp;
+    corr->rp[i]= rp;
+    corr->wp[i]= wp;
+    corr->dwp[i]= dwp;
   }
 }
-
