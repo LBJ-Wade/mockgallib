@@ -4,6 +4,7 @@
   "boxsize": 600,
   "fof":     "data/fof",
   "halomass": "data/halo_mass",
+  "nz": "data/vipers/nbar_all.txt",  
   "reg": [
     {
       "name":  "w1",
@@ -44,6 +45,12 @@
     {
       "abc": "f",
       "a": [0.70, 0.675, 0.72]
+    }
+  ],
+  "redshift_bins": [
+    {
+      "zmin": 1.0,
+      "zmax": 1.2
     }
   ]
 }

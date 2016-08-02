@@ -85,7 +85,7 @@ double sigma_M(const double sigma0)
   // sigma0 is sigma(M, z=0)
 #ifdef DEBUG
   assert(n > 0);
-  if(1/sigma0 < sinv_min || 1/sigma0 > sinv_max) {
+  if(1/sigma0 < sinv[0] || 1/sigma0 > sinv[n-1]) {
     cerr << "Error: sigma_M(sigma0) out of range.\n";
     cerr << sinv[0] << " " << sinv[n-1] << " " << 1.0/sigma0 << endl;
   }

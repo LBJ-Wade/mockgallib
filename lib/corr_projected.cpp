@@ -189,8 +189,9 @@ void corr_projected_compute(Catalogues* const cats_data,
     tree_free += (*cat)->ntree;
   }
 
-  msg_printf(msg_verbose, "%lu trees used (%lu Mbytes)\n",
+  msg_printf(msg_verbose, "%lu trees used (%lu Mbytes).\n",
 	     ntree_used, ntree_used*sizeof(KDTree)/(1024*1024));
+  msg_printf(msg_verbose, "Computing correlation function.\n");
 
   
   //
@@ -252,8 +253,6 @@ void corr_projected_compute(Catalogues* const cats_data,
   }
 
   corr_projected_summarise(corr);
-
-  corr->print(stdout);
 }
 
 

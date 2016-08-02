@@ -93,5 +93,56 @@ PyObject* py_corr_as_array(PyObject* self, PyObject* args)
   int ncol= 3;
   npy_intp dims[]= {ncol, corr->n};
 
-  return PyArray_SimpleNewFromData(nd, dims, NPY_FLOAT, corr->rp);
+  return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->rp);
+}
+
+PyObject* py_corr_rp(PyObject* self, PyObject* args)
+{
+  PyObject *py_corr;
+  
+  if(!PyArg_ParseTuple(args, "O", &py_corr)) {
+    return NULL;
+  }
+  CorrProjected* const corr=
+    (CorrProjected*) PyCapsule_GetPointer(py_corr, "_CorrProjected");
+  py_assert_ptr(corr);
+
+  const int nd=1;
+  npy_intp dims[]= {corr->n};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->rp);
+}
+
+PyObject* py_corr_wp(PyObject* self, PyObject* args)
+{
+  PyObject *py_corr;
+  
+  if(!PyArg_ParseTuple(args, "O", &py_corr)) {
+    return NULL;
+  }
+  CorrProjected* const corr=
+    (CorrProjected*) PyCapsule_GetPointer(py_corr, "_CorrProjected");
+  py_assert_ptr(corr);
+
+  const int nd=1;
+  npy_intp dims[]= {corr->n};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->wp);
+}
+
+PyObject* py_corr_dwp(PyObject* self, PyObject* args)
+{
+  PyObject *py_corr;
+  
+  if(!PyArg_ParseTuple(args, "O", &py_corr)) {
+    return NULL;
+  }
+  CorrProjected* const corr=
+    (CorrProjected*) PyCapsule_GetPointer(py_corr, "_CorrProjected");
+  py_assert_ptr(corr);
+
+  const int nd=1;
+  npy_intp dims[]= {corr->n};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->dwp);
 }

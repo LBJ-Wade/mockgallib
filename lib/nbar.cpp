@@ -48,6 +48,8 @@ NbarIntegration* nbar_integration_alloc(Hod* const hod)
   const double M_min= 1.0e10;
   const double M_max= 1.0e16;
 
+  sigma_init(M_min, M_max, 1001);
+
   ni->w= gsl_integration_cquad_workspace_alloc(100);
   ni->mf= new MF();
   ni->hod= hod;
@@ -147,9 +149,11 @@ double nbar_compute(NbarIntegration* const ni, const double z)
     ni->mf->set_redshift(a);    
     ni->D= growth_D(a);
     ni->z= z;
+    /*
     msg_printf(msg_verbose,
 	       "setting nbar_integration at z=%.3f, D=%.4f\n",
 	       ni->z, ni->D);
+    */
   }
 
   gsl_function F;

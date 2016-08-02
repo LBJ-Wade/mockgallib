@@ -29,8 +29,11 @@ Output:
 import os
 import argparse
 import json
+import signal
 import numpy as np
 import mockgallib as mock
+
+signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c
 
 
 #

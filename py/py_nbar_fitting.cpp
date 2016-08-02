@@ -138,7 +138,7 @@ PyObject* py_nbar_fitting_z(PyObject* self, PyObject* args)
   NbarFitting* const fitting=
     (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
 
-  cerr << i << " " << fitting->vobs->at(i).z << endl;
+  //cerr << i << " " << fitting->vobs->at(i).z << endl;
 
   return Py_BuildValue("d", fitting->vobs->at(i).z);
 }
@@ -180,7 +180,7 @@ PyObject* py_nbar_fitting_hod(PyObject* self, PyObject* args)
   NbarFitting* const fitting=
     (NbarFitting*) PyCapsule_GetPointer(py_fitting, "_NbarFitting");
 
-  printf("%e %e %e\n", fitting->hod->c[0], fitting->hod->c[1], fitting->hod->c[2]);
+  //printf("%e %e %e\n", fitting->hod->c[0], fitting->hod->c[1], fitting->hod->c[2]);
 
   
   return PyCapsule_New(fitting->hod, "_HOD", NULL);

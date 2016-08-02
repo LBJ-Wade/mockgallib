@@ -28,7 +28,9 @@ class Catalogues:
         return c._catalogues_catalogue(self._cats, i)
 
     def generate_galaxies(self, hod, lightcones, z_min, z_max):
-        """Generates n mock catalogues from n lightcones."""
+        """Generates n mock catalogues from n lightcones.
+        Existing catalogues will be overwritten
+        """
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
                                z_min, z_max, 0)
 
@@ -47,3 +49,4 @@ class Catalogues:
         """
 
         c._catalogues_append(self._cats, arr)
+

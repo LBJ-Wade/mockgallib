@@ -27,7 +27,7 @@ NbarFitting* nbar_fitting_alloc(Hod* const hod,
 {
   // Setup nbar fitting
   // z_min, z_max: fitting redshift range
-  
+
   NbarFitting* fitting= new NbarFitting();
 
   NbarIntegration* ni0= nbar_integration_alloc(hod);
@@ -129,6 +129,7 @@ void nbar_fitting_compute(NbarFitting* fitting)
     status = gsl_multimin_test_size(size, 1e-3);
 
 
+    /*
     if (status == GSL_SUCCESS) {
       msg_printf(msg_verbose, "nbar converged to minimum with %d steps.\n", iter);
     }
@@ -141,6 +142,7 @@ void nbar_fitting_compute(NbarFitting* fitting)
 	   gsl_vector_get(s->x, 2),
 	   gsl_vector_get(s->x, 3),
 	   size);
+    */
 
   } while (status == GSL_CONTINUE && iter < max_iter);
 

@@ -216,6 +216,9 @@ static PyMethodDef methods[] = {
    "compute correlation function from catalogues"},
   {"_corr_as_array", py_corr_as_array, METH_VARARGS,
    "return correlation function as np.array"},
+  {"_corr_rp", py_corr_rp, METH_VARARGS, "return rp array"},
+  {"_corr_wp", py_corr_wp, METH_VARARGS, "return wp array"},
+  {"_corr_dwp", py_corr_dwp, METH_VARARGS, "return dwp array"},
 
   {NULL, NULL, 0, NULL}
 };

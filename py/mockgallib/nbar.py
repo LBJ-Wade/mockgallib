@@ -15,12 +15,11 @@ class Nbar:
 
 class NbarFitting:
     """Class for fitting HOD logMmin(z) coefficients to fit nbar(z)"""
-    def __init__(self, ps, hod, array_obs, z_min, z_max):
-        """NbarFitting(ps, hod, nbar_obs, z_min, z_max)"""
+    def __init__(self, hod, array_obs, z_min, z_max):
+        """NbarFitting(hod, nbar_obs, z_min, z_max)"""
         self.z_min= z_min
         self.z_max= z_max
-        #self._nbar= Nbar(ps, hod)
-        self._fitting= c._nbar_fitting_alloc(ps._ps, hod._hod, array_obs,
+        self._fitting= c._nbar_fitting_alloc(hod._hod, array_obs,
                                              z_min, z_max)
         self.n = c._nbar_fitting_len(self._fitting)
         self.z = [ c._nbar_fitting_z(self._fitting, i) for i in range(self.n) ]
