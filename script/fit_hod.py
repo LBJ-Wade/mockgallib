@@ -17,7 +17,17 @@ Input:
 Output:
     mocks/mock_<n>.txt
     randoms/random_<n>.txt
+
+Notation:
+    *domain* is a tuble of (region, z_min, z_max) such as ('w1', '1.0', '1.2')
+    *data* is defined for each domain which contains:
+       halo_lightcones
+       random_lightcones
+       galaxy_catalogues
+       random_catalogues
 """
+
+
 
 import os
 import sys
@@ -25,6 +35,7 @@ import argparse
 import json
 import signal
 import numpy as np
+import scipy.optimize
 import mockgallib as mock
 
 signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c
@@ -76,19 +87,93 @@ print(redshift_bins)
 nbar_obs= np.loadtxt(param['nz'], delimiter=' ')
 
 
+#
+# The main data structure defined for each region x redshift bin
+#
 
-#
-# Load lightcones
-#
+class Data:
+    """Data is defined on each domain (region, z_min, z_max)
+    """
+    def __init__(self, domain):
+        self.domain = domain
+        self.reg = domain[0]
+        self.z_min = float(domain[1])
+        self.z_max = float(domain[2])
+
+        # Load lightcones
+        self.halo_lightcones = mock.LightCones()
+        self.halo_lightcones.load_h5(
+                           ['halo_lightcone/lightcone_%05d.h5' % (n + 1)
+                            for n in range(int(arg.nmocks))])
+
+        self.rand_lightcones = mock.LightCones()
+        self.rand_lightcones.load_h5(
+                           ['rand_lightcone/lightcone_%05d.h5' % (n + 1)
+                            for n in range(int(arg.nrands))])
+
+        # Catalogues will be generated from lightcones for given hod
+        self.galaxy_catalogues = mock.Catalogues()
+        self.random_catalogues = mock.Catalogues()
+
+        self.corr = mock.CorrelationFunction(
+            rp_min=0.5, rp_max=60.0, nbin=20, pi_max= 60.0, pi_nbin= 20)
+
+
+        # VIPERS projected correlation function
+        self.wp_obs = np.loadtxt('data/vipers/try1/corr_projected_%s_%s_%s.txt'
+                                 % domain, delimiter=' ')
+        
+
+    def generate_catalogues(self, hod):
+        """Generate galaxy and random catalogues from given HOD"""
+        self.galaxy_catalogues.generate_galaxies(hod, self.halo_lightcones,
+                                                 self.z_min, self.z_max)
+        
+        self.random_catalogues.generate_randoms(hod, self.rand_lightcones,
+                                                self.z_min, self.z_max)
+
+
+    def chi2(self, hod):
+        """Compute chi2 between HOD and observation 
+        projected correlation functions wp's.
+        Assumed that both wps are computed in the same coditions.
+        """
+        self.generate_catalogues(hod)
+        
+        self.corr.compute_corr_projected(self.galaxy_catalogues,
+                                         self.random_catalogues)
+
+        wp = self.corr.wp
+        diff = (self.corr.wp - self.wp_obs[:,1])/self.wp_obs[:,2]
+        chi2 = np.sum(diff**2)
+
+        return chi2
+
+
+    def write_corr_projected(self, index):
+        """Write projected correlation function"""
+        arg = self.domain + (index,)
+        print(arg)
+        filename = 'log/corr_%s_%s_%s_%05d.txt' % arg
+        rp = self.corr.rp
+        wp = self.corr.wp
+        with open(filename, 'w') as f:
+            for i in range(len(rp)):
+                f.write('%e %e\n' % (rp[i], wp[i]))
+
+
+        
 regs = ['w1', 'w4']
 
-halo_lightcones = mock.LightCones()
-halo_lightcones.load_h5(['halo_lightcone/lightcone_%05d.h5' % (n + 1)
-                         for n in range(int(arg.nmocks))])
+domains = [('w1', '1.0', '1.2')]
+data = {}
 
-rand_lightcones = mock.LightCones()
-rand_lightcones.load_h5(['rand_lightcone/lightcone_%05d.h5' % (n + 1)
-                         for n in range(int(arg.nrands))])
+for domain in domains:
+    data[domain] = Data(domain)
+
+
+
+
 
 
 #
@@ -102,17 +187,17 @@ hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 15.0, 0.0, 1.5, 0.0])
 # Setup HOD parameter fitting
 #
 nbar= mock.NbarFitting(hod, nbar_obs, 0.6, 1.2)
-corr = mock.CorrelationFunction()
+
 
 
 #
 # Setup output
 #
-outdir = 'fit'
+outdir = 'log'
 if not os.path.exists(outdir):
     os.mkdir(outdir)
 
-def write_nbar_fitting(nz, iter):
+def write_nbar_fitting(nz, index):
     """Write nbar_fitting to an ascii file
     Args:
         nz: NbarFitting object
@@ -124,37 +209,73 @@ def write_nbar_fitting(nz, iter):
         Column 2: nbar_obs
         Column 3: nbar_HOD
     """
-    filename = '%s/nz_%05d.txt' % (outdir, iter)
+    filename = '%s/nz_%05d.txt' % (outdir, index)
     with open(filename, 'w') as f:
         for i in range(len(nz)):
-            f.write('%e %e %e\n' % (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i]))
+                f.write('%e %e %e\n' % (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i]))
 
 
-def write_corr_projected(corr, zbin, iter):
-    """Write projected correlation function
+flog = open('fit_hod.log', 'w')
+iter = 0
+
+def cost_function(x):
+    """Compute the chi^2
+    Args:
+        domains: An arrain of domains
+        domain is a tuble containing the survey region x redshift bin info
+          domain[0] (str): 'w1' or 'w4'
+          domain[1] (str): redshift_min
+          domain[2] (str): redshift_max
     """
-    filename = '%s/corr_%.2f_%.2f_%05d.txt' % (odir, zbin[0], zbin[1], iter)
-    rp = corr.rp
-    wp = corr.wp
-    with open(filename, 'w') as f:
-        for i in range(len(rp)):
-            f.write('%e %e\n' % (rp[i], wp[i]))
 
+    hod[4] = x[0]
+    hod[6] = x[1]
+    hod[8] = x[2]
 
-mock_catalogues = mock.Catalogues()
-random_catalogues = mock.Catalogues()
+    # Find best fitting logMmin(z) function
+    nbar.fit()
 
-iter = 1
-nbar.fit()
-write_nbar_fitting(nbar, iter)
+    chi2 = 0
+    for domain, d in data.items():
+        chi2 += d.chi2(hod)
 
-sys.exit()
+    #print('chi2 = %.3f | %.3f %.3f %.3f' % (chi2, x[0], x[1], x[2]))
+    #flog.write('%e %e %e %e' % (chi2, x[0], x[1], x[2]))
 
-for zbin in redshift_bins:
-    random_catalogues.generate_randoms(hod, rand_lightcones, zbin[0], zbin[1])
-    galaxy_catalogues.generate_galaxies(hod, halo_lightcones, zbin[0], zbin[1])
-    corr.compute_corr_projected(galaxy_catalogues, random_catalogues)
+    return chi2
 
+def logging_minimization(x):
+    global iter
+    iter = iter + 1
 
-    write_corr_projected(corr, zbin, iter)
+    hod[4] = x[0]
+    hod[6] = x[1]
+    hod[8] = x[2]
+
+    # Find best fitting logMmin(z) function
+    nbar.fit()
+    write_nbar_fitting(nbar, iter)
+
+    chi2 = 0
+    for domain, d in data.items():
+        chi2 += d.chi2(hod)
+        d.write_corr_projected(iter)
+
+    print('chi2 = %.3f | %.3f %.3f %.3f' % (chi2, x[0], x[1], x[2]))
+    flog.write('%e %e %e %e\n' % (chi2, x[0], x[1], x[2]))
+
+#
+# Chi2 minimization
+#
+# x = [logM1, sigma, alpha]  HOD parameters to be optimised
+#
+x0 = [14.0, 0.1, 1.5] # starting point
+
+opt = scipy.optimize.minimize(cost_function, x0, method='Nelder-Mead',
+                              tol=0.01,
+                              callback=logging_minimization)
+
+flog.close()
+#write_nbar_fitting(nbar, iter)
+#write_corr_projected(corr, zbin, iter)
 
