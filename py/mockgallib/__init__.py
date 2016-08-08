@@ -18,4 +18,4 @@ from mockgallib.sky import Sky
 from mockgallib.slice import Slice
 from mockgallib.snapshots import Snapshots
 from mockgallib.corr import CorrelationFunction
-
+from mockgallib.minimise import minimise

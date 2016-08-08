@@ -26,6 +26,7 @@
 #include "py_halo_concentration.h"
 #include "py_rand.h"
 #include "py_corr_projected.h"
+#include "py_minimise.h"
 
 using namespace std;
 
@@ -219,6 +220,8 @@ static PyMethodDef methods[] = {
   {"_corr_rp", py_corr_rp, METH_VARARGS, "return rp array"},
   {"_corr_wp", py_corr_wp, METH_VARARGS, "return wp array"},
   {"_corr_dwp", py_corr_dwp, METH_VARARGS, "return dwp array"},
+
+  {"_minimise", py_minimise, METH_VARARGS, "minimise funtion"},
 
   {NULL, NULL, 0, NULL}
 };

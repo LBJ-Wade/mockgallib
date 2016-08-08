@@ -52,7 +52,7 @@ parser.add_argument('--nrands', default='1', help='number of random catalogues')
 arg = parser.parse_args()
 
 
-mock.set_loglevel(0)
+mock.set_loglevel(2)
 
 #
 # Read parameter file and initialise modules
@@ -165,14 +165,14 @@ class Data:
         
 regs = ['w1', 'w4']
 
-domains = [('w1', '1.0', '1.2')]
+
+domains = []
+for zbin in redshift_bins:
+    domains.append(('w1', zbin[0], zbin[1]))
 data = {}
 
 for domain in domains:
     data[domain] = Data(domain)
-
-
-
 
 
 
@@ -215,9 +215,12 @@ def write_nbar_fitting(nz, index):
                 f.write('%e %e %e\n' % (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i]))
 
 
-flog = open('fit_hod.log', 'w')
+flog = open('%s/fit_hod.log' % outdir, 'w')
 iter = 0
 
+def test(x):
+    return (x[0] - 13.0)**2 + (x[1] - 0.2)**2 + (x[2] - 1.0)**2
+    
 def cost_function(x):
     """Compute the chi^2
     Args:
@@ -237,10 +240,11 @@ def cost_function(x):
 
     chi2 = 0
     for domain, d in data.items():
+        print('computing chi2 from domain', domain)
         chi2 += d.chi2(hod)
 
     #print('chi2 = %.3f | %.3f %.3f %.3f' % (chi2, x[0], x[1], x[2]))
-    #flog.write('%e %e %e %e' % (chi2, x[0], x[1], x[2]))
+
 
     return chi2
 
@@ -248,6 +252,8 @@ def logging_minimization(x):
     global iter
     iter = iter + 1
 
+    print(x)
+    print('callback called')
     hod[4] = x[0]
     hod[6] = x[1]
     hod[8] = x[2]
@@ -262,18 +268,26 @@ def logging_minimization(x):
         d.write_corr_projected(iter)
 
     print('chi2 = %.3f | %.3f %.3f %.3f' % (chi2, x[0], x[1], x[2]))
-    flog.write('%e %e %e %e\n' % (chi2, x[0], x[1], x[2]))
+    #flog.write('%.3 %.4f %.4f %.4f\n' % (chi2, x[0], x[1], x[2]))
+
+    return None
 
 #
 # Chi2 minimization
 #
 # x = [logM1, sigma, alpha]  HOD parameters to be optimised
 #
-x0 = [14.0, 0.1, 1.5] # starting point
+x0 = [13.0, 0.1, 1.5] # starting point
+ss = [1.5, 0.05, 0.5] 
 
-opt = scipy.optimize.minimize(cost_function, x0, method='Nelder-Mead',
-                              tol=0.01,
-                              callback=logging_minimization)
+#opt = scipy.optimize.minimize(cost_function, x0, method='Nelder-Mead',
+#                              tol=0.01,
+#                              callback=logging_minimization)
+
+#x = mock.minimise(cost_function, None, x0, ss)
+x = mock.minimise(cost_function, logging_minimization, x0, ss)
+#x = mock.minimise(test, logging_minimization, x0, ss)
+print('minimum', x)
 
 flog.close()
 #write_nbar_fitting(nbar, iter)
