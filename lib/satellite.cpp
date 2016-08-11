@@ -21,6 +21,12 @@ static double spline_ymax= 0.0;
 static gsl_spline* spline= 0;
 static gsl_interp_accel* acc= 0;
 
+static void init_I();
+static gsl_spline* spline_I= 0;
+static gsl_interp_accel* acc_I= 0;
+static double xmin_I, ymin_I, xmax_I, ymax_I;
+
+
 static double f_inverse(const double fx);
 static double compute_v_rms(const double r,
 		       const double Mvir, const double rvir, const double cvir);
@@ -47,6 +53,8 @@ void satellite_init()
   spline= gsl_spline_alloc(gsl_interp_cspline, ninterp);
   acc= gsl_interp_accel_alloc(); 
   gsl_spline_init(spline, y, x, ninterp);
+
+  init_I();
   
   free(x);
 }
@@ -131,21 +139,6 @@ static double g(const double x, void* param)
 }
     
 
-static double I(const double x)
-{
-  const int worksize= 1000;
-  gsl_integration_workspace *w= gsl_integration_workspace_alloc(worksize);
-
-  gsl_function F;
-  F.function = &g;
-  F.params = 0;
-
-  double result, abserr;
-  gsl_integration_qagiu(&F, x, 0, 1.0e-8, worksize, w, &result, &abserr);
-
-  return result;
-}
-
 double compute_v_rms(const double r,
 		     const double Mvir, const double rvir, const double cvir)
 {
@@ -155,8 +148,56 @@ double compute_v_rms(const double r,
   const double G=43007.1/1.0e10; // for 1/h kpc, solar mass, km/s
   const double rs= rvir/cvir;
   const double s1= 1.0 + r/rs;
-  return sqrt(G*Mvir/(f(cvir)*rs)*(r/rs)*s1*s1*I(r/rs));
+
+
+  double x = r/rs;
+  double I= ymin_I;
+  if(x > xmin_I)
+    I= gsl_spline_eval(spline_I, r/rs, acc_I);
+  return sqrt(G*Mvir/(f(cvir)*rs)*(r/rs)*s1*s1*I);
+  //return sqrt(G*Mvir/(f(cvir)*rs)*(r/rs)*s1*s1*I(r/rs));
 }
+
+void init_I()
+{
+  const int worksize= 1000;
+  gsl_integration_workspace *w= gsl_integration_workspace_alloc(worksize);
+      
+  gsl_function F;
+  F.function = &g;
+  F.params = 0;
+
+  xmin_I= 0.01;
+  xmax_I= 100.0;
+  const int ninterp= 200;
+
+  double* const x= (double*) malloc(sizeof(double)*ninterp*2);
+  double* const y= x + ninterp;
+
+  spline_I= gsl_spline_alloc(gsl_interp_cspline, ninterp);
+  acc_I= gsl_interp_accel_alloc(); 
+
+  const double log_x_min= log(xmin_I);
+  const double log_x_max= log(xmax_I);
+
+  double result, abserr;
+  
+  for(int i=0; i<ninterp; ++i) {
+    x[i]= exp(log_x_min + (log_x_max - log_x_min)*i/(ninterp-1));
+
+
+    gsl_integration_qagiu(&F, x[i], 0, 1.0e-5, worksize, w, &result, &abserr);
+    y[i]= result;
+  }
+
+  ymin_I= y[0];
+  
+  gsl_spline_init(spline_I, x, y, ninterp);
+
+  gsl_integration_workspace_free(w);
+  free(x);
+}
+
 
 //
 // random direction
