@@ -1,6 +1,7 @@
 #ifndef KDTREE_H
 #define KDTREE_H 1
 
+#include <cstdlib>
 #include "particle.h"
 
 typedef int index_t;
