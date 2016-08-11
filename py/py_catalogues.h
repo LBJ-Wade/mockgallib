@@ -13,5 +13,8 @@ PyObject* py_catalogues_generate(PyObject* self, PyObject* args);
 PyObject* py_catalogues_len(PyObject* self, PyObject* args);
 PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args);
 PyObject* py_catalogues_append(PyObject* self, PyObject* args);
+
+PyObject* py_catalogues_ngal(PyObject* self, PyObject* args);
+PyObject* py_catalogues_nz(PyObject* self, PyObject* args);
 #endif
 

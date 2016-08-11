@@ -155,8 +155,11 @@ static PyMethodDef methods[] = {
    "_catalogues_catalogue(i); return ith _Catalogue"},
   {"_catalogues_append", py_catalogues_append, METH_VARARGS,
    "append a catalogue to catalogues"},   
-
-
+  {"_catalogues_ngal", py_catalogues_ngal, METH_VARARGS,
+   "return average number of galaxies in catalogues"},
+  {"_catalogues_nz", py_catalogues_nz, METH_VARARGS,
+   "return number of galaxies dN/dz in catalogues"},
+  
   {"_sky_alloc", py_sky_alloc, METH_VARARGS,
    "allocate a new _Sky"},
   {"_sky_boxsize", py_sky_boxsize, METH_VARARGS,

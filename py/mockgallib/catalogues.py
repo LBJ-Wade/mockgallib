@@ -50,3 +50,7 @@ class Catalogues:
 
         c._catalogues_append(self._cats, arr)
 
+    def ngal(self):
+        """Return number of galaxies
+        """
+        return c._catalogues_ngal(self._cats)

@@ -17,10 +17,10 @@ static PyObject* build_py_x(gsl_vector const * const x)
   return py_x;
 }
 
-static void call_callback(PyObject* py_callback, gsl_vector const * const x)
+static int call_callback(PyObject* py_callback, gsl_vector const * const x)
 {
   if(py_callback == Py_None)
-    return;
+    return true;
   
   PyObject* const py_x= build_py_x(x);
   PyObject* const py_arg= Py_BuildValue("(O)", py_x);
@@ -31,13 +31,13 @@ static void call_callback(PyObject* py_callback, gsl_vector const * const x)
 
   if(py_result == NULL) {
     msg_printf(msg_error, "Error: calling callback function from minimise()\n");
-    PyErr_Clear();
-    abort();
+    return false;
   }
   else {
     Py_DECREF(py_result);
   }
 
+  return true;
 }
 
   
@@ -62,7 +62,7 @@ static double f(const gsl_vector *x, void *params)
   if(py_result == NULL || !PyFloat_Check(py_result)) {
     msg_printf(msg_fatal, "Error: return value of cost_function in minimise is not float\n");
     PyErr_SetNone(PyExc_TypeError);
-    abort();
+    return NULL;
   }
 
   double result= PyFloat_AsDouble(py_result);
@@ -141,7 +141,9 @@ PyObject* py_minimise(PyObject *self, PyObject *args)
   do {
     iter++;
     status = gsl_multimin_fminimizer_iterate(s);
-    call_callback(py_callback, s->x);
+
+    if(!call_callback(py_callback, s->x))
+      break;
     
     if(status) break;
 

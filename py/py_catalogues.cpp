@@ -252,3 +252,70 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
   
   Py_RETURN_NONE;
 }
+
+PyObject* py_catalogues_ngal(PyObject* self, PyObject* args)
+{
+  // _catalogues_nz(_catalogues)
+  // return average number of centrals and satellites
+  
+  PyObject *py_catalogues;
+  if(!PyArg_ParseTuple(args, "O", &py_catalogues)) {
+    return NULL;
+  }
+
+  Catalogues* const cats=
+    (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
+  py_assert_ptr(cats);
+
+  double ncen_sum= 0.0;
+  double nsat_sum= 0.0;
+  const int n= cats->size();
+
+  for(Catalogues::iterator c= cats->begin(); c != cats->end(); ++c) {
+    ncen_sum += (*c)->ncen;
+    nsat_sum += (*c)->nsat;
+  }
+
+  return Py_BuildValue("(dd)", ncen_sum/n, nsat_sum/n);
+}
+
+PyObject* py_catalogues_nz(PyObject* self, PyObject* args)
+{
+  // _catalogues_nz(_catalogues, z_min, z_max, nbin)
+  // return an array of [z, dN/dz] average over all catalogues
+  //     z:     midpoint of redshift bin
+  //     dN/dz: number of galaxies / dz
+  
+  PyObject *py_catalogues;
+  double z_min, z_max;
+  int nbin;
+  if(!PyArg_ParseTuple(args, "Oddi", &py_catalogues,
+		       &z_min, &z_max, &nbin)) {
+    return NULL;
+  }
+
+  Catalogues* const cats=
+    (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
+  py_assert_ptr(cats);
+
+  npy_intp dims[]= {nbin, 2};
+  PyObject* arr= PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+  double* a= (double*) PyArray_DATA((PyArrayObject*) arr);
+
+  for(int i=0; i<nbin; ++i) {
+    a[2*i]= z_min + (z_max - z_min)/nbin*(i + 0.5);
+    a[2*i + 1]= 0.0;
+  }
+
+  double ncat= cats->size();
+  for(Catalogues::iterator cat= cats->begin(); cat != cats->end(); ++cat) {
+    double* nz= catalogue_compute_nz(*cat, z_min, z_max, nbin);
+
+    for(int i=0; i<nbin; ++i)
+      a[2*i + 1]= nz[i]/ncat;
+    
+    free(nz);
+  }
+
+  return arr;
+}

@@ -52,7 +52,7 @@ parser.add_argument('--nrands', default='1', help='number of random catalogues')
 arg = parser.parse_args()
 
 
-mock.set_loglevel(2)
+mock.set_loglevel(0)
 
 #
 # Read parameter file and initialise modules
@@ -153,7 +153,6 @@ class Data:
     def write_corr_projected(self, index):
         """Write projected correlation function"""
         arg = self.domain + (index,)
-        print(arg)
         filename = 'log/corr_%s_%s_%s_%05d.txt' % arg
         rp = self.corr.rp
         wp = self.corr.wp
@@ -180,7 +179,7 @@ for domain in domains:
 # Set HOD parameters (initial guess)
 #
 hod = mock.Hod()
-hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 15.0, 0.0, 1.5, 0.0])
+hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 1.5, 0.0, 1.5, 0.0])
 
 
 #
@@ -215,35 +214,67 @@ def write_nbar_fitting(nz, index):
                 f.write('%e %e %e\n' % (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i]))
 
 
-flog = open('%s/fit_hod.log' % outdir, 'w')
+def write_hod_params(h, index):
+    """Write HOD parameters as a function of z
+    Column 1: z
+    Column 2: log10 M
+    Column 3: sigma
+    Column 4: log10 M1
+    Column 5: alpha
+    """
+    filename = 'log/hod_%05d.txt' % index
+    f = open(filename, 'w')
+    f.write('# c= ' + hod.get_coef().__repr__() + '\n')
+    
+    for z in np.arange(0.4, 1.2, 0.01):
+        logMmin = h.logMmin(z)
+        sigma   = h.sigma(z)
+        logM1   = h.logM1(z)
+        alpha   = h.alpha(z)
+        f.write('%.4f %.6f %.6f %.6f %.6f\n' %
+                (z, logMmin, sigma, logM1, alpha))
+    f.close()
+                
+flog = open('%s/fit_hod.log' % outdir, 'w', 1)
 iter = 0
 
-def test(x):
-    return (x[0] - 13.0)**2 + (x[1] - 0.2)**2 + (x[2] - 1.0)**2
-    
 def cost_function(x):
     """Compute the chi^2
     Args:
+        x[0]: M1/M_min
+        x[1]: sigma
+        x[2]: alpha
+
         domains: An arrain of domains
         domain is a tuble containing the survey region x redshift bin info
           domain[0] (str): 'w1' or 'w4'
           domain[1] (str): redshift_min
           domain[2] (str): redshift_max
+    
     """
 
-    hod[4] = x[0]
-    hod[6] = x[1]
-    hod[8] = x[2]
+    hod[6] = x[0]  #log10 M1 = log10 (M_min + c_6 + c_7*(z - z_0)
+    hod[7] = x[1]
 
+    #hod[6] = x[0] # log10 M1
+    #hod[6] = x[0] # log10 M1
+    #hod[4] = x[1] # sigma
+
+    #hod[8] = x[2] # alpha
+
+    print('eval %.3f %.3f' % (x[0], x[1]))
+    print(hod.coef)
+    
     # Find best fitting logMmin(z) function
     nbar.fit()
 
+    #logMmin = hod.logMmin(0.6)
+    #print('logMmin= ', logMmin)
+
+
     chi2 = 0
     for domain, d in data.items():
-        print('computing chi2 from domain', domain)
         chi2 += d.chi2(hod)
-
-    #print('chi2 = %.3f | %.3f %.3f %.3f' % (chi2, x[0], x[1], x[2]))
 
 
     return chi2
@@ -252,11 +283,11 @@ def logging_minimization(x):
     global iter
     iter = iter + 1
 
-    print(x)
     print('callback called')
-    hod[4] = x[0]
-    hod[6] = x[1]
-    hod[8] = x[2]
+    #hod[4] = x[1]
+    hod[6] = x[0]
+    hod[7] = x[1]
+    #hod[8] = x[2]
 
     # Find best fitting logMmin(z) function
     nbar.fit()
@@ -267,9 +298,10 @@ def logging_minimization(x):
         chi2 += d.chi2(hod)
         d.write_corr_projected(iter)
 
-    print('chi2 = %.3f | %.3f %.3f %.3f' % (chi2, x[0], x[1], x[2]))
-    #flog.write('%.3 %.4f %.4f %.4f\n' % (chi2, x[0], x[1], x[2]))
+    print('chi2 = %.3f | %.3f %.3f' % (chi2, x[0], x[1]))
+    flog.write('%.3f %.4f %.4f\n' % (chi2, x[0], x[1]))
 
+    write_hod_params(hod, iter)
     return None
 
 #
@@ -277,8 +309,10 @@ def logging_minimization(x):
 #
 # x = [logM1, sigma, alpha]  HOD parameters to be optimised
 #
-x0 = [13.0, 0.1, 1.5] # starting point
-ss = [1.5, 0.05, 0.5] 
+#x0 = [13.0, 0.1, 1.5] # starting point M1, sigma, alpha
+#ss = [1.5, 0.05, 0.5]
+x0 = [1.5, 0.0]
+ss = [0.2, 0.1]
 
 #opt = scipy.optimize.minimize(cost_function, x0, method='Nelder-Mead',
 #                              tol=0.01,

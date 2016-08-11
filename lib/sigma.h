@@ -1,7 +1,6 @@
 #ifndef SIGMA_H
 #define SIGMA_H 1
 
-#include <gsl/gsl_interp.h>
 #include "power.h"
 
 

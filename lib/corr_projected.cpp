@@ -469,7 +469,8 @@ void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
   const int nx= dd.x_nbin();
   const int ny= dd.y_nbin();
   const double dpi= 2.0*pi_max/ny;
- 
+
+  assert(npairs_rr > 0);
   assert(corr->n == nx);
 
   for(int ix=0; ix<nx; ++ix) {
@@ -484,6 +485,7 @@ void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
       // wp = \int_-pi-max^pi-max xi(rp, pi) dpi
     }    
     corr->wp[ix]= wp;
+    assert(!isnan(wp));
   }
 }
 
@@ -492,7 +494,7 @@ void corr_projected_write(const int index, const vector<CorrProjected*>& vcorr)
 {
   assert(!vcorr.empty());
   const int nbin= vcorr.front()->n;
-  const int ndat= vcorr.size();
+  const int ndat= vcorr.size(); assert(ndat > 0);
 
   char filename[128];
   sprintf(filename, "wp_%05d.txt", index);
@@ -524,7 +526,7 @@ void corr_projected_summarise(CorrProjected* const corr)
   //
   assert(!vcorr.empty());
   const int nbin= vcorr.front()->n;
-  const int ndat= vcorr.size();
+  const int ndat= vcorr.size(); assert(ndat > 0);
 
   for(int i=0; i<nbin; ++i) {
     double rp= vcorr.front()->rp[i];

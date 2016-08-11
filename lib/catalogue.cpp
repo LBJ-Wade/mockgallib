@@ -133,7 +133,7 @@ void catalogue_generate_mock(Hod* const hod,
   int ncen_total= 0, nsat_total= 0;
 
 
-  cerr << "src lightcone " << lightcone->size() << endl;
+  //cerr << "src lightcone " << lightcone->size() << endl;
   
   for(LightCone::const_iterator h=
 	lightcone->begin(); h != lightcone->end(); ++h) {
@@ -163,6 +163,7 @@ void catalogue_generate_mock(Hod* const hod,
 
     double nsat_mean= hod->nsat(h->M);
     int nsat= rand_poisson(nsat_mean);
+    //fprintf(stderr, "nsat %f %d\n", nsat_mean, nsat);
     nsat_total += nsat;
 
     // satellites
@@ -301,3 +302,24 @@ void catalogue_generate_random(Hod* const hod,
   cat->ncen= ncen_total;
   cat->nsat= nsat_total;
 }
+
+double* catalogue_compute_nz(Catalogue const * const cat,
+		      const double z_min, const double z_max, const int nbin)
+{
+  // Return dN/dz
+  // Return value: array of dN/nz needs to be freed by the user
+  double* count= (double*) calloc(sizeof(double), nbin);
+  const double dz= (z_max - z_min)/nbin;
+  
+  for(Catalogue::const_iterator p= cat->begin(); p != cat->end(); ++p) {
+    int i= floor((p->z - z_min)/(z_max - z_min)*nbin);
+    if(0 <= i && i < nbin)
+      count[i] += 1.0;
+  }
+
+  for(int i=0; i<nbin; ++i)
+    count[i] /= dz;
+
+  return count;
+}
+
