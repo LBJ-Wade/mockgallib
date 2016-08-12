@@ -8,6 +8,10 @@
 #include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
+#ifdef _OPENMP
+   #include <omp.h>
+#endif
+
 
 using namespace std;
 
@@ -25,6 +29,15 @@ void corr_projected_init(const float rp_min_, const float rp_max_, const int nbi
   nbin=   nbin_;
   pi_max= pi_max_;
   nbin_pi= nbin_pi_;
+
+#ifdef _OPENMP
+  int nthreads= omp_get_max_threads();
+  msg_printf(msg_info, "corr_projected OpenMP parallelised with %d threads.\n",
+	     nthreads);
+#else
+  msg_printf(msg_info, "corr_projected not OpenMP parallelised.\n");
+#endif
+  
 }
 
 
@@ -222,6 +235,8 @@ void corr_projected_compute(Catalogues* const cats_data,
   }
 
   int icat=0;
+  const int rand_cats_factor= cats_rand->size()/cats_data->size();
+  
   for(Catalogues::iterator cat= cats_data->begin();
       cat != cats_data->end(); ++cat) {
     npairs_DD= 0.0;
@@ -236,6 +251,20 @@ void corr_projected_compute(Catalogues* const cats_data,
     npairs_DD += 0.5*(*cat)->size()*((*cat)->size()-1);
 
     // DR
+    // Not ndata_cat * nrand_cat crosses, but nrand_cat cross pairs
+    for(size_t icat_rand=0; icat_rand<rand_cats_factor; ++icat_rand) {
+      Catalogues::iterator rcat= cats_rand->begin() + icat +
+	                           icat_rand * cats_data->size();
+      assert(icat + icat_rand * cats_data->size() < cats_rand->size());
+
+      if(!(*cat)->empty() && !(*rcat)->empty())
+	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
+      
+      npairs_DR += (*cat)->size()*(*rcat)->size();
+    }
+
+    /*
+    // ndata_cat * nrand_cat cross pairs
     for(Catalogues::iterator rcat= cats_rand->begin();
       rcat != cats_rand->end(); ++rcat) {    
 
@@ -243,6 +272,7 @@ void corr_projected_compute(Catalogues* const cats_data,
 	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
+    */
 
     compute_corr_from_histogram2d(dd, npairs_DD,
 				  dr, npairs_DR,
@@ -329,16 +359,16 @@ size_t count_pairs_auto(KDTree const * const tree,
 			Histogram2D<LogBin, LinearBin>& hist)
 {
   // Run count_pairs_leaf_tree for each leaf
-  KDTree const * leaf= tree;
+
 
   size_t count= 0;
 
+  #pragma omp parallel for
   for(size_t i=0; i<ntree; ++i) {
+    KDTree const * leaf= tree + i;
     if(leaf->subtree[0] == 0 && leaf->subtree[1] == 0) {
       count += count_pairs_leaf_tree_auto(leaf, tree, hist);
     }
-    
-    leaf++;
   }
 
   return count;
@@ -401,16 +431,14 @@ size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
 			 Histogram2D<LogBin, LinearBin>& hist)
 {
   // Run count_pairs_leaf_tree for each leaf
-  KDTree const * leaf= tree1;
-
   size_t count= 0;
 
+  #pragma omp parallel for
   for(size_t i=0; i<ntree1; ++i) {
+    KDTree const * leaf= tree1 + i;
     if(leaf->subtree[0] == 0 && leaf->subtree[1] == 0) {
       count += count_pairs_leaf_tree_cross(leaf, tree2, hist);
     }
-    
-    leaf++;
   }
 
   return count;

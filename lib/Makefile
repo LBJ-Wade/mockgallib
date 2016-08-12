@@ -3,11 +3,22 @@
 #
 
 LIBRARY   = libmockgal.a libmockgal.so #libmockgal.dylib
-
 all: $(LIBRARY)
 
-CPPFLAGS := -O2 -fPIC
+# Compiler
+OPENMP := -fopenmp    # Use OpenMP parallelisation
+
+CPPFLAGS := -O2 -fPIC $(OPENMP)
 LIBS     := -lm -lgsl -lgslcblas -lhdf5
+
+
+
+ifdef OPENMP
+ifeq ($(CXX), clang++)
+CXX      := clang-omp++    # brew install clang-omp for Mac + Homebrew
+LIBS     += -liomp5
+endif
+endif
 
 # options
 CPPFLAGS += -DDEBUG
@@ -34,6 +45,7 @@ libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)
 
 libmockgal.so: $(OBJS)
+	@echo $(CXX)
 	$(CXX) $(OBJS) -shared $(LIBS)  -o $@
 
 libmockgal.dylib: $(OBJS)

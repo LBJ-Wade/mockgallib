@@ -50,17 +50,11 @@ class Histogram2D {
   void add(float x, float y, float val) {
     int ix= xbin(x);
     int iy= ybin(y);
-    //fprintf(stderr, "hist %d %d %d %d\n", ix, iy, xbin.nbin, ybin.nbin);
-
     if(0 <= ix && ix < xbin.nbin && 0 <= iy && iy < ybin.nbin) {
       int index= ix*ybin.nbin + iy;
+#pragma omp atomic
       hist[index] += val;
-      //std::cerr << "Added\n";
     }
-    
-    //else {
-    //  std::cerr << "Not added " << x << " " << y << " " << ix << " " << iy << std::endl;
-    //}
   }
   int size() const {
     return xbin.nbin * ybin.nbin;
