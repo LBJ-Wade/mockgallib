@@ -27,6 +27,8 @@
 #include "py_rand.h"
 #include "py_corr_projected.h"
 #include "py_minimise.h"
+#include "py_comm.h"
+#include "py_array.h"
 
 using namespace std;
 
@@ -226,6 +228,14 @@ static PyMethodDef methods[] = {
 
   {"_minimise", py_minimise, METH_VARARGS, "minimise funtion"},
 
+  {"_comm_init", py_comm_init, METH_VARARGS, "Initialize MPI"},
+  {"_comm_finalise", py_comm_finalise, METH_VARARGS, "Finalise MPI"},
+  {"_comm_this_rank", py_comm_this_rank, METH_VARARGS, "MPI rank"},
+  {"_comm_n_nodes", py_comm_n_nodes, METH_VARARGS, "Number of MPI nodes"},
+  {"_comm_bcast_str", py_comm_bcast_str, METH_VARARGS, "Broadcast string"},
+
+  {"_array_loadtxt", py_array_loadtxt, METH_VARARGS, "Broadcast string"},
+  
   {NULL, NULL, 0, NULL}
 };
 
@@ -245,6 +255,7 @@ PyInit__mockgallib(void) {
   py_catalogues_module_init();
   py_lightcones_module_init();
   py_corr_projected_module_init();
+  py_array_module_init();
   
   return PyModule_Create(&module);
 }

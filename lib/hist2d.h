@@ -52,7 +52,6 @@ class Histogram2D {
     int iy= ybin(y);
     if(0 <= ix && ix < xbin.nbin && 0 <= iy && iy < ybin.nbin) {
       int index= ix*ybin.nbin + iy;
-#pragma omp atomic
       hist[index] += val;
     }
   }

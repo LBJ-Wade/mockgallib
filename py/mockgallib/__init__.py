@@ -4,6 +4,8 @@ import mockgallib.power
 import mockgallib.sigma
 import mockgallib.rand
 import mockgallib.halo_concentration
+import mockgallib.comm
+import mockgallib.array
 
 from mockgallib._mockgallib import set_loglevel
 from mockgallib._mockgallib import growth_D
@@ -19,3 +21,6 @@ from mockgallib.slice import Slice
 from mockgallib.snapshots import Snapshots
 from mockgallib.corr import CorrelationFunction
 from mockgallib.minimise import minimise
+
+comm.init()
+

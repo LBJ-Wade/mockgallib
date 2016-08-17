@@ -2,27 +2,23 @@
 # mock_galaxy_library/lib
 #
 
-LIBRARY   = libmockgal.a libmockgal.so #libmockgal.dylib
-all: $(LIBRARY)
+LIBRARY   =  libmockgal.a libmockgal.so #libmockgal.dylib
 
-# Compiler
-OPENMP := -fopenmp    # Use OpenMP parallelisation
+default:
+	cd .. && $(MAKE) lib
+
+lib: libmockgal.so
 
 CPPFLAGS := -O2 -fPIC $(OPENMP)
 LIBS     := -lm -lgsl -lgslcblas -lhdf5
 
 
-
-ifdef OPENMP
-ifeq ($(CXX), clang++)
-CXX      := clang-omp++    # brew install clang-omp for Mac + Homebrew
-LIBS     += -liomp5
-endif
-endif
-
 # options
 CPPFLAGS += -DDEBUG
 
+ifdef WITHMPI
+CPPFLAGS += -DWITHMPI
+endif
 
 # add non standark library path if necessary
 DIR_PATH := # e.g. /opt/gsl
@@ -30,7 +26,7 @@ DIR_PATH := # e.g. /opt/gsl
 CFLAGS   += $(foreach dir, $(DIR_PATH), -I$(dir)/include)
 LIBS     += $(foreach dir, $(DIR_PATH), -L$(dir)/lib)
 
-OBJS     := msg.o cosmology.o growth.o
+OBJS     := msg.o comm.o cosmology.o growth.o
 OBJS     += power.o sigma.o mf.o mf_cumulative.o
 OBJS     += rand.o
 OBJS     += hod.o nbar.o nbar_fitting.o
@@ -53,7 +49,7 @@ libmockgal.dylib: $(OBJS)
 
 
 
-.PHONY: clean dependence
+.PHONY: lib clean dependence
 clean:
 	rm -f $(LIBRARY) $(OBJS)
 

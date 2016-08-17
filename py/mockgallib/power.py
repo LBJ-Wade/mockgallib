@@ -21,6 +21,8 @@ def init(filename):
     """
 
     c._power_init(filename)
+    global n, k, P
+    
     n = c._power_n()
     k = c._power_k()
     P = c._power_P()

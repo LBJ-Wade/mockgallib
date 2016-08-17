@@ -2,21 +2,67 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+
+#ifdef WITHMPI
+#include <mpi.h>
+#endif
+
 #include "power.h"
 #include "msg.h"
 #include "error.h"
+#include "comm.h"
 
 static int n=0;
 static double* k= 0;
 static double* P;
+
+static double* read_powerspectrum_file(const char filename[], int* const nlines_out);
 
 void power_init(const char filename[])
 {
   if(k) return;
   
   // Read k P from filename
+  double* buf= 0;
+  int nlines= 0;
+  if(comm_this_rank() == 0) {
+    try {
+      buf= read_powerspectrum_file(filename, &nlines);
+    }
+    catch(FileNotFoundError e) {
+      nlines= 0;
+    }
+  }
 
-  FILE* fp= fopen(filename, "r");
+  n= comm_bcast_int(nlines);
+  if(n == 0)
+    throw FileNotFoundError();
+  
+  k= (double*) malloc(2*n*sizeof(double)); assert(k);
+  P= k + nlines;
+
+  if(comm_this_rank() == 0) {
+    for(int j=0; j<nlines; j++) {
+      k[j] = buf[2*j];
+      P[j] = buf[2*j + 1];
+    }
+    free(buf);
+  }
+
+#ifdef WITHMPI
+  msg_printf(msg_debug, "bcast power spectrum %d\n", n);
+  MPI_Bcast(k, 2*n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+#endif
+}
+
+void power_free()
+{
+  free(k);
+}
+
+double* read_powerspectrum_file(const char filename[], int* const nlines_out)
+{
+  FILE* const fp= fopen(filename, "r");
   if(fp == 0) {
     msg_printf(msg_error,
 	       "Error: Unable to open input power spectrum file: %s\n",
@@ -60,24 +106,10 @@ void power_init(const char filename[])
   int ret= fclose(fp); assert(ret == 0);
   
   msg_printf(msg_verbose, "Read %d pairs of k P(k) from %s\n", nlines, filename);
-
-  k= (double*) malloc(2*nlines*sizeof(double)); assert(k);
-  P= k + nlines;
   
-  for(int j=0; j<nlines; j++) {
-    k[j] = buf[2*j];
-    P[j] = buf[2*j + 1];
-  }
-  
-  free(buf);
-  
-  n= nlines;
+  *nlines_out= nlines;
+  return buf;
 }
-
-void power_free()
-{
-  free(k);
-}  
 
 double power_compute_sigma(const double R)
 {

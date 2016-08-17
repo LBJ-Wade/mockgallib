@@ -3,7 +3,7 @@ This script find best fitting Halo Occcupation Distribution (HOD) parameters
 that simultaneously fit the number density n(z) and projected correlation
 function.
 
-python3 fit_hod.py param.json
+mpirun -n 4 python3 fit_hod_mpi.py param.json
 
 Options:
     param [=param.json]: parameter file
@@ -35,7 +35,6 @@ import argparse
 import json
 import signal
 import numpy as np
-import scipy.optimize
 import mockgallib as mock
 
 signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c

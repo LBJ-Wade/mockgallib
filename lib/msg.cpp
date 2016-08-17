@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
+
+#include "comm.h"
 #include "msg.h"
 
 
@@ -23,7 +25,7 @@ void msg_set_prefix(const char prefix_[])
 
 void msg_printf(const LogLevel msg_level, char const * const fmt, ...)
 {
-  if(msg_level >= log_level) {
+  if(comm_this_rank() == 0 && msg_level >= log_level) {
     va_list argp;
 
     va_start(argp, fmt);

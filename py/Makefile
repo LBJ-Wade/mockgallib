@@ -3,9 +3,12 @@
 # make install
 #   to install it to a python module directory
 
-all: build install
+default:
+	cd .. && $(MAKE) py
 
+py: build install
 
+#CC   ?= mpic++
 SRC  := py_package.cpp py_power.cpp py_msg.cpp
 
 build: $(SRC)

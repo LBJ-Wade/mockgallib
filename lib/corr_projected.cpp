@@ -8,9 +8,6 @@
 #include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
-#ifdef _OPENMP
-   #include <omp.h>
-#endif
 
 
 using namespace std;
@@ -363,7 +360,6 @@ size_t count_pairs_auto(KDTree const * const tree,
 
   size_t count= 0;
 
-  #pragma omp parallel for
   for(size_t i=0; i<ntree; ++i) {
     KDTree const * leaf= tree + i;
     if(leaf->subtree[0] == 0 && leaf->subtree[1] == 0) {
@@ -433,7 +429,6 @@ size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
   // Run count_pairs_leaf_tree for each leaf
   size_t count= 0;
 
-  #pragma omp parallel for
   for(size_t i=0; i<ntree1; ++i) {
     KDTree const * leaf= tree1 + i;
     if(leaf->subtree[0] == 0 && leaf->subtree[1] == 0) {
