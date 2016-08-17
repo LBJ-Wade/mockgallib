@@ -39,7 +39,7 @@ static inline double f(const double x)
 
 void satellite_init()
 {
-  msg_printf(msg_verbose, "satellite module initialised\n");
+  msg_printf(msg_debug, "start satellite_init()\n");
   
   double* x= (double*) malloc(sizeof(double)*2*ninterp); assert(x);
   double* y= x + ninterp;
@@ -57,6 +57,7 @@ void satellite_init()
   init_I();
   
   free(x);
+  msg_printf(msg_verbose, "satellite module initialised\n");
 }
 
 void satellite_free()

@@ -10,6 +10,7 @@
 #include <gsl/gsl_integration.h>
 #include <gsl/gsl_multimin.h>
 
+#include "comm.h"
 #include "msg.h"
 #include "cosmology.h"
 #include "nbar.h"
@@ -81,6 +82,7 @@ void nbar_fitting_compute(NbarFitting* fitting)
   // where x = z - hod::z0
 
   // This function updates fitting->hod->c[0-3]
+
   const int n= fitting->vni.size();
   
   assert(fitting->vhod->size() == n);
@@ -104,8 +106,6 @@ void nbar_fitting_compute(NbarFitting* fitting)
   gsl_vector_set(ss, 2, 0.05);
   gsl_vector_set(ss, 3, 0.01);
 
-  //gsl_vector_set_all(ss, 0.01);
-  
   // Initialize method and iterate
   gsl_multimin_function minex_func;
   minex_func.n = nparam;
@@ -128,22 +128,6 @@ void nbar_fitting_compute(NbarFitting* fitting)
     double size= gsl_multimin_fminimizer_size(s);
     status = gsl_multimin_test_size(size, 1e-3);
 
-
-    /*
-    if (status == GSL_SUCCESS) {
-      msg_printf(msg_verbose, "nbar converged to minimum with %d steps.\n", iter);
-    }
-
-    msg_printf(msg_verbose, "nbar_fitting %3d %e | %.4f %.5f %.5f %.5f %.3f\n",
-	   iter,
-	   s->fval,
-	   gsl_vector_get(s->x, 0),
-	   gsl_vector_get(s->x, 1),
-	   gsl_vector_get(s->x, 2),
-	   gsl_vector_get(s->x, 3),
-	   size);
-    */
-
   } while (status == GSL_CONTINUE && iter < max_iter);
 
 
@@ -164,12 +148,13 @@ void nbar_fitting_compute(NbarFitting* fitting)
 	 gsl_vector_get(s->x, 3));
   
   fitting->chi2= nbar_multimin_f(s->x, fitting);
-  //printf("final %e\n", chi2_final);
-
 
   gsl_vector_free(x);
   gsl_vector_free(ss);
   gsl_multimin_fminimizer_free(s);
+
+
+  comm_mpi_bcast_double(fitting->hod->c, 4);
 }
 
 

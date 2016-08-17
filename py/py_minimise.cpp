@@ -2,17 +2,30 @@
 // Call GSL minimizer from Python
 //
 
-#include "msg.h"
-#include "py_minimise.h"
+#include <cstdlib>
 #include <gsl/gsl_multimin.h>
+
+#include "msg.h"
+#include "comm.h"
+#include "py_minimise.h"
 
 static PyObject* build_py_x(gsl_vector const * const x)
 {
-  const int n= x->size;
+  const int n= comm_bcast_int(x->size);
   PyObject* py_x= PyTuple_New(n);
 
+  double* const xx= (double*) malloc(sizeof(double)*n); assert(xx);
+
+  if(comm_this_rank() == 0) {
+    for(int i=0; i<n; ++i)
+      xx[i]= gsl_vector_get(x, i);
+  }
+  comm_mpi_bcast_double(xx, n);
+
   for(int i=0; i<n; ++i)
-    PyTuple_SetItem(py_x, i, PyFloat_FromDouble(gsl_vector_get(x, i)));
+    PyTuple_SetItem(py_x, i, PyFloat_FromDouble(xx[i]));
+
+  free(xx);
 
   return py_x;
 }
@@ -43,6 +56,7 @@ static int call_callback(PyObject* py_callback, gsl_vector const * const x)
   
 static double f(const gsl_vector *x, void *params)
 {
+  // Call function that needs to be minimised f(x)
   const int n= x->size;
 
   PyObject* py_x= PyTuple_New(n);
@@ -59,7 +73,12 @@ static double f(const gsl_vector *x, void *params)
   Py_DECREF(py_arg);
   Py_DECREF(py_x);
   
-  if(py_result == NULL || !PyFloat_Check(py_result)) {
+  if(py_result == NULL) {
+    msg_printf(msg_fatal, "Error occured in cost_function in minimise\n");
+    PyErr_SetNone(PyExc_TypeError);
+    return NULL;
+  }
+  else if(!PyFloat_Check(py_result)) {
     msg_printf(msg_fatal, "Error: return value of cost_function in minimise is not float\n");
     PyErr_SetNone(PyExc_TypeError);
     return NULL;
@@ -75,20 +94,21 @@ static double f(const gsl_vector *x, void *params)
 PyObject* py_minimise(PyObject *self, PyObject *args)
 {
   // _minimize(cost_function, callback_function, x0, ss)
+
   PyObject *py_cost_function, *py_callback;
   PyObject *py_x0, *py_ss;
 
   if(!PyArg_ParseTuple(args, "OOOO", &py_cost_function, &py_callback,
-		      &py_x0, &py_ss)) {
+		       &py_x0, &py_ss)) {
     PyErr_SetString(PyExc_TypeError, "4 arguments required for _minimise");
     return NULL;
   }
-
+    
   if (!PyCallable_Check(py_cost_function)) {
     PyErr_SetString(PyExc_TypeError, "cost_function is not callable");
     return NULL;
   }
-
+  
   if (!(py_callback == Py_None || PyCallable_Check(py_callback))) {
     PyErr_SetString(PyExc_TypeError, "callback is not callable");
     return NULL;
@@ -145,10 +165,12 @@ PyObject* py_minimise(PyObject *self, PyObject *args)
     if(!call_callback(py_callback, s->x))
       break;
     
-    if(status) break;
+    //if(status) break;
 
     double size= gsl_multimin_fminimizer_size(s);
     status = gsl_multimin_test_size(size, 1.0e-3);
+
+    status = comm_bcast_int(status);
   } while (status == GSL_CONTINUE && iter < max_iter);
 
   if(iter == max_iter)

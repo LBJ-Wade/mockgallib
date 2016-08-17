@@ -29,7 +29,7 @@ PyObject* py_array_loadtxt(PyObject* self, PyObject* args)
 {
   // _array_loadtxt(filename)
 
-  int ncol=0, nrow=0;
+  int nrow=0, ncol= 0;
   double* buf= 0;
   
   if(comm_this_rank() == 0) {
@@ -44,7 +44,13 @@ PyObject* py_array_loadtxt(PyObject* self, PyObject* args)
     PyBytes_AsStringAndSize(bytes, &filename, &len);
     
     try {
-      buf= read_file(filename, &ncol, &nrow);
+      msg_printf(msg_debug, "Going to read %s\n", filename);
+	    
+      buf= read_file(filename, &nrow, &ncol);
+      
+      msg_printf(msg_verbose, "Read %d rows %d cols from %s\n",
+		 nrow, ncol, filename);
+
     }
     catch(FileNotFoundError) {
       Py_DECREF(bytes);
@@ -125,11 +131,13 @@ double* read_file(const char filename[], int* const nrow_out, int* const ncol_ou
     line[255]= '\0';
     char* p= line;
 
+
+
     nrow++;
     ncol_check = 0;
     while(1) {
       p= skip_space(p);
-      if(!isdigit(*p))
+      if(!(isdigit(*p) || *p == '-' || *p == '.'))
 	break;
       
       double a= atof(p);
@@ -151,7 +159,8 @@ double* read_file(const char filename[], int* const nrow_out, int* const ncol_ou
     }
 
     if(nrow > 1 && ncol != ncol_check) {
-      msg_printf(msg_fatal, "Number of columns are not the same\n");
+      msg_printf(msg_fatal, "Number of columns are not the same in %s\n",
+		 filename);
       fclose(fp);
       throw IOError();
     }

@@ -9,6 +9,9 @@
 #include "corr_projected.h"
 #include "hist2d.h"
 
+#ifdef WITHMPI
+#include <mpi.h>
+#endif
 
 using namespace std;
 
@@ -17,6 +20,8 @@ static int nbin, nbin_pi;
 static float rp_min, rp_max, pi_max;
 static KDTree* tree_alloc= 0;
 static vector<CorrProjected*> vcorr;
+static double *dd_hist= 0, *dr_hist, *rr_hist;
+
 
 
 void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int nbin_pi_)
@@ -26,15 +31,6 @@ void corr_projected_init(const float rp_min_, const float rp_max_, const int nbi
   nbin=   nbin_;
   pi_max= pi_max_;
   nbin_pi= nbin_pi_;
-
-#ifdef _OPENMP
-  int nthreads= omp_get_max_threads();
-  msg_printf(msg_info, "corr_projected OpenMP parallelised with %d threads.\n",
-	     nthreads);
-#else
-  msg_printf(msg_info, "corr_projected not OpenMP parallelised.\n");
-#endif
-  
 }
 
 
@@ -157,7 +153,8 @@ void corr_projected_compute(Catalogues* const cats_data,
   rmax2= rp_max*rp_max + pi_max*pi_max;
 
   // Setup vcorr
-  allocate_vcorr(cats_data->size());
+  //allocate_vcorr(cats_data->size());
+  allocate_vcorr(1);
 
   
   //
@@ -274,12 +271,12 @@ void corr_projected_compute(Catalogues* const cats_data,
     compute_corr_from_histogram2d(dd, npairs_DD,
 				  dr, npairs_DR,
 				  rr, npairs_RR,		 
-				  pi_max, vcorr.at(icat));
+				  pi_max, vcorr.at(0));
 
     icat++;
   }
 
-  corr_projected_summarise(corr);
+  //corr_projected_summarise(corr);
 }
 
 
@@ -478,14 +475,13 @@ void allocate_vcorr(const size_t n_data_cat)
 
 
 void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
-		  const double npairs_dd,
-		  const Histogram2D<LogBin, LinearBin>& dr,
-		  const double npairs_dr,
-		  const Histogram2D<LogBin, LinearBin>& rr,
-		  const double npairs_rr,
-		  const double pi_max,
-		  CorrProjected* const corr)
-
+				   const double npairs_dd,
+				   const Histogram2D<LogBin, LinearBin>& dr,
+				   const double npairs_dr,
+				   const Histogram2D<LogBin, LinearBin>& rr,
+				   const double npairs_rr,
+				   const double pi_max,
+				   CorrProjected* const corr)
 {
   // Project 2D historgram DD, DR, DD
   // to projected correlation function to wp(rp)
@@ -496,14 +492,49 @@ void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
   assert(npairs_rr > 0);
   assert(corr->n == nx);
 
+  // Reduce all paircount data from MPI nodes
+  double npairs[]= {npairs_dd, npairs_dr, npairs_rr};
+  const int n= rr.size();
+  if(dd_hist == 0) {
+    dd_hist= (double*) malloc(sizeof(double)*3*n);
+    dr_hist= dd_hist + n;
+    rr_hist= dr_hist + n;
+  }
+
+#ifdef WITHMPI
+  double npairs_sum[3];
+
+  MPI_Allreduce(npairs, npairs_sum, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  msg_printf(msg_debug, "Reduce DD %.1lf pairs -> %lf\n",
+	     npairs[0], npairs_sum[0]);
+  msg_printf(msg_debug, "Reduce DR %.1lf pairs -> %lf\n",
+	     npairs[1], npairs_sum[1]);
+  msg_printf(msg_debug, "Reduce RR %.1lf pairs -> %lf\n",
+	     npairs[2], npairs_sum[2]);
+
+  MPI_Allreduce(dd.hist, dd_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(dr.hist, dr_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(rr.hist, rr_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#else
+  for(int i=0; i<n; ++i){
+    dd_hist[i]= dd.hist[i];
+    dr_hist[i]= dr.hist[i];
+    rr_hist[i]= rr.hist[i];
+  }
+#endif
+
   for(int ix=0; ix<nx; ++ix) {
     corr->rp[ix]= dd.x_bin(ix);
     double wp= 0.0;
     for(int iy=0; iy<ny; ++iy) {
-      double rrr= rr(ix, iy)/npairs_rr;
-      if(rrr > 0.0)
-	wp += (dd(ix, iy)/npairs_dd/rrr - 1.0)*dpi;
+      int index= ix*dd.y_nbin() + iy;
 
+      double rrr= rr_hist[index]/npairs_sum[2];
+      if(rrr > 0.0)
+	wp += (dd_hist[index]/npairs_sum[0]/rrr - 1.0)*dpi;
+
+      // ToDo: not using DR!!!!
       // xi = (DD - 2*DR + RR)/RR
       // wp = \int_-pi-max^pi-max xi(rp, pi) dpi
     }    

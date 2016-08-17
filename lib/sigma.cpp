@@ -8,6 +8,7 @@
 
 #include "msg.h"
 #include "const.h"
+#include "comm.h"
 #include "sigma.h"
 #include "power.h"
 #include "cosmology.h" // => rho_m
@@ -29,6 +30,7 @@ void sigma_init(const double M_min_, const double M_max_, const int n_)
     msg_printf(msg_debug, "sigma already initialised\n");
     return;
   }
+  msg_printf(msg_debug, "start sigma_init()\n");
   
   const double rho_m= cosmology_rho_m(); assert(rho_m >= 0.0);
 

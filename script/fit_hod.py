@@ -102,12 +102,14 @@ class Data:
         # Load lightcones
         self.halo_lightcones = mock.LightCones()
         self.halo_lightcones.load_h5(
-                           ['halo_lightcone/lightcone_%05d.h5' % (n + 1)
+                           ['halo_lightcone/%s/lightcone_%05d.h5' %
+                            (domain[0], n + 1)
                             for n in range(int(arg.nmocks))])
 
         self.rand_lightcones = mock.LightCones()
         self.rand_lightcones.load_h5(
-                           ['rand_lightcone/lightcone_%05d.h5' % (n + 1)
+                           ['rand_lightcone/%s/lightcone_%05d.h5' %
+                            (domain[0], n + 1)
                             for n in range(int(arg.nrands))])
 
         # Catalogues will be generated from lightcones for given hod
@@ -253,7 +255,7 @@ def cost_function(x):
     """
 
     hod[6] = x[0]  #log10 M1 = log10 (M_min + c_6 + c_7*(z - z_0)
-    hod[7] = x[1]
+    #hod[7] = x[1]
 
     #hod[6] = x[0] # log10 M1
     #hod[6] = x[0] # log10 M1
@@ -261,7 +263,7 @@ def cost_function(x):
 
     #hod[8] = x[2] # alpha
 
-    print('eval %.3f %.3f' % (x[0], x[1]))
+    print('eval %.3f' % (x[0]))
     print(hod.coef)
     
     # Find best fitting logMmin(z) function
@@ -285,7 +287,7 @@ def logging_minimization(x):
     print('callback called')
     #hod[4] = x[1]
     hod[6] = x[0]
-    hod[7] = x[1]
+    #hod[7] = x[1]
     #hod[8] = x[2]
 
     # Find best fitting logMmin(z) function
@@ -297,8 +299,8 @@ def logging_minimization(x):
         chi2 += d.chi2(hod)
         d.write_corr_projected(iter)
 
-    print('chi2 = %.3f | %.3f %.3f' % (chi2, x[0], x[1]))
-    flog.write('%.3f %.4f %.4f\n' % (chi2, x[0], x[1]))
+    print('chi2 = %.3f | %.3f' % (chi2, x[0]))
+    flog.write('%.3f %.4f\n' % (chi2, x[0]))
 
     write_hod_params(hod, iter)
     return None
@@ -310,8 +312,8 @@ def logging_minimization(x):
 #
 #x0 = [13.0, 0.1, 1.5] # starting point M1, sigma, alpha
 #ss = [1.5, 0.05, 0.5]
-x0 = [1.5, 0.0]
-ss = [0.2, 0.1]
+x0 = [1.5]
+ss = [0.2]
 
 #opt = scipy.optimize.minimize(cost_function, x0, method='Nelder-Mead',
 #                              tol=0.01,
