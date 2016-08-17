@@ -39,10 +39,10 @@ void power_init(const char filename[])
     throw FileNotFoundError();
   
   k= (double*) malloc(2*n*sizeof(double)); assert(k);
-  P= k + nlines;
+  P= k + n;
 
   if(comm_this_rank() == 0) {
-    for(int j=0; j<nlines; j++) {
+    for(int j=0; j<n; j++) {
       k[j] = buf[2*j];
       P[j] = buf[2*j + 1];
     }
@@ -50,7 +50,7 @@ void power_init(const char filename[])
   }
 
 #ifdef WITHMPI
-  msg_printf(msg_debug, "bcast power spectrum %d\n", n);
+  msg_printf(msg_debug, "MPI broadcast power spectrum data %d\n", n);
   MPI_Bcast(k, 2*n, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 #endif
 }
