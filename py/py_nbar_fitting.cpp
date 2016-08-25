@@ -102,6 +102,8 @@ PyObject* py_nbar_fitting_alloc(PyObject* self, PyObject* args)
   NbarFitting* const fitting=
     nbar_fitting_alloc(hod, v, z_min, z_max);
 
+  PyBuffer_Release(&view);
+  
   return PyCapsule_New(fitting, "_NbarFitting", py_nbar_fitting_free);
 }
 

@@ -1,5 +1,6 @@
 import mockgallib._mockgallib as c
 
+
 class Catalogues:
     """A collection of mock catalogues"""
     def __init__(self):
@@ -27,6 +28,9 @@ class Catalogues:
             raise IndexError()
         return c._catalogues_catalogue(self._cats, i)
 
+    def load_h5(self, filename):
+        c._catalogues_load_h5(self._cats, filename)
+
     def generate_galaxies(self, hod, lightcones, z_min, z_max):
         """Generates n mock catalogues from n lightcones.
         Existing catalogues will be overwritten
@@ -46,6 +50,8 @@ class Catalogues:
            Column 1 (a[:,1]): y
            Column 2 (a[:,2]): z
            Column 3 (a[:,3], optional): weight
+           Column 4 (a[:,4], optional): ra
+           Column 5 (a[:,5], optional): dec
         """
 
         c._catalogues_append(self._cats, arr)

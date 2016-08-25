@@ -35,7 +35,7 @@ OBJS     += hdf5_read.o hdf5_write.o
 OBJS     += sky.o distance.o remap.o slice.o 
 OBJS     += cola_file.o halo_mass.o halo_concentration.o
 OBJS     += cola_lightcone.o snapshot.o
-OBJS     += corr_projected.o kdtree.o
+OBJS     += corr_projected.o kdtree.o jackknife.o
 
 libmockgal.a: $(OBJS)
 	ar r $@ $(OBJS)

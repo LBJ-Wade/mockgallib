@@ -1,8 +1,11 @@
 #include <iostream>
 #include <stdexcept>
 #include "catalogue.h"
+#include "error.h"
+#include "hdf5_io.h"
 #include "py_assert.h"
 #include "py_catalogues.h"
+
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
@@ -162,8 +165,6 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
 
   Py_buffer view;
 
-  //if(PyObject_GetBuffer(py_array, &view,
-  //PyBUF_ANY_CONTIGUOUS | PyBUF_FORMAT) == -1) {
   if(PyObject_GetBuffer(py_array, &view, PyBUF_FORMAT | PyBUF_FULL_RO) == -1) {
     return NULL;
   }
@@ -182,21 +183,6 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
     PyBuffer_Release(&view);
     return NULL;
   }
-
-  /*
-  cerr << "shape[0] " << view.shape[0] << endl;
-  cerr << "shape[1] " << view.shape[1] << endl;
-
-  cerr << "stride[0] " << view.strides[0] << endl;
-  cerr << "stride[1] " << view.strides[1] << endl;
-
-  if(view.suboffsets) {
-    cerr << "suboffsets " << view.suboffsets[0] << endl;
-  }
-  else {
-    cerr << "no suboffsets\n";
-  }
-  */
 
   if(view.suboffsets) {
     PyErr_SetString(PyExc_TypeError,
@@ -238,9 +224,14 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
     p.x[0]= *a;
     p.x[1]= *(a + next_col);
     p.x[2]= *(a + 2*next_col);
-    if(ncol == 4)
+    if(ncol >= 4)
       p.w= *(a + 3*next_col);
-      
+
+    if(ncol >= 6) {
+      p.radec[0]= *(a + 4*next_col);
+      p.radec[1]= *(a + 5*next_col);
+    }
+
     cat->push_back(p);
   
     a += next_row;
@@ -319,3 +310,42 @@ PyObject* py_catalogues_nz(PyObject* self, PyObject* args)
 
   return arr;
 }
+
+PyObject* py_catalogues_load_h5(PyObject* self, PyObject* args)
+{
+  PyObject *py_catalogues, *bytes;;
+  
+  if(!PyArg_ParseTuple(args, "OO&",
+		       &py_catalogues, PyUnicode_FSConverter, &bytes)) {
+    return NULL;
+  }
+
+  Catalogues* const cats=
+    (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
+  py_assert_ptr(cats);
+
+  char* filename;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(bytes, &filename, &len);
+
+  Catalogue* const cat= new Catalogue();
+  
+  try {
+    hdf5_read_catalogue(filename, cat);
+  }
+  catch(IOError) {
+    Py_DECREF(bytes);
+    PyErr_SetNone(PyExc_FileNotFoundError);
+    return NULL;
+  }
+  
+  if(!cats->empty())
+    cats->push_back(cat);
+  else
+    delete cats;
+
+  Py_DECREF(bytes);
+
+  Py_RETURN_NONE;
+}
+

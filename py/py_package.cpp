@@ -148,7 +148,9 @@ static PyMethodDef methods[] = {
    "_lightcone_load_h5(_lightcone, filename); load lightcone from HDF file}"},
   
   {"_catalogues_alloc", py_catalogues_alloc, METH_VARARGS,
-   "allocate a new _Catalogues"},   
+   "allocate a new _Catalogues"},
+  {"_catalogues_load_h5", py_catalogues_load_h5, METH_VARARGS,
+   "append a catalogue from a HDF5 file"},
   {"_catalogues_generate", py_catalogues_generate, METH_VARARGS,
    "_catalogues_generate(_catalogues, _hod, _lightcone, z_min, z_max, random)"},
   {"_catalogues_len", py_catalogues_len, METH_VARARGS,

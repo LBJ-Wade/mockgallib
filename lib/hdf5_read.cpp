@@ -7,7 +7,7 @@
 #include "msg.h"
 #include "halo.h"
 #include "hdf5_io.h"
-
+#include "error.h"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ void hdf5_read_lightcone(const char filename[], LightCone* const p)
   hid_t file= H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
   if(file < 0) {
     msg_printf(msg_fatal, "Error: unable to open %s\n", filename);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   H5Eset_auto(H5E_DEFAULT, NULL, NULL);
@@ -36,10 +36,10 @@ void hdf5_read_lightcone(const char filename[], LightCone* const p)
   const int n= read_data_length(file, "x");
   if(n > 0) {
     // prepare vector to read
-    Halo halo;
+    //Halo halo;
     p->clear();
     p->reserve(n);
-    p->insert(p->begin(), n, halo);
+    p->resize(n);
     
     assert(!p->empty());
     
@@ -72,6 +72,45 @@ void hdf5_read_lightcone(const char filename[], LightCone* const p)
   H5Fclose(file);
 }
 
+void hdf5_read_catalogue(const char filename[], Catalogue* const pv)
+{
+  hid_t file= H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+  if(file < 0) {
+    msg_printf(msg_fatal, "Error: unable to open %s\n", filename);
+    throw IOError();
+  }
+
+  // Get size of the data
+  const int n= read_data_length(file, "x");
+  if(n > 0) {
+    // prepare vector to read
+    pv->clear();
+    pv->reserve(n);
+    pv->resize(n);
+    
+    assert(!pv->empty());
+    
+    Particle* const p= &pv->front();
+    
+    
+    assert(sizeof(Particle) % sizeof(float) == 0);
+    const int stride= sizeof(Halo)/sizeof(float);
+    
+    // positions
+    read_data_table(file, "x", p->x, n, 3, stride);
+    
+    // redshift
+    read_data_table(file, "z", &p->z, n, 1, stride);
+    
+    // ra-dec
+    read_data_table(file, "ra-dec", p->radec, n, 2, stride);    
+  }
+  
+  H5Fclose(file);
+}
+
+
+
 //
 // Utilities
 //
@@ -80,7 +119,7 @@ int read_data_length(hid_t loc, const char name[])
   hid_t dataset= H5Dopen(loc, name, H5P_DEFAULT);
   if(dataset < 0) {
     msg_printf(msg_fatal, "Error: unable to open dataset: %s\n", name);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   hid_t dataspace = H5Dget_space(dataset); assert(dataspace > 0);
@@ -102,7 +141,7 @@ void read_data_table(hid_t loc, const char name[],
   if(dataset < 0) {
     if(require) {
       msg_printf(msg_fatal, "Error: unable to open dataset: %s\n", name);
-      throw LightconeFileError();
+      throw IOError();
     }
     else {
       msg_printf(msg_verbose, "Unable to open dataset %s, but this is not required\n", name);
@@ -125,7 +164,7 @@ void read_data_table(hid_t loc, const char name[],
 
   if(status_read < 0) {
     msg_printf(msg_fatal, "Error: unable to read dataset: %s\n", name);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   H5Sclose(dataspace_mem);
@@ -139,7 +178,7 @@ void read_data_scalar(hid_t loc, const char name[], void * const dat,
   hid_t data= H5Dopen(loc, name, H5P_DEFAULT);
   if(data < 0) {
     msg_printf(msg_fatal, "Error: unable to read data: %s\n", name);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   herr_t status= H5Dread(data, mem_type, scalar, H5S_ALL,

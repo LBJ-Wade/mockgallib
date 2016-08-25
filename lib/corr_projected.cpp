@@ -36,8 +36,7 @@ void corr_projected_init(const float rp_min_, const float rp_max_, const int nbi
 
 void corr_projected_free()
 {
-  if(tree_alloc)
-    free(tree_alloc);
+  free(tree_alloc);
 }
 
 

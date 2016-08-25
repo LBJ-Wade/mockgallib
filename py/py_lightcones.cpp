@@ -1,9 +1,12 @@
 #include <stdexcept>
 #include "msg.h"
-#include "py_assert.h"
+#include "error.h"
 #include "lightcone.h"
-#include "py_lightcones.h"
 #include "hdf5_io.h"
+#include "py_assert.h"
+#include "py_lightcones.h"
+
+
 
 using namespace std;
 
@@ -63,7 +66,7 @@ PyObject* py_lightcones_load_h5(PyObject* self, PyObject* args)
   try {
     hdf5_read_lightcone(filename, lightcone);
   }
-  catch(LightconeFileError) {
+  catch(IOError) {
     delete lightcone;
     Py_DECREF(bytes);
     PyErr_SetString(PyExc_IOError, "LightconeFileError");
@@ -210,7 +213,7 @@ PyObject* py_lightcone_save_h5(PyObject* self, PyObject* args)
   try {
     hdf5_write_lightcone(filename, lc);
   }
-  catch(LightconeFileError) {
+  catch(IOError) {
     Py_DECREF(bytes);
     PyErr_SetString(PyExc_IOError, "LightconeFileError");
     return NULL;
@@ -243,7 +246,7 @@ PyObject* py_lightcone_load_h5(PyObject* self, PyObject* args)
   try {
     hdf5_read_lightcone(filename, lc);
   }
-  catch(LightconeFileError) {
+  catch(IOError) {
     Py_DECREF(bytes);
     PyErr_SetString(PyExc_IOError, "LightconeFileError");
     return NULL;

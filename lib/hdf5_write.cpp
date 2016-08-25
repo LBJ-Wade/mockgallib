@@ -7,7 +7,7 @@
 #include "msg.h"
 #include "halo.h"
 #include "hdf5_io.h"
-
+#include "error.h"
 
 using namespace std;
 
@@ -35,7 +35,7 @@ void hdf5_write_lightcone(const char filename[], LightCone const * const v)
   hid_t file= H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
   if(file < 0) {
     msg_printf(msg_error, "Error: unable to create: %s\n", filename);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   Halo const * const h= &v->front();
@@ -77,7 +77,7 @@ void write_data_int(hid_t loc, const char name[], const int val)
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if(data < 0) {
     msg_printf(msg_error, "Error: unable to create int data: %s\n", name);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   herr_t status= H5Dwrite(data, H5T_NATIVE_INT, scalar, H5S_ALL,
@@ -95,7 +95,7 @@ void write_data_float(hid_t loc, const char name[], const float val)
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if(data < 0) {
     msg_printf(msg_error, "Error: unable to create float data: %s\n", name);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   herr_t status= H5Dwrite(data, H5T_NATIVE_FLOAT, scalar, H5S_ALL,
@@ -113,7 +113,7 @@ void write_data_double(hid_t loc, const char name[], const double val)
 			H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
   if(data < 0) {
     msg_printf(msg_error, "Error: unable to create float data: %s\n", name);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   herr_t status= H5Dwrite(data, H5T_NATIVE_DOUBLE, scalar, H5S_ALL,
@@ -136,7 +136,7 @@ void write_data_table(hid_t loc, const char name[], float const * const val,
 
   if(dataset < 0) {
     msg_printf(msg_error, "Error: unable to create dataset: %s\n", name);
-    throw LightconeFileError();
+    throw IOError();
   }
 
   const hsize_t data_size_mem= nrow*stride;
