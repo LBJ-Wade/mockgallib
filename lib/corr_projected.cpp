@@ -120,7 +120,7 @@ static inline void dist_cylinder(const float x[], const float y[], float& rp, fl
   pi= fabs(dx[0]*rhat[0] + dx[1]*rhat[1] + dx[2]*rhat[2]);
 
   if(r2 < pi*pi) {
-    float err=(r2 - pi*pi)/r2;
+    float err=(r2 - pi*pi) / r2;
     assert(fabs(err) < 1.0e-5);
     rp= 0.0f;
   }
@@ -175,7 +175,7 @@ void corr_projected_compute(Catalogues* const cats_data,
   if(tree_alloc == 0) {
     tree_alloc= (KDTree*) malloc(sizeof(KDTree)*nalloc);
     msg_printf(msg_verbose, "%lu trees allocated (%lu Mbytes)\n",
-	       nalloc, nalloc*sizeof(KDTree)/(1024*1024));
+	       nalloc, nalloc*sizeof(KDTree) / (1024*1024));
   }
 
   KDTree* tree_free= tree_alloc;
@@ -203,7 +203,7 @@ void corr_projected_compute(Catalogues* const cats_data,
   }
 
   msg_printf(msg_verbose, "%lu trees used (%lu Mbytes).\n",
-	     ntree_used, ntree_used*sizeof(KDTree)/(1024*1024));
+	     ntree_used, ntree_used*sizeof(KDTree) / (1024*1024));
   msg_printf(msg_verbose, "Computing correlation function.\n");
 
   
@@ -235,7 +235,8 @@ void corr_projected_compute(Catalogues* const cats_data,
   }
 
   int icat=0;
-  const int rand_cats_factor= cats_rand->size()/cats_data->size();
+  assert(cats_data->size() > 0);
+  const int rand_cats_factor= cats_rand->size() / cats_data->size();
   
   for(Catalogues::iterator cat= cats_data->begin();
       cat != cats_data->end(); ++cat) {
@@ -510,7 +511,7 @@ void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
   // to projected correlation function to wp(rp)
   const int nx= dd.x_nbin();
   const int ny= dd.y_nbin();
-  const double dpi= 2.0*pi_max/ny;
+  const double dpi= 2.0*pi_max / ny; assert(ny > 0);
 
   assert(npairs_rr > 0);
   assert(corr->n == nx);
@@ -553,13 +554,12 @@ void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
     for(int iy=0; iy<ny; ++iy) {
       int index= ix*dd.y_nbin() + iy;
 
-      double rrr= rr_hist[index]/npairs_sum[2];
+      double rrr= rr_hist[index]/npairs_sum[2]; assert(npairs_sum[2] > 0);
       if(rrr > 0.0)
 	wp += ((dd_hist[index]/npairs_sum[0]
 	     - 2.0*dr_hist[index]/npairs_sum[1])/rrr + 1.0)*dpi;
       //wp += (dd_hist[index]/npairs_sum[0]/rrr - 1.0)*dpi;
 
-      // ToDo: not using DR!!!!
       // xi = (DD - 2*DR + RR)/RR
       // wp = \int_-pi-max^pi-max xi(rp, pi) dpi
     }    
@@ -589,8 +589,8 @@ void corr_projected_write(const int index, const vector<CorrProjected*>& vcorr)
       wp2_sum += (*corr)->wp[i]*(*corr)->wp[i];
     }
 
-    double wp= wp_sum/ndat;
-    double dwp= ndat > 1 ? sqrt((wp2_sum - ndat*wp*wp)/(ndat-1)) : 0.0;
+    double wp= wp_sum / ndat; assert(ndat > 0);
+    double dwp= ndat > 1 ? sqrt((wp2_sum - ndat*wp*wp) / (ndat-1)) : 0.0;
 
     fprintf(fp, "%e %e %e\n", rp, wp, dwp);
   }
@@ -617,7 +617,7 @@ void corr_projected_summarise(CorrProjected* const corr)
       wp2_sum += (*cp)->wp[i]*(*cp)->wp[i];
     }
 
-    double wp= wp_sum/ndat;
+    double wp= wp_sum / ndat;
     double dwp= ndat > 1 ? sqrt((wp2_sum - ndat*wp*wp)/(ndat-1)) : wp;
 
     corr->rp[i]= rp;
