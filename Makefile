@@ -1,12 +1,14 @@
 .PHONY: all lib py test check clean count
 
 WITHMPI := 1
-export WITHMPI
 
 ifdef WITHMPI
-CC      := mpic++
-CXX     := mpic++
+MPICXX  ?= mpic++
+CC      := $(MPICXX)
+CXX     := $(MPICXX)
 endif
+
+export WITHMPI CC CXX
 
 all:
 	make lib

@@ -1,3 +1,7 @@
+#ifdef WITHMPI
+#include <mpi.h>
+#endif
+
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -8,10 +12,6 @@
 #include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
-
-#ifdef WITHMPI
-#include <mpi.h>
-#endif
 
 using namespace std;
 

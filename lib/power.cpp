@@ -1,11 +1,11 @@
+#ifdef WITHMPI
+#include <mpi.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
 
-#ifdef WITHMPI
-#include <mpi.h>
-#endif
 
 #include "power.h"
 #include "msg.h"

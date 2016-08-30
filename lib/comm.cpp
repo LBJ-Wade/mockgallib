@@ -3,6 +3,7 @@
 #endif
 
 #include <cstdlib>
+#include <cstring>
 #include <cassert>
 #include "msg.h"
 #include "comm.h"
