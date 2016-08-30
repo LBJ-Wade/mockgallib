@@ -254,6 +254,7 @@ void corr_projected_compute(Catalogues* const cats_data,
 
     // DR
     // Not ndata_cat * nrand_cat crosses, but nrand_cat cross pairs
+    /*
     for(size_t icat_rand=0; icat_rand<rand_cats_factor; ++icat_rand) {
       Catalogues::iterator rcat= cats_rand->begin() + icat +
 	                           icat_rand * cats_data->size();
@@ -264,21 +265,20 @@ void corr_projected_compute(Catalogues* const cats_data,
       
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
+    */
 
-    cerr << "count_dd_debug= " << count_dd_debug << endl;
-    cerr << "count_dr_debug= " << count_dr_debug << endl;
       
-
-    /*
     // ndata_cat * nrand_cat cross pairs
     for(Catalogues::iterator rcat= cats_rand->begin();
       rcat != cats_rand->end(); ++rcat) {    
 
       if(!(*cat)->empty() && !(*rcat)->empty())
-	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
+	count_dr_debug += count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
-    */
+
+    //cerr << "count_dd_debug= " << count_dd_debug << endl;
+    //cerr << "count_dr_debug= " << count_dr_debug << endl;
 
     compute_corr_from_histogram2d(dd, npairs_DD,
 				  dr, npairs_DR,
@@ -435,9 +435,9 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 
   // Recursively seach subtree
   if(tree->subtree[0])
-    count += count_pairs_leaf_tree_auto(leaf, tree->subtree[0], hist);
+    count += count_pairs_leaf_tree_cross(leaf, tree->subtree[0], hist);
   if(tree->subtree[1])
-    count += count_pairs_leaf_tree_auto(leaf, tree->subtree[1], hist);
+    count += count_pairs_leaf_tree_cross(leaf, tree->subtree[1], hist);
 
   return count;
 }
