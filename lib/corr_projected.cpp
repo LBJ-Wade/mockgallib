@@ -8,7 +8,6 @@
 #include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
-#include "jackknife.h"
 
 #ifdef WITHMPI
 #include <mpi.h>
@@ -612,10 +611,10 @@ void corr_projected_summarise(CorrProjected* const corr)
     double rp= vcorr.front()->rp[i];
     double wp_sum= 0.0;
     double wp2_sum= 0.0;
-    for(vector<CorrProjected*>::const_iterator corr= vcorr.begin();
-	corr != vcorr.end(); ++corr) {
-      wp_sum +=  (*corr)->wp[i];
-      wp2_sum += (*corr)->wp[i]*(*corr)->wp[i];
+    for(vector<CorrProjected*>::const_iterator cp= vcorr.begin();
+	cp != vcorr.end(); ++cp) {
+      wp_sum +=  (*cp)->wp[i];
+      wp2_sum += (*cp)->wp[i]*(*cp)->wp[i];
     }
 
     double wp= wp_sum/ndat;
