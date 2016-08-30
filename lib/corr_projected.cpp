@@ -8,6 +8,7 @@
 #include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
+#include "jackknife.h"
 
 #ifdef WITHMPI
 #include <mpi.h>
@@ -21,7 +22,7 @@ static float rp_min, rp_max, pi_max;
 static KDTree* tree_alloc= 0;
 static vector<CorrProjected*> vcorr;
 static double *dd_hist= 0, *dr_hist, *rr_hist;
-
+static float ra_min=0.0, dec_min= 0.0;
 
 
 void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int nbin_pi_)
@@ -140,6 +141,13 @@ size_t count_num_points(Catalogues const * const v)
   return n;
 }
 
+void set_radec_min(const float ra_min_, const float dec_min_)
+{
+  ra_min= ra_min_;
+  dec_min= dec_min_;
+
+  msg_printf(msg_verbose, "ra-dec min %e %e\n", ra_min, dec_min);
+}
 
 void corr_projected_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand,
@@ -238,8 +246,9 @@ void corr_projected_compute(Catalogues* const cats_data,
     dr.clear();
 
     // DD
+    size_t count_dd_debug=0, count_dr_debug= 0;
     if(!(*cat)->empty())
-      count_pairs_auto((*cat)->tree, (*cat)->ntree, dd);
+      count_dd_debug+= count_pairs_auto((*cat)->tree, (*cat)->ntree, dd);
 
     npairs_DD += 0.5*(*cat)->size()*((*cat)->size()-1);
 
@@ -251,10 +260,14 @@ void corr_projected_compute(Catalogues* const cats_data,
       assert(icat + icat_rand * cats_data->size() < cats_rand->size());
 
       if(!(*cat)->empty() && !(*rcat)->empty())
-	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
+	count_dr_debug+= count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
       
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
+
+    cerr << "count_dd_debug= " << count_dd_debug << endl;
+    cerr << "count_dr_debug= " << count_dr_debug << endl;
+      
 
     /*
     // ndata_cat * nrand_cat cross pairs
@@ -275,7 +288,7 @@ void corr_projected_compute(Catalogues* const cats_data,
     icat++;
   }
 
-  //corr_projected_summarise(corr);
+  corr_projected_summarise(corr);
 }
 
 
@@ -316,20 +329,29 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
     if(leaf == tree) {
       for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p) {
 	for(Particle const *q= p+1; q != leaf->particles[1]; ++q) {
-	  dist_cylinder(p->x, q->x, rp, pi);
+	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min &&
+	     fabs(p->radec[1] - q->radec[1]) >= dec_min){
+
+	    dist_cylinder(p->x, q->x, rp, pi);
 	  
-	  count++;
-	  hist.add(rp, pi, p->w * p->w);
+	    count++;
+	    hist.add(rp, pi, p->w * p->w);
+	  }
 	}
       }
     }
     else {
       for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p){
 	for(Particle const *q= tree->particles[0]; q != tree->particles[1];++q){
-	  dist_cylinder(p->x, q->x, rp, pi);
+	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min &&
+	     fabs(p->radec[1] - q->radec[1]) >= dec_min){
+
+
+	    dist_cylinder(p->x, q->x, rp, pi);
 	  
-	  count++;
-	  hist.add(rp, pi, p->w * q->w);
+	    count++;
+	    hist.add(rp, pi, p->w * q->w);
+	  }
 	}
       }
     }
@@ -398,10 +420,13 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 
     for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p){
       for(Particle const *q= tree->particles[0]; q != tree->particles[1];++q){
-	dist_cylinder(p->x, q->x, rp, pi);
+	if(fabs(p->radec[0] - q->radec[0]) >= ra_min &&
+	   fabs(p->radec[1] - q->radec[1]) >= dec_min){
+	  dist_cylinder(p->x, q->x, rp, pi);
 	
-	count++;
-	hist.add(rp, pi, p->w * q->w);
+	  count++;
+	  hist.add(rp, pi, p->w * q->w);
+	}
       }
     }
 
@@ -531,7 +556,9 @@ void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
 
       double rrr= rr_hist[index]/npairs_sum[2];
       if(rrr > 0.0)
-	wp += (dd_hist[index]/npairs_sum[0]/rrr - 1.0)*dpi;
+	wp += ((dd_hist[index]/npairs_sum[0]
+	     - 2.0*dr_hist[index]/npairs_sum[1])/rrr + 1.0)*dpi;
+      //wp += (dd_hist[index]/npairs_sum[0]/rrr - 1.0)*dpi;
 
       // ToDo: not using DR!!!!
       // xi = (DD - 2*DR + RR)/RR

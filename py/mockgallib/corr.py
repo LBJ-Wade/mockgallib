@@ -10,6 +10,8 @@ class CorrelationFunction:
         nbin   (=100):  number of bins in rp
         pi_max (=60.0): integration pi range
         pi_nbin (=10):  number of bins in pi
+        ra_min (= 0.0): minimum pairwise ra separation
+        dec_min (=0.0):                  dec
 
     Attributes:
         rp_min, rp_max, nbin, pi_max, pi_nbin (same as above)
@@ -25,11 +27,15 @@ class CorrelationFunction:
         self.nbin = kwargs.get('nbin', 101)
         self.pi_max = kwargs.get('pi_max', 60.0)
         self.pi_nbin = kwargs.get('pi_nbin', 10)
+        self.ra_min = kwargs.get('ra_min', 0.0)
+        self.dec_min = kwargs.get('dec_min', 0.0)
         self._array = None
         
         self._corr = c._corr_projected_alloc(
                           self.rp_min, self.rp_max, self.nbin,
                           self.pi_max, self.pi_nbin)
+
+        c._corr_set_radec_min(self.ra_min, self.dec_min)
 
 
     def __getitem__(self, key):

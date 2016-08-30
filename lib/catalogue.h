@@ -18,6 +18,7 @@ class Catalogue: public std::vector<Particle>
   int ncen, nsat;
 };
 
+
 class Catalogues: public std::deque<Catalogue*> {
  public:
   Catalogues();

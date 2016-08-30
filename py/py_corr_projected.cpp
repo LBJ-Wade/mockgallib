@@ -48,6 +48,17 @@ void py_corr_projected_free(PyObject *obj)
   delete corr;
 }
 
+PyObject* py_corr_set_radec_min(PyObject* self, PyObject* args)
+{
+  float ra_min, dec_min;
+  
+  if(!PyArg_ParseTuple(args, "ff", &ra_min, &dec_min)) {
+    return NULL;
+  }
+
+  set_radec_min(ra_min, dec_min);
+  Py_RETURN_NONE;
+}
 
 PyObject* py_corr_projected_compute(PyObject* self, PyObject* args)
 {

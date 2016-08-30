@@ -46,6 +46,9 @@ parser.add_argument('--irandoms', default='1:1',
                     help='index range of random catalogues')
 parser.add_argument('--param', default='param.json',
                     help='parameter json file')
+parser.add_argument('--zmin', type=float, default=0.5, help='minimum redshift')
+parser.add_argument('--zmax', type=float,  default=1.2, help='minimum redshift')
+
 arg = parser.parse_args()
 
 igalaxies = arg.igalaxies.split(':')
@@ -54,27 +57,29 @@ irandoms = arg.irandoms.split(':')
 #
 # Read parameter file
 #
-print('Parameter file: %s' % arg.param)
+print('# Parameter file: %s' % arg.param)
 
 with open(arg.param, 'r') as f:
     param = json.load(f)
 
 omega_m = param['omega_m']
-print('Setting cosmology: omega_m= %.4f' % omega_m)
+print('# Setting cosmology: omega_m= %.4f' % omega_m)
 
+print('# redshift-range %f %f' % (arg.zmin, arg.zmax))
 
 #
 # Initilise
 #
 mock.set_loglevel(0)
 mock.cosmology.set(omega_m)
+mock.distance.init(1.2)
 
 def read_catalogues(filebase, irange):
     cats = mock.Catalogues()
     for i in range(int(irange[0]), int(irange[1]) + 1):
         filename = '%s%05d.txt' % (filebase, i)
         a = np.loadtxt(filename, delimiter=' ')[:,0:3]
-        cats.append(a)
+        cats.append(a, z_min=arg.zmin, z_max= arg.zmax)
     return cats
 
 galaxies = read_catalogues('mocks/mock_', igalaxies)
@@ -83,8 +88,8 @@ randoms  = read_catalogues('randoms/random_', igalaxies)
 corr = mock.CorrelationFunction()
 a = corr.compute_corr_projected(galaxies, randoms)
 
-#n = a.shape[0]
-#for i in range(n):
-#    print('%e %e %e' % (a[i,0], a[i,1], a[i,2]))
+n = a.shape[0]
+for i in range(n):
+    print('%e %e %e' % (a[i,0], a[i,1], a[i,2]))
 
 

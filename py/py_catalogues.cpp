@@ -1,8 +1,10 @@
 #include <iostream>
 #include <stdexcept>
+
 #include "catalogue.h"
 #include "error.h"
 #include "hdf5_io.h"
+#include "distance.h"
 #include "py_assert.h"
 #include "py_catalogues.h"
 
@@ -155,7 +157,8 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
   // array must have 4 columns, x,y,z,w
   
   PyObject *py_catalogues, *py_array;
-  if(!PyArg_ParseTuple(args, "OO", &py_catalogues, &py_array)) {
+  double z_min, z_max;
+  if(!PyArg_ParseTuple(args, "OOdd", &py_catalogues, &py_array, &z_min, &z_max)) {
     return NULL;
   }
 
@@ -232,12 +235,18 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
       p.radec[1]= *(a + 5*next_col);
     }
 
-    cat->push_back(p);
+    float r= sqrt(p.x[0]*p.x[0] + p.x[1]*p.x[2] + p.x[2]*p.x[2]);
+    p.z= distance_redshift(r);
+    
+    if(z_min >= 0 && z_min <= p.z && p.z < z_max)
+      cat->push_back(p);
   
     a += next_row;
   }
 
   cats->push_back(cat);
+
+  msg_printf(msg_verbose, "%lu points added to catalogue\n", cat->size());
 
   PyBuffer_Release(&view);
   

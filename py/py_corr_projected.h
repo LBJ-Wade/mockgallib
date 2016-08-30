@@ -7,6 +7,8 @@ PyMODINIT_FUNC
 py_corr_projected_module_init();
 
 PyObject* py_corr_projected_alloc(PyObject* self, PyObject* args);
+PyObject* py_corr_set_radec_min(PyObject* self, PyObject* args);
+
 PyObject* py_corr_projected_compute(PyObject* self, PyObject* args);
 PyObject* py_corr_as_array(PyObject* self, PyObject* args);
 
