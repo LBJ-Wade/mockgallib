@@ -252,9 +252,9 @@ void corr_projected_compute(Catalogues* const cats_data,
 
     npairs_DD += 0.5*(*cat)->size()*((*cat)->size()-1);
 
+
     // DR
     // Not ndata_cat * nrand_cat crosses, but nrand_cat cross pairs
-    /*
     for(size_t icat_rand=0; icat_rand<rand_cats_factor; ++icat_rand) {
       Catalogues::iterator rcat= cats_rand->begin() + icat +
 	                           icat_rand * cats_data->size();
@@ -265,9 +265,9 @@ void corr_projected_compute(Catalogues* const cats_data,
       
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
-    */
 
-      
+
+    /*
     // ndata_cat * nrand_cat cross pairs
     for(Catalogues::iterator rcat= cats_rand->begin();
       rcat != cats_rand->end(); ++rcat) {    
@@ -276,7 +276,7 @@ void corr_projected_compute(Catalogues* const cats_data,
 	count_dr_debug += count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
-
+    */
     //cerr << "count_dd_debug= " << count_dd_debug << endl;
     //cerr << "count_dr_debug= " << count_dr_debug << endl;
 
