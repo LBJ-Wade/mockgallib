@@ -8,9 +8,9 @@ import mockgallib as mock
 
 signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c
 
-def print0(str):
+def print0(*a):
     if mock.comm.rank == 0:
-        print(str)
+        print(*a)
 
 #
 # Command-line options
@@ -64,7 +64,7 @@ def read_redshift_bins(redshift_bins):
     return arr
 
 redshift_bins = read_redshift_bins(param['redshift_bins'])
-print(redshift_bins)
+print0(redshift_bins)
 
 # nz
 nbar_obs=  mock.array.loadtxt(arg.dir + '/' + param['nz'])
@@ -100,7 +100,7 @@ class Data:
                             for n in range(int(arg.nmocks))
                             if n % mock.comm.n_nodes == mock.comm.rank
                            ])
-        print("len lightcone", len(self.halo_lightcones))
+        print0("len lightcone %d" % len(self.halo_lightcones))
 
 
         self.rand_lightcones = mock.LightCones()
@@ -158,15 +158,16 @@ class Data:
 
         #diff = (self.corr.wp[:] - self.wp_obs[:,1])/self.wp_obs[:,2]
         #chi2 = np.sum(diff**2)
-        print('chi2', chi2, np)
+        print0('chi2 %f / %d' % (chi2, np))
 
         return chi2
 
 
     def write_corr_projected(self, index):
         """Write projected correlation function"""
-        arg = self.domain + (index,)
-        filename = '%s/corr_%s_%s_%s_%05d.txt' % (outdir, arg)
+        print0('write projected correlation function')
+        arg = (outdir,) + self.domain + (index,)
+        filename = '%s/corr_%s_%s_%s_%05d.txt' % arg
         rp = self.corr.rp
         wp = self.corr.wp
         with open(filename, 'w') as f:
@@ -224,7 +225,7 @@ def write_hod_params(h, index):
     Column 4: log10 M1
     Column 5: alpha
     """
-    filename = '%s/hod_%05d.txt' % (arg.outdir, index)
+    filename = '%s/hod_%05d.txt' % (outdir, index)
     f = open(filename, 'w')
     f.write('# c= ' + hod.get_coef().__repr__() + '\n')
     
@@ -259,7 +260,7 @@ def cost_function(x):
     hod[4] = x[1] # sigma
     hod[8] = x[2] # alpha
 
-    #print('eval %.3f %.3f' % (x[0], x[1]))
+    print('eval %.3f %.3f %.3f' % (x[0], x[1], x[2]))
     #print(hod.coef)
     
     # Find best fitting logMmin(z) function
@@ -269,7 +270,7 @@ def cost_function(x):
     for domain, d in data.items():
         chi2 += d.chi2(hod)
 
-
+    #print('cost_function ', chi2)
     return chi2
 
 def logging_minimization(x):
@@ -299,8 +300,8 @@ x0 = [1.5, 0.1, 1.0]
 ss = [0.2, 0.05, 0.1]
 x = mock.minimise(cost_function, logging_minimization, x0, ss)
 
-if mock.comm.rank == 0:
-    print('minimum', x)
+
+print0('minimum', x)
 
 if flog:
     flog.close()
