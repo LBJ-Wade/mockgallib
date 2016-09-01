@@ -18,8 +18,6 @@ void comm_init(int* p_argc, char*** p_argv)
   
   MPI_Comm_rank(MPI_COMM_WORLD, &this_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &n_nodes);
-
-  //msg_printf(msg_verbose, "MPI initialised with %d nodes\n", n_nodes);
 }
 
 

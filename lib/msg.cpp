@@ -14,6 +14,8 @@ static char prefix[8]= "";
 void msg_set_loglevel(const LogLevel lv)
 {
   log_level= lv;
+
+  msg_printf(msg_verbose, "MPI %d nodes\n", comm_n_nodes());
 }
 
 void msg_set_prefix(const char prefix_[])

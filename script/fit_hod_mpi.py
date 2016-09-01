@@ -260,7 +260,7 @@ def cost_function(x):
     hod[4] = x[1] # sigma
     hod[8] = x[2] # alpha
 
-    print('eval %.3f %.3f %.3f' % (x[0], x[1], x[2]))
+    print0('eval %.3f %.3f %.3f' % (x[0], x[1], x[2]))
     #print(hod.coef)
     
     # Find best fitting logMmin(z) function

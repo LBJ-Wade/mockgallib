@@ -329,7 +329,7 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
     if(leaf == tree) {
       for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p) {
 	for(Particle const *q= p+1; q != leaf->particles[1]; ++q) {
-	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min &&
+	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	     fabs(p->radec[1] - q->radec[1]) >= dec_min){
 
 	    dist_cylinder(p->x, q->x, rp, pi);
@@ -343,7 +343,7 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
     else {
       for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p){
 	for(Particle const *q= tree->particles[0]; q != tree->particles[1];++q){
-	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min &&
+	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	     fabs(p->radec[1] - q->radec[1]) >= dec_min){
 
 
@@ -420,7 +420,7 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 
     for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p){
       for(Particle const *q= tree->particles[0]; q != tree->particles[1];++q){
-	if(fabs(p->radec[0] - q->radec[0]) >= ra_min &&
+	if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	   fabs(p->radec[1] - q->radec[1]) >= dec_min){
 	  dist_cylinder(p->x, q->x, rp, pi);
 	
