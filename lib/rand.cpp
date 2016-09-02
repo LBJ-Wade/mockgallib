@@ -1,5 +1,6 @@
 #include <cassert>
 #include <time.h>
+#include "comm.h"
 #include "rand.h"
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
@@ -10,7 +11,8 @@ void rand_init()
 {
   if(rng) return;
   
-  const unsigned int seed= (unsigned int) time(NULL);
+  const unsigned int seed= 10000*comm_this_rank() + (unsigned int) time(NULL);
+  
   rng= gsl_rng_alloc(gsl_rng_ranlxd1);
   gsl_rng_set(rng, seed);
 }
