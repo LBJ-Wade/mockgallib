@@ -11,6 +11,6 @@ char* comm_bcast_char(char const * const src);
 //double* comm_bcast_double(double const * const double_src, const int n_src);
 void comm_mpi_bcast_double(double* const p, const int count);
 
-int comm_allreduce_min_int(const int val);
+int comm_allreduce_min_int(int val);
 void comm_abort();
 #endif

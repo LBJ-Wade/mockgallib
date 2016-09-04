@@ -57,7 +57,7 @@ char* comm_bcast_char(char const * const src)
   return str;
 }
 
-int comm_allreduce_min_int(const int val)
+int comm_allreduce_min_int(int val)
 {
   int val_reduced;
   MPI_Allreduce(&val, &val_reduced, 1, MPI_INT, MPI_MIN,  MPI_COMM_WORLD);
