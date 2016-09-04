@@ -50,6 +50,8 @@ void msg_abort(char const * const fmt, ...)
     va_end(argp);
   }
 
-  abort();
+  //MPI_Abort();
+  //abort();
+  comm_abort();
 }
 

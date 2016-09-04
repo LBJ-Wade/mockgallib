@@ -57,6 +57,13 @@ char* comm_bcast_char(char const * const src)
   return str;
 }
 
+int comm_allreduce_min_int(const int val)
+{
+  int val_reduced;
+  MPI_Allreduce(&val, &val_reduced, 1, MPI_INT, MPI_MIN,  MPI_COMM_WORLD);
+  return val_reduced;
+}
+
 /*
 double* comm_bcast_double(double* const double_src, const int n)
 {
@@ -122,4 +129,11 @@ int comm_n_nodes()
 }
 
 
-
+void comm_abort()
+{
+#ifdef WITHMPI
+  MPI_Abort(MPI_COMM_WORLD, 1);
+#else
+  abort();
+#endif
+}
