@@ -159,9 +159,7 @@ void corr_projected_compute(Catalogues* const cats_data,
   rmax2= rp_max*rp_max + pi_max*pi_max;
 
   // Setup vcorr
-  //allocate_vcorr(cats_data->size());
-  allocate_vcorr(1);
-
+  allocate_vcorr(cats_data->size());
   
   //
   // Setup KDTree
@@ -283,7 +281,7 @@ void corr_projected_compute(Catalogues* const cats_data,
     compute_corr_from_histogram2d(dd, npairs_DD,
 				  dr, npairs_DR,
 				  rr, npairs_RR,		 
-				  pi_max, vcorr.at(0));
+				  pi_max, vcorr.at(icat));
 
     icat++;
   }
@@ -490,9 +488,14 @@ void allocate_vcorr(const size_t n_data_cat)
   if(vcorr.size() == n_data_cat)
     return;
 
+
+  for(vector<CorrProjected*>::iterator
+	corr= vcorr.begin(); corr != vcorr.end(); ++corr)
+    delete *corr;
   vcorr.clear();
+  
   for(int i=0; i<n_data_cat; ++i) {
-    CorrProjected* corr= new CorrProjected(nbin);
+    CorrProjected* const corr= new CorrProjected(nbin);
     vcorr.push_back(corr);
   }
 }
@@ -530,12 +533,12 @@ void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
 
   MPI_Allreduce(npairs, npairs_sum, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  msg_printf(msg_debug, "Reduce DD %.1lf pairs -> %lf\n",
-	     npairs[0], npairs_sum[0]);
-  msg_printf(msg_debug, "Reduce DR %.1lf pairs -> %lf\n",
-	     npairs[1], npairs_sum[1]);
-  msg_printf(msg_debug, "Reduce RR %.1lf pairs -> %lf\n",
-	     npairs[2], npairs_sum[2]);
+  msg_printf(msg_debug, "Reduce DD %.1lf pairs -> %lf; %.3f\n",
+	     npairs[0], npairs_sum[0], npairs_sum[0] / npairs[0]);
+  msg_printf(msg_debug, "Reduce DR %.1lf pairs -> %lf; %.3f\n",
+	     npairs[1], npairs_sum[1], npairs_sum[1] / npairs[1]);
+  msg_printf(msg_debug, "Reduce RR %.1lf pairs -> %lf; %.3f\n",
+	     npairs[2], npairs_sum[2], npairs_sum[2] / npairs[2]);
 
   MPI_Allreduce(dd.hist, dd_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   MPI_Allreduce(dr.hist, dr_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -604,6 +607,9 @@ void corr_projected_summarise(CorrProjected* const corr)
   // Take average of multiple projected correlation functions vcorr
   //
   assert(!vcorr.empty());
+  msg_printf(msg_debug, "summarise %lu correlation functions\n",
+	     vcorr.size());
+  
   const int nbin= vcorr.front()->n;
   const int ndat= vcorr.size(); assert(ndat > 0);
 

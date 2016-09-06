@@ -132,7 +132,9 @@ void nbar_fitting_compute(NbarFitting* fitting)
 
 
   if(iter == max_iter) {
-    msg_printf(msg_warn, "Reached maximum iteration for nbar fitting\n");
+    msg_printf(msg_warn,
+	       "Warning: Reached maximum iteration for nbar fitting, %d\n",
+	       iter);
   }
 
   fitting->hod->c[0]= gsl_vector_get(s->x, 0);
