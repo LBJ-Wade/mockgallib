@@ -92,6 +92,8 @@ class Data:
         self.z_min = float(domain[1])
         self.z_max = float(domain[2])
 
+        print0('Create Data for ', domain) 
+        
         # Load lightcones
         self.halo_lightcones = mock.LightCones()
         self.halo_lightcones.load_h5(
@@ -100,7 +102,7 @@ class Data:
                             for n in range(int(arg.nmocks))
                             if n % mock.comm.n_nodes == mock.comm.rank
                            ])
-        print0("len lightcone %d" % len(self.halo_lightcones))
+        print0("len halo lightcone %d" % len(self.halo_lightcones))
 
 
         self.rand_lightcones = mock.LightCones()
@@ -110,6 +112,7 @@ class Data:
                             for n in range(int(arg.nrands))
                             if n % mock.comm.n_nodes == mock.comm.rank
                            ])
+        print0("len rand lightcone %d" % len(self.rand_lightcones))
 
         # Catalogues will be generated from lightcones for given hod
         self.galaxy_catalogues = mock.Catalogues()
@@ -122,11 +125,12 @@ class Data:
 
         # VIPERS projected correlation function
         self.wp_obs = mock.array.loadtxt(
-            '%s/data/vipers/corr_projected_%s_%s_%s.txt' % ((arg.dir,) +domain))
+            '%s/data/vipers/run4/corr_projected_%s_%s_%s.txt' % ((arg.dir,) +domain))
         
 
     def generate_catalogues(self, hod):
         """Generate galaxy and random catalogues from given HOD"""
+        print0('generate catalogues for %.2f - %.2f' % (self.z_min, self.z_max))
         self.galaxy_catalogues.generate_galaxies(hod, self.halo_lightcones,
                                                  self.z_min, self.z_max)
         
@@ -140,7 +144,8 @@ class Data:
         Assumed that both wps are computed in the same coditions.
         """
         self.generate_catalogues(hod)
-        
+
+        print('compute corr projected %.2f - %.2f' % (self.z_min, self.z_max))
         self.corr.compute_corr_projected(self.galaxy_catalogues,
                                          self.random_catalogues)
 
@@ -260,14 +265,17 @@ def cost_function(x):
     hod[4] = x[1] # sigma
     hod[8] = x[2] # alpha
 
-    print0('eval %.3f %.3f %.3f' % (x[0], x[1], x[2]))
-    #print(hod.coef)
+    print('eval %.3f %.3f %.3f' % (x[0], x[1], x[2]))
+    print(hod)
     
     # Find best fitting logMmin(z) function
     nbar.fit()
 
     chi2 = 0
-    for domain, d in data.items():
+    #for domain, d in data.items():
+    #    chi2 += d.chi2(hod)
+    for domain in domains:
+        d = data[domain]
         chi2 += d.chi2(hod)
 
     #print('cost_function ', chi2)
@@ -284,24 +292,31 @@ def logging_minimization(x):
     # Find best fitting logMmin(z) function
     nbar.fit()
 
-    chi2 = 0
+    chi2_total = 0.0
+    chi2_each = []
     for domain, d in data.items():
-        chi2 += d.chi2(hod)
+        chi2 = d.chi2(hod)
+        chi2_each.append(chi2)
+        chi2_total += chi2
 
     if flog:
-        flog.write('%.3f %.4f %.4f %.4f\n' % (chi2, x[0], x[1], x[2]))
+        flog.write('%.3f %.4f %.4f %.4f %.3f %.3f %.3f\n' %
+                   (chi2_total, x[0], x[1], x[2],
+                    chi2_each[0], chi2_each[1], chi2_each[2]))
+
         for domain, d in data.items():
             d.write_corr_projected(iter)
         write_nbar_fitting(nbar, iter)
         write_hod_params(hod, iter)
 
 
-x0 = [1.5, 0.1, 1.0]
-ss = [0.2, 0.05, 0.1]
+x0 = [1.0, 0.15, 1.0]
+ss = [0.1, 0.02, 0.05]
 x = mock.minimise(cost_function, logging_minimization, x0, ss)
 
 
 print0('minimum', x)
+print0(hod)
 
 if flog:
     flog.close()
