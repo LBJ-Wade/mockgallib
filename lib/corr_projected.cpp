@@ -167,8 +167,15 @@ void corr_projected_compute(Catalogues* const cats_data,
   const int nD= cats_data->size(); // number of Data catalogues
   const int nR= cats_rand->size(); // number of Random catalgues
 
+  //cerr << "ndata_cat " << nD << ", nrand_cat " << nR << endl;
+
   size_t nalloc= count_num_points(cats_data) + count_num_points(cats_rand);
   const int quota = 32;
+
+  cerr << "n total points " << nalloc << endl;
+  
+
+
 
   if(tree_alloc == 0) {
     tree_alloc= (KDTree*) malloc(sizeof(KDTree)*nalloc);

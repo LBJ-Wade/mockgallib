@@ -132,9 +132,16 @@ void catalogue_generate_mock(Hod* const hod,
   Particle p; p.w= 1.0;
   int ncen_total= 0, nsat_total= 0;
 
+  /*
+  cerr << "src lightcone " << lightcone->size() << endl;
+  cerr << z_min << " " << z_max << endl;
+  cerr << "HOD c " << hod->c[0] << " " << hod->c[1] << " " << hod->c[2] << " "
+       << hod->c[3] << " " << hod->c[4] << " " << hod->c[5] << " "
+       << hod->c[6] << " " << hod->c[7] << " " << hod->c[8] << " " << hod->c[9]
+       << endl;
+  */
 
-  //cerr << "src lightcone " << lightcone->size() << endl;
-  
+
   for(LightCone::const_iterator h=
 	lightcone->begin(); h != lightcone->end(); ++h) {
     
