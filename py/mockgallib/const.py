@@ -1,11 +1,12 @@
 import mockgallib._mockgallib as c
 
-class Const:
-    def __init__(self):
-        self.G = c._const_G()
-        self.rho_crit_0 = c._const_rhocrit0()
+G = None
+rho_crit_0 = None
+delta_c = None
 
-    def __repr__(self):
-        return ("Constants in internal unit:\n" +
-                "  G          = %.4e\n" +
-                "  rho_crit_0 = %.4e\n") % (self.G, self.rho_crit_0) 
+def init():
+    global G, rho_crit_0, delta_c
+    G = c._const_G()
+    rho_crit_0 = c._const_rhocrit0()
+    delta_c = c._const_deltac();
+

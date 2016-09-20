@@ -100,7 +100,13 @@ double sigma_inv(const double MM)
 {
 #ifdef DEBUG
   assert(n > 0);
-  assert(M_min <= MM && MM <= M_max);
+  if(!(M[0] <= MM && MM <= M[n-1])) {
+    cerr << "sigma_inv called with MM= " << MM << " not within "
+	 << M_min << " " << M_max << endl;
+  }
+  assert(M[0] <= MM && MM <= M[n-1]);
+  //cerr << "interp_inv " << MM << endl;
+  //cerr << "range " << M[0] << " " << M[n-1] << endl;
 #endif
   
   return gsl_interp_eval(interp_inv, M, sinv, MM, acc_inv);

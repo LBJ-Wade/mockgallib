@@ -24,8 +24,6 @@ def init(*args, **kwargs):
        n = 1001: number of interpolation points
     """
 
-    print("sigma.init")
-    
     M_min = kwargs.get('M_min', 1.0e10)
     M_max = kwargs.get('M_max', 1.0e16)
     n = kwargs.get('n', 1001)
@@ -35,5 +33,3 @@ def init(*args, **kwargs):
     n = c._sigma_n()
     M = c._sigma_M_array()
     sinv = c._sigma_sinv_array()
-
-

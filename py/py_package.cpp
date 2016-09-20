@@ -11,6 +11,7 @@
 #include "py_growth.h"
 #include "py_sigma.h"
 #include "py_mf.h"
+#include "py_mf_cumulative.h"
 #include "py_hod.h"
 #include "py_nbar.h"
 #include "py_nbar_fitting.h"
@@ -92,6 +93,11 @@ static PyMethodDef methods[] = {
    "set redshift for the mass function"},   
   {"_mf_f", py_mf_f, METH_VARARGS,
    "compute f(nu)"},
+
+  {"_mf_cumulative_alloc", py_mf_cumulative_alloc, METH_VARARGS,
+   "allocate cumulative mass function"},
+  {"_mf_cumulative_M", py_mf_cumulative_M, METH_VARARGS,
+   "_mf_cumulative(_mfc, n); returns M such that n(M) = n"},
 
   {"_hod_alloc", py_hod_alloc, METH_VARARGS, 
    "allocate an hod object"},

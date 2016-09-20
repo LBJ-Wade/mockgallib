@@ -3,6 +3,7 @@
 //
 // Dependence: sigma
 
+#include <iostream>
 #include <cassert>
 
 #include "const.h"
@@ -12,6 +13,7 @@
 #include "sigma.h"
 #include "mf_cumulative.h"
 
+using namespace std;
 
 static double rho_m;
 static double integrand_n_cumulative(double nu, void* params);
@@ -48,19 +50,20 @@ MfCumulative::MfCumulative(const double a) :
   F.function= &integrand_n_cumulative;
   F.params= (void*) &params;
 
+  const double nu_min= c::delta_c/D*sigma_sinv_min();
+  const double nu_max= c::delta_c/D*sigma_sinv_max();
   const double logMmin= log(sigma_M_min());
   const double logMmax= log(sigma_M_max());
-  const double nu_min= c::delta_c*sigma_sinv_min();
-  const double nu_max= c::delta_c*sigma_sinv_max();
 
   for(int i=0; i<n; ++i) {
     double MM= exp(logMmin + (n-i-1)*(logMmax - logMmin)/(n-1));
     M_array[i]= MM;
 
-    double nu= c::delta_c/D*sigma_inv(MM); assert(nu >= nu_min);
+    double nu= c::delta_c/D*sigma_inv(MM);
+    assert(0.995*nu_min <= nu && nu <= nu_max*1.005);
     double result;
   
-    gsl_integration_cquad(&F, 1.0e-8, nu_max, 1.0e-5, 1.0e-5, w, &result, 0, 0);
+    gsl_integration_cquad(&F, nu, nu_max, 1.0e-5, 1.0e-5, w, &result, 0, 0);
     nM_array[i]= result;
   }
 

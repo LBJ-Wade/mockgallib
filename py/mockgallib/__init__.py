@@ -1,6 +1,9 @@
 import mockgallib.comm
 comm.init()
 
+import mockgallib.const
+const.init()
+
 import mockgallib.cosmology
 import mockgallib.distance
 import mockgallib.power
@@ -11,7 +14,6 @@ import mockgallib.array
 
 from mockgallib._mockgallib import set_loglevel
 from mockgallib._mockgallib import growth_D
-from mockgallib.const import Const
 from mockgallib.mf import MassFunction
 from mockgallib.hod import Hod
 from mockgallib.nbar import Nbar, NbarFitting
