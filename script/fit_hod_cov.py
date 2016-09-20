@@ -120,13 +120,20 @@ class Data:
         self.random_catalogues = mock.Catalogues()
 
         self.corr = mock.CorrelationFunction(
-            rp_min=0.5, rp_max=60.0, nbin=20, pi_max= 60.0, pi_nbin= 20,
+            rp_min=0.1, rp_max=60.0, nbin=24, pi_max= 60.0, pi_nbin= 20,
             ra_min=0.001388889, dec_min=0.0375)
 
 
         # VIPERS projected correlation function
         self.wp_obs = mock.array.loadtxt(
-            '%s/data/vipers/run4/corr_projected_%s_%s_%s.txt' % ((arg.dir,) +domain))
+            '%s/data/vipers/run4/0.1/corr_projected_%s_%s_%s.txt' % ((arg.dir,) +domain))
+        
+        if mock.comm.rank == 0:
+            self.covinv = np.load('%s/data/vipers/run4/0.1/covinv_%s_%s_%s.npy'\
+ % ((arg.dir,) + domain))
+            print('Inverse covariance matrix', self.covinv.shape)
+        else:
+            self.covinv = None
         
 
     def generate_catalogues(self, hod):
@@ -152,19 +159,11 @@ class Data:
 
         wp = self.corr.wp
         chi2 = 0.0;
-        wp = self.corr.wp
-        n = len(wp)
-        np= 0
 
-        for i in range(n):
-            if self.wp_obs[i,2] > 0.0:
-                diff = (wp[i] - self.wp_obs[i,1])/self.wp_obs[i,2]
-                chi2 += diff*diff
-                np += 1
+        if mock.comm.rank == 0:
+             chi2 = np.dot(wp, self.covinv.dot(wp))
 
-        #diff = (self.corr.wp[:] - self.wp_obs[:,1])/self.wp_obs[:,2]
-        #chi2 = np.sum(diff**2)
-        print0('chi2 %f / %d' % (chi2, np))
+        print0('chi2 %f / %d' % (chi2, len(wp)))
 
         return chi2
 
