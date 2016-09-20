@@ -265,21 +265,18 @@ def cost_function(x):
     hod[4] = x[1] # sigma
     hod[8] = x[2] # alpha
 
-    #print('eval %.3f %.3f %.3f' % (x[0], x[1], x[2]))
-    #print(hod)
     print0('eval', x)
     
     # Find best fitting logMmin(z) function
     nbar.fit()
 
     chi2 = 0
-    #for domain, d in data.items():
-    #    chi2 += d.chi2(hod)
+
     for domain in domains:
         d = data[domain]
         chi2 += d.chi2(hod)
 
-    #print('cost_function ', chi2)
+    print0('cost_function ', chi2)
     return chi2
 
 def print_array(format, v):
@@ -292,7 +289,7 @@ def logging_minimization(x):
     global iter
     iter += 1
 
-    hod[6] = x[0]  #log10 M1 = log10 (M_min + c_6 + c_7*(z - z_0)
+    hod[6] = x[0] #log10 M1 = log10 (M_min + c_6 + c_7*(z - z_0)
     hod[4] = x[1] # sigma
     hod[8] = x[2] # alpha
 
@@ -301,7 +298,7 @@ def logging_minimization(x):
 
     chi2_total = 0.0
     chi2_each = []
-    #for domain, d in data.items():
+
     for domain in domains:
         d = data[domain]
         chi2 = d.chi2(hod)
@@ -312,7 +309,7 @@ def logging_minimization(x):
         log_str = ('%.3f' % chi2_total) + ' '
         log_str += print_array('%.4f', x)
         log_str += print_array('%.4f', chi2_each)
-        flog.write(log_str)
+        flog.write(log_str + '\n')
 
         for domain, d in data.items():
             d.write_corr_projected(iter)

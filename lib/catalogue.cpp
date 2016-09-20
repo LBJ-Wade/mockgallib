@@ -190,7 +190,7 @@ void catalogue_generate_mock(Hod* const hod,
   cat->ncen= ncen_total;
   cat->nsat= nsat_total;
 
-  cerr << ncen_total << " centrals, " << nsat_total << " statellites\n";
+  //cerr << ncen_total << " centrals, " << nsat_total << " statellites\n";
 }
 
 
