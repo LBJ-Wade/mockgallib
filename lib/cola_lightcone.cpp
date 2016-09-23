@@ -164,6 +164,22 @@ void fill_lightcone_haloes(Snapshot const * const snp,
   cola_halo_file_close();
 }
 
+/*
+static inline double rad(const double deg)
+{
+  return M_PI/180.0*deg;
+}
+
+static double volume(const double r_min, const double r_max,
+		     const double ra_min, const double ra_max,
+		     const double dec_min, const double dec_max)
+{
+  const double dra= rad(ra_max - ra_min);
+  const double dcosO= sin(rad(ra_max)) - sin(rad(ra_min));
+  return dra*dcosO*(r_max*r_max*r_max - r_min*r_min*r_min)/3.0;
+}
+*/
+
 void fill_lightcone_particles(Snapshot const * const snp,
 			      Sky const * const sky,
 			      Remap const * const remap,
@@ -180,7 +196,6 @@ void fill_lightcone_particles(Snapshot const * const snp,
     cerr << "return: a= " << snp->a_snp << endl;
     return;
   }
-
 
   if(lightcones->size() < slice->n) {
     lightcones->resize(slice->n);
@@ -210,13 +225,15 @@ void fill_lightcone_particles(Snapshot const * const snp,
   //cerr << "boxsize= " << boxsize << endl;
   const double nM_min= mfc->n_cumulative(M_max);
   const double nM_max= mfc->n_cumulative(M_min);
-  const int n= (nM_max - nM_min)*boxsize*boxsize*boxsize;
-  assert(n >= 0);
 
-
-
+  const double frac= (nM_max - nM_min)/(np/(boxsize*boxsize*boxsize));
+    // fraction of particle necessary / particle in the file
+  msg_printf(msg_verbose, "particle using fraction %e\n", frac);
+  
   while(cola_part_file_read_one(h)) {
     // convert nfof to halo mass
+    if(rand_uniform() > frac) continue;
+
     double nM= nM_min + (nM_max - nM_min)*rand_uniform();
     h->M= mfc->M(nM);
 
