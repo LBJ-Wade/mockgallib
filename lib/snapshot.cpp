@@ -22,11 +22,9 @@ Snapshot::Snapshot(const char filename_fof_[],
   filename_fof= (char*) malloc(n+1);
   strncpy(filename_fof, filename_fof_, n+1);
 
-  n= strlen(filename_part);
+  n= strlen(filename_part_);
   filename_part= (char*) malloc(n+1);
   strncpy(filename_part, filename_part_, n+1);
-  
-  
 }
 
 Snapshot::~Snapshot()

@@ -55,6 +55,8 @@ MfCumulative::MfCumulative(const double a) :
   const double logMmin= log(sigma_M_min());
   const double logMmax= log(sigma_M_max());
 
+  //cerr << "MfCumulative " << exp(logMmin) << " " << exp(logMmax) << endl;
+
   for(int i=0; i<n; ++i) {
     //double MM= exp(logMmin + (n-i-1)*(logMmax - logMmin)/(n-1));
     double MM= exp(logMmin + i*(logMmax - logMmin)/(n-1));
@@ -76,7 +78,7 @@ MfCumulative::MfCumulative(const double a) :
 
   interp2= gsl_interp_alloc(gsl_interp_cspline, n);
   acc2= gsl_interp_accel_alloc();
-  gsl_interp_init(interp, M_array, nM_array, n);
+  gsl_interp_init(interp2, M_array, nM_array, n);
 
   
   gsl_integration_cquad_workspace_free(w);

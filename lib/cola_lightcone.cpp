@@ -60,6 +60,7 @@ void cola_lightcones_create(Snapshots const * const snapshots,
   // Halo is used M > M_max
   
   // Prerequisite: sigma_init()
+  rand_init();
   halo_concentration_init();
   distance_init(sky->z_range[1]);
       
@@ -175,6 +176,11 @@ void fill_lightcone_particles(Snapshot const * const snp,
   //   
   // halo_concentration_init() -- sigma_init() -- power_init()
   //
+  if(M_min >= M_max) {
+    cerr << "return: a= " << snp->a_snp << endl;
+    return;
+  }
+
 
   if(lightcones->size() < slice->n) {
     lightcones->resize(slice->n);
@@ -249,6 +255,6 @@ void fill_lightcone_particles(Snapshot const * const snp,
     (*lightcones)[h->slice]->push_back(*h);
   }
    
-  cola_halo_file_close();
+  cola_part_file_close();
 }
 

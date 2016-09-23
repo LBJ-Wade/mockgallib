@@ -101,5 +101,7 @@ int cola_part_file_read_one(Halo* const h)
   ret= fread(h->v, sizeof(float), 3, fp_part); assert(ret == 3);
   ret= fread(f, sizeof(float), 3, fp_part); assert(ret == 3);
 
+  npart_read++;
+
   return 1;
 }

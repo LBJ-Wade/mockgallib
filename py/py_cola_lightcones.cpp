@@ -7,7 +7,7 @@
 PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 {
   // _cola_lightcones_create(_snapshots, _sky, _remap, _slice,
-  //                         _mfc, M_min, M_max,
+  //                         M_min, M_max,
   //                         _lightcones, _random)
   PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_lightcones;
   double M_min, M_max;
