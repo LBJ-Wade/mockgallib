@@ -8,8 +8,10 @@ using namespace std;
 Snapshot::Snapshot(const char filename_fof_[],
 		   const char filename_part_[],
 		   const char filename_halo_mass[],
+		   const double M_part_min_, const double M_halo_min_,
 		   const double a_snp_,
 		   const double a_min_, const double a_max_) :
+  M_part_min(M_part_min_), M_halo_min(M_halo_min_),
   a_snp(a_snp_), a_min(a_min_), a_max(a_max_)
 {
   r_min= cosmology_compute_comoving_distance(a_max_);

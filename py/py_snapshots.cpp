@@ -25,14 +25,17 @@ void py_snapshots_free(PyObject *obj)
 PyObject* py_snapshots_insert(PyObject* self, PyObject* args)
 {
   // _snapshots_insert(_snps, fof_filename, halo_mass_filename,
+  //                   M_part_min, M_halo_min,
   //                   a_snp, a_min, a_max, _halo_mass)
   PyObject *py_snps, *bytes_fof, *bytes_part, *bytes_halo_mass;
   double a_snp, a_min, a_max;
+  double M_part_min, M_halo_min;
   
-  if(!PyArg_ParseTuple(args, "OO&O&O&ddd", &py_snps,
+  if(!PyArg_ParseTuple(args, "OO&O&O&ddddd", &py_snps,
 		       PyUnicode_FSConverter, &bytes_fof,
 		       PyUnicode_FSConverter, &bytes_part,
 		       PyUnicode_FSConverter, &bytes_halo_mass,
+		       &M_part_min, &M_halo_min,
 		       &a_snp, &a_min, &a_max)) {
     return NULL;
   }
@@ -50,7 +53,8 @@ PyObject* py_snapshots_insert(PyObject* self, PyObject* args)
   Snapshot* snp;
   try {
     snp= new Snapshot(filename_fof, filename_part, filename_halo_mass,
-				a_snp, a_min, a_max);
+		      M_part_min, M_halo_min,
+		      a_snp, a_min, a_max);
   }
   catch(const HaloMassFileError) {
     PyErr_SetString(PyExc_IOError, "Unable to read halo mass file");

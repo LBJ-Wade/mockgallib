@@ -52,7 +52,6 @@ void cola_lightcones_create(Snapshots const * const snapshots,
 			    Sky const * const sky,
 			    Remap const * const remap,
 			    Slice const * const slice,
-			    const double M_min, const double M_max,
 			    LightCones* const lightcones,
 			    const bool random)
 {
@@ -76,9 +75,11 @@ void cola_lightcones_create(Snapshots const * const snapshots,
   for(Snapshots::const_iterator snp= snapshots->begin();
       snp != snapshots->end(); ++snp) {
     
-    fill_lightcone_haloes(*snp, sky, remap, slice, M_max, random, lightcones);
+    fill_lightcone_haloes(*snp, sky, remap, slice, 
+			  (*snp)->M_halo_min, random, lightcones);
     fill_lightcone_particles(*snp, sky, remap, slice, 
-			     M_min, M_max, random, lightcones);
+			     (*snp)->M_part_min, (*snp)->M_halo_min, 
+			     random, lightcones);
   }
 }	   
 
@@ -167,8 +168,7 @@ void fill_lightcone_particles(Snapshot const * const snp,
 			      Sky const * const sky,
 			      Remap const * const remap,
 			      Slice const * const slice,
-			      const float M_min,
-			      const float M_max,
+			      const float M_min, const float M_max,
 			      const bool random,
 			      LightCones* const lightcones)
 {
@@ -186,8 +186,9 @@ void fill_lightcone_particles(Snapshot const * const snp,
     lightcones->resize(slice->n);
   }
 
-  msg_printf(msg_verbose, "filling lightcone from %s, a=%.3f\n",
-	     snp->filename_part, snp->a_snp);
+  msg_printf(msg_verbose, "filling lightcone from %s, a=%.3f log10M (%e %e)\n",
+	     snp->filename_part, snp->a_snp,
+	     log10(snp->M_part_min), log10(snp->M_halo_min));
 
   float boxsize;
   int np;
@@ -206,7 +207,7 @@ void fill_lightcone_particles(Snapshot const * const snp,
   const float dec_min= sky->dec_range[0];
   const float dec_max= sky->dec_range[1];
 
-  cerr << "boxsize= " << boxsize << endl;
+  //cerr << "boxsize= " << boxsize << endl;
   const double nM_min= mfc->n_cumulative(M_max);
   const double nM_max= mfc->n_cumulative(M_min);
   const int n= (nM_max - nM_min)*boxsize*boxsize*boxsize;

@@ -7,15 +7,12 @@
 PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 {
   // _cola_lightcones_create(_snapshots, _sky, _remap, _slice,
-  //                         M_min, M_max,
   //                         _lightcones, _random)
   PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_lightcones;
-  double M_min, M_max;
   int random;
   
-  if(!PyArg_ParseTuple(args, "OOOOddOi",
+  if(!PyArg_ParseTuple(args, "OOOOOi",
 		       &py_snapshots, &py_sky, &py_remap, &py_slice,
-		       &M_min, &M_max,
 		       &py_lightcones, &random))
     return NULL;
 
@@ -38,7 +35,7 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 
   try {
     cola_lightcones_create(snapshots, sky, remap, slice, 
-			   M_min, M_max, lightcones, random);
+			   lightcones, random);
   }
   catch (const ColaFileError e) {
     PyErr_SetString(PyExc_IOError, "Unable to read data");
