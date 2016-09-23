@@ -96,8 +96,6 @@ static PyMethodDef methods[] = {
 
   {"_mf_cumulative_alloc", py_mf_cumulative_alloc, METH_VARARGS,
    "allocate cumulative mass function"},
-  {"_mf_cumulative_M", py_mf_cumulative_M, METH_VARARGS,
-   "_mf_cumulative(_mfc, n); returns M such that n(M) = n"},
 
   {"_hod_alloc", py_hod_alloc, METH_VARARGS, 
    "allocate an hod object"},

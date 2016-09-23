@@ -5,7 +5,8 @@
 
 using namespace std;
 
-Snapshot::Snapshot(const char filename_fof[],
+Snapshot::Snapshot(const char filename_fof_[],
+		   const char filename_part_[],
 		   const char filename_halo_mass[],
 		   const double a_snp_,
 		   const double a_min_, const double a_max_) :
@@ -16,14 +17,21 @@ Snapshot::Snapshot(const char filename_fof[],
 
   halo_mass= new HaloMassFoF(filename_halo_mass);
 
-  const int n= strlen(filename_fof);
-  filename= (char*) malloc(n+1);
-  strncpy(filename, filename_fof, n+1);
+  int n= strlen(filename_fof_);
+  filename_fof= (char*) malloc(n+1);
+  strncpy(filename_fof, filename_fof_, n+1);
+
+  n= strlen(filename_part);
+  filename_part= (char*) malloc(n+1);
+  strncpy(filename_part, filename_part_, n+1);
+  
+  
 }
 
 Snapshot::~Snapshot()
 {
-  free(filename);
+  free(filename_fof);
+  free(filename_part);
   delete halo_mass;
 }
 

@@ -9,7 +9,7 @@ class MfCumulative {
  public:
   MfCumulative(const double a);
   ~MfCumulative();
-  //double n_cumulative(const double M);
+  double n_cumulative(const double M);
   double M(const double nM);
   double nM_max;
  private:

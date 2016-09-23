@@ -26,20 +26,22 @@ PyObject* py_snapshots_insert(PyObject* self, PyObject* args)
 {
   // _snapshots_insert(_snps, fof_filename, halo_mass_filename,
   //                   a_snp, a_min, a_max, _halo_mass)
-  PyObject *py_snps, *bytes_fof, *bytes_halo_mass;
+  PyObject *py_snps, *bytes_fof, *bytes_part, *bytes_halo_mass;
   double a_snp, a_min, a_max;
   
-  if(!PyArg_ParseTuple(args, "OO&O&ddd", &py_snps,
+  if(!PyArg_ParseTuple(args, "OO&O&O&ddd", &py_snps,
 		       PyUnicode_FSConverter, &bytes_fof,
+		       PyUnicode_FSConverter, &bytes_part,
 		       PyUnicode_FSConverter, &bytes_halo_mass,
 		       &a_snp, &a_min, &a_max)) {
     return NULL;
   }
 
-  char *filename_fof, *filename_halo_mass;
+  char *filename_fof, *filename_part, *filename_halo_mass;
   Py_ssize_t len;
 
   PyBytes_AsStringAndSize(bytes_fof, &filename_fof, &len);
+  PyBytes_AsStringAndSize(bytes_part, &filename_part, &len);
   PyBytes_AsStringAndSize(bytes_halo_mass, &filename_halo_mass, &len);
 
   Snapshots* snps= (Snapshots*) PyCapsule_GetPointer(py_snps, "_Snapshots");
@@ -47,7 +49,7 @@ PyObject* py_snapshots_insert(PyObject* self, PyObject* args)
 
   Snapshot* snp;
   try {
-    snp= new Snapshot(filename_fof, filename_halo_mass,
+    snp= new Snapshot(filename_fof, filename_part, filename_halo_mass,
 				a_snp, a_min, a_max);
   }
   catch(const HaloMassFileError) {
@@ -56,10 +58,10 @@ PyObject* py_snapshots_insert(PyObject* self, PyObject* args)
   }
 
   snps->push_back(snp);
-
   
 
   Py_DECREF(bytes_fof);
+  Py_DECREF(bytes_part);
   Py_DECREF(bytes_halo_mass);
 
   Py_RETURN_NONE;
@@ -102,7 +104,7 @@ PyObject* py_snapshots_get(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  return Py_BuildValue("(sddd)", snp->filename,
+  return Py_BuildValue("(sddd)", snp->filename_fof,
 		       snp->a_snp, snp->a_min, snp->a_max);
 }
 

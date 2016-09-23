@@ -28,6 +28,9 @@ def redshift_from_a(a):
     return 1.0/a - 1.0
 
 
+M_min = 1.0e10
+M_max = 4.0e11
+
 #
 # Command-line options
 #
@@ -113,12 +116,16 @@ slice = mock.Slice(remap, sky)
 
 nslice = len(slice)
 
+# mass function
+mfc = MassFunction(
+
 # lightcones
 lightcones = mock.LightCones()
 
 # snapshots
 snapshots = mock.Snapshots()
 fof_dir = param['fof']
+part_dir = param['particle']
 halomass_dir = param['halomass']
 
 # output directory
@@ -134,9 +141,12 @@ for isnp in range(arg.ibegin, arg.iend+1):
     for snp in param['snapshots']:
         abc = snp['abc']
         filename_fof = '%s/%s/fof%05d%s.b' % (fof_dir, abc, isnp, abc)
+        filename_part = '%s/%s/part%05d%s.b' % (part_dir, abc, isnp, abc)
         filename_halo_mass = '%s/halomass_%s.txt' % (halomass_dir, abc)
 
-        snapshots.insert(filename_fof, filename_halo_mass, snp['a'])
+        snapshots.insert(filename_fof, filename_part,filename_halo_mass,
+                         mock.MfCumulative(snp['a'][0]),
+                         snp['Mmin'], snp['Mmax'], snp['a'])
 
     lightcones.create_from_snapshots(snapshots, sky, remap, slice, random)
 

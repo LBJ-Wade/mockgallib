@@ -28,17 +28,7 @@ class MassFunction:
         nu= self.delta_c/(self._D*sigma0)
         return c._mf_f(self._mf, nu)*self.rho_m/M
 
-    def M(self, n, z):
-        """
-        args
-            n  (float): halo number density M(>n)
-            z  (float): redshift
-        Returns
-            M such that M(>n) = n
-        """
-        a = 1.0/(1.0 + z)
-        if self._mfc_a != a:
-            self._mfc = c._mf_cumulative_alloc(a)
-        self._mfc_a = a
+class MfCumulative:
+    def __init__(self, a):
+        self._mfc = c._mf_cumulative_alloc(a)
 
-        return c._mf_cumulative_M(self._mfc, n)

@@ -7,6 +7,7 @@
 class Snapshot {
  public:
   Snapshot(const char filename_fof[],
+	   const char filename_part[],
 	   const char filename_halo_mass[],
 	   const double a_snp, const double a_min, const double a_max);
   ~Snapshot();
@@ -16,7 +17,8 @@ class Snapshot {
   const double a_snp, a_min, a_max;
   float r_min, r_max;
   HaloMassFoF const * halo_mass;
-  char* filename;
+  char* filename_fof;
+  char* filename_part;
 };
 
 class Snapshots: public std::deque<Snapshot*>

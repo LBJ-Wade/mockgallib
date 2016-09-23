@@ -6,13 +6,18 @@
 
 PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
 {
-  // _cola_lightcones_create(_snapshots, _sky, _remap, _slice, _lightcones,
-  //                         _random)
-  PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_lightcones;
+  // _cola_lightcones_create(_snapshots, _sky, _remap, _slice,
+  //                         _mfc, M_min, M_max,
+  //                         _lightcones, _random)
+  PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_mfc,
+    *py_lightcones;
+  double M_min, M_max;
   int random;
   
-  if(!PyArg_ParseTuple(args, "OOOOOi",
-        &py_snapshots, &py_sky, &py_remap, &py_slice, &py_lightcones, &random))
+  if(!PyArg_ParseTuple(args, "OOOOOddOi",
+		       &py_snapshots, &py_sky, &py_remap, &py_slice,
+		       &py_mfc, &M_min, &M_max,
+		       &py_lightcones, &random))
     return NULL;
 
   Snapshots const * const snapshots= (Snapshots*)
@@ -32,8 +37,14 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
   Slice const * const slice= (Slice*) PyCapsule_GetPointer(py_slice, "_Slice");
   py_assert_ptr(slice);
 
+  MfCumulative* const mfc=
+    (MfCumulative*) PyCapsule_GetPointer(py_mfc, "_MfCumulative");
+  py_assert_ptr(mfc);
+
+
   try {
-    cola_lightcones_create(snapshots, sky, remap, slice, lightcones, random);
+    cola_lightcones_create(snapshots, sky, remap, slice, mfc,
+			   M_min, M_max, lightcones, random);
   }
   catch (const ColaFileError e) {
     PyErr_SetString(PyExc_IOError, "Unable to read data");

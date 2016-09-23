@@ -70,10 +70,14 @@ MfCumulative::MfCumulative(const double a) :
   nM_max= nM_array[n-1];
   
   interp= gsl_interp_alloc(gsl_interp_cspline, n);
-  acc= gsl_interp_accel_alloc(); 
-
+  acc= gsl_interp_accel_alloc();
   gsl_interp_init(interp, nM_array, M_array, n);
 
+  interp2= gsl_interp_alloc(gsl_interp_cspline, n);
+  acc2= gsl_interp_accel_alloc();
+  gsl_interp_init(interp, M_array, nM_array, n);
+
+  
   gsl_integration_cquad_workspace_free(w);
   delete mf;
 }
@@ -81,7 +85,9 @@ MfCumulative::MfCumulative(const double a) :
 MfCumulative::~MfCumulative()
 {
   gsl_interp_free(interp);
+  gsl_interp_free(interp2);
   gsl_interp_accel_free(acc);
+  gsl_interp_accel_free(acc2);
 
   free(M_array);
 }
@@ -89,6 +95,11 @@ MfCumulative::~MfCumulative()
 double MfCumulative::M(const double nM)
 {
   return gsl_interp_eval(interp, nM_array, M_array, nM, acc);
+}
+
+double MfCumulative::n_cumulative(const double M)
+{
+  return gsl_interp_eval(interp2, M_array, nM_array, M, acc);
 }
 
 

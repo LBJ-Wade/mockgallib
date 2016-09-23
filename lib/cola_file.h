@@ -8,6 +8,12 @@ void cola_halo_file_open(const char filename[], float* const boxsize);
 int  cola_halo_file_read_one(Halo* const h);
 void cola_halo_file_close();
 
+void cola_part_file_open(const char filename[],
+			 float* const boxsize, int* const np);
+int  cola_part_file_read_one(Halo* const h);
+void cola_part_file_close();
+
+
 class ColaFileError {};
 
 #endif
