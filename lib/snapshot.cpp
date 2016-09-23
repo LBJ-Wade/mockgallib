@@ -16,6 +16,7 @@ Snapshot::Snapshot(const char filename_fof_[],
   r_max= cosmology_compute_comoving_distance(a_min_);
 
   halo_mass= new HaloMassFoF(filename_halo_mass);
+  mfc= new MfCumulative(a_snp_);
 
   int n= strlen(filename_fof_);
   filename_fof= (char*) malloc(n+1);
@@ -33,6 +34,7 @@ Snapshot::~Snapshot()
   free(filename_fof);
   free(filename_part);
   delete halo_mass;
+  delete mfc;
 }
 
 Snapshots::~Snapshots()

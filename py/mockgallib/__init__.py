@@ -14,7 +14,7 @@ import mockgallib.array
 
 from mockgallib._mockgallib import set_loglevel
 from mockgallib._mockgallib import growth_D
-from mockgallib.mf import MassFunction
+from mockgallib.mf import MassFunction, MfCumulative
 from mockgallib.hod import Hod
 from mockgallib.nbar import Nbar, NbarFitting
 from mockgallib.lightcones import LightCones

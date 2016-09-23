@@ -3,6 +3,7 @@
 
 #include <deque>
 #include "halo_mass.h"
+#include "mf_cumulative.h"
 
 class Snapshot {
  public:
@@ -17,6 +18,7 @@ class Snapshot {
   const double a_snp, a_min, a_max;
   float r_min, r_max;
   HaloMassFoF const * halo_mass;
+  MfCumulative const * mfc;
   char* filename_fof;
   char* filename_part;
 };

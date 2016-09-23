@@ -9,14 +9,13 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
   // _cola_lightcones_create(_snapshots, _sky, _remap, _slice,
   //                         _mfc, M_min, M_max,
   //                         _lightcones, _random)
-  PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_mfc,
-    *py_lightcones;
+  PyObject *py_snapshots, *py_sky, *py_remap, *py_slice, *py_lightcones;
   double M_min, M_max;
   int random;
   
-  if(!PyArg_ParseTuple(args, "OOOOOddOi",
+  if(!PyArg_ParseTuple(args, "OOOOddOi",
 		       &py_snapshots, &py_sky, &py_remap, &py_slice,
-		       &py_mfc, &M_min, &M_max,
+		       &M_min, &M_max,
 		       &py_lightcones, &random))
     return NULL;
 
@@ -37,13 +36,8 @@ PyObject* py_cola_lightcones_create(PyObject* self, PyObject* args)
   Slice const * const slice= (Slice*) PyCapsule_GetPointer(py_slice, "_Slice");
   py_assert_ptr(slice);
 
-  MfCumulative* const mfc=
-    (MfCumulative*) PyCapsule_GetPointer(py_mfc, "_MfCumulative");
-  py_assert_ptr(mfc);
-
-
   try {
-    cola_lightcones_create(snapshots, sky, remap, slice, mfc,
+    cola_lightcones_create(snapshots, sky, remap, slice, 
 			   M_min, M_max, lightcones, random);
   }
   catch (const ColaFileError e) {

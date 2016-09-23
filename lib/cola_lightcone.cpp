@@ -35,7 +35,6 @@ static void fill_lightcone_particles(Snapshot const * const snp,
 			      Sky const * const sky,
 			      Remap const * const remap,
 			      Slice const * const slice,
-			      MfCumulative* const mfc,
 			      const float M_min,
 			      const float M_max,
 			      const bool random,
@@ -53,7 +52,6 @@ void cola_lightcones_create(Snapshots const * const snapshots,
 			    Sky const * const sky,
 			    Remap const * const remap,
 			    Slice const * const slice,
-			    MfCumulative* const mfc,
 			    const double M_min, const double M_max,
 			    LightCones* const lightcones,
 			    const bool random)
@@ -78,7 +76,7 @@ void cola_lightcones_create(Snapshots const * const snapshots,
       snp != snapshots->end(); ++snp) {
     
     fill_lightcone_haloes(*snp, sky, remap, slice, M_max, random, lightcones);
-    fill_lightcone_particles(*snp, sky, remap, slice, mfc,
+    fill_lightcone_particles(*snp, sky, remap, slice, 
 			     M_min, M_max, random, lightcones);
   }
 }	   
@@ -168,7 +166,6 @@ void fill_lightcone_particles(Snapshot const * const snp,
 			      Sky const * const sky,
 			      Remap const * const remap,
 			      Slice const * const slice,
-			      MfCumulative* const mfc,
 			      const float M_min,
 			      const float M_max,
 			      const bool random,
@@ -194,6 +191,7 @@ void fill_lightcone_particles(Snapshot const * const snp,
 
   Halo halo;
   Halo* const h= &halo;
+  MfCumulative const * const mfc= snp->mfc;
 
   const float r_min= snp->r_min;
   const float r_max= snp->r_max;
@@ -207,6 +205,8 @@ void fill_lightcone_particles(Snapshot const * const snp,
   const double nM_max= mfc->n_cumulative(M_min);
   const int n= (nM_max - nM_min)*boxsize*boxsize*boxsize;
   assert(n >= 0);
+
+
 
   while(cola_part_file_read_one(h)) {
     // convert nfof to halo mass
