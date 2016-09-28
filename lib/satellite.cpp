@@ -97,6 +97,8 @@ void satellite(Halo const * const h, Particle* const g)
   random_direction(e);
 
   // satellite x v contains only offset from halo
+
+  //cerr << "rsat " << r_sat << endl;
   
   g->x[0] = r_sat*e[0];
   g->x[1] = r_sat*e[1];

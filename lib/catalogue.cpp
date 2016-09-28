@@ -6,6 +6,7 @@
 #include "msg.h"
 #include "hod.h"
 #include "rand.h"
+#include "util.h"
 #include "catalogue.h"
 #include "satellite.h"
 
@@ -160,10 +161,14 @@ void catalogue_generate_mock(Hod* const hod,
     p.x[0]= h->x[0];
     p.x[1]= h->x[1];
     p.x[2]= h->x[2];
-    p.vr  = h->v[0];
     p.z   = h->z;
     p.radec[0] = h->radec[0];
     p.radec[1] = h->radec[1];
+
+    p.M   = h->M;
+    p.rsat = 0.0f;
+    p.vsat = 0.0f;
+    p.vr  = h->v[0];
 
     cat->push_back(p);
     ncen_total++;
@@ -175,7 +180,10 @@ void catalogue_generate_mock(Hod* const hod,
 
     // satellites
     for(int isat=0; isat<nsat; ++isat) {
+      cerr << "satellite\n";
       satellite(&*h, &p);
+      p.rsat = util::norm(p.x);
+      p.vsat = p->v[0];
       p.x[0] += h->x[0];
       p.x[1] += h->x[1];
       p.x[2] += h->x[2];
@@ -190,7 +198,8 @@ void catalogue_generate_mock(Hod* const hod,
   cat->ncen= ncen_total;
   cat->nsat= nsat_total;
 
-  //cerr << ncen_total << " centrals, " << nsat_total << " statellites\n";
+  msg_printf(msg_verbose,
+	     "%d centrals, %d satellites\n", ncen_total, nsat_total);
 }
 
 
@@ -224,6 +233,10 @@ void catalogue_generate_centrals(Hod* const hod,
     p.x[0]= h->x[0];
     p.x[1]= h->x[1];
     p.x[2]= h->x[2];
+    p.rsat = 0.0f;
+    p.vsat = 0.0f;
+
+    p.M   = h->M;
     p.vr  = h->v[0];
     p.z   = h->z;
     p.radec[0] = h->radec[0];
@@ -270,9 +283,13 @@ void catalogue_generate_random(Hod* const hod,
     int iz= (int)((h->z - z_min)/dz); assert(0 <= iz && iz < n_zbin);
     
     if(rand_uniform() <= ncen) {
+      
       p.x[0]= h->x[0];
       p.x[1]= h->x[1];
       p.x[2]= h->x[2];
+      p.M= h->M;
+      p.rsat = 0.0f;
+      p.vsat = 0.0f;
       p.vr  = h->v[0];
       p.z   = h->z;
       p.radec[0] = h->radec[0];
@@ -295,6 +312,8 @@ void catalogue_generate_random(Hod* const hod,
       qsat[iz].pop(hh);
       
       satellite(&hh, &p);
+      p.rsat = util::norm(p->x);
+      p.vsat = p->v[0];
       p.x[0] += h->x[0];
       p.x[1] += h->x[1];
       p.x[2] += h->x[2];

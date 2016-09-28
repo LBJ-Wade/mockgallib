@@ -33,12 +33,15 @@ signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c
 #
 parser = argparse.ArgumentParser()
 parser.add_argument('n', help='index of lightcone')
+parser.add_argument('--reg', default='w1', help='region w1/w4')
+parser.add_argument('--dir', default='.', help='base data directory') 
 parser.add_argument('--param', default='param.json',
                     help='parameter json file')
 parser.add_argument('--random', help='generate random catalogue',
                     action="store_true")
 arg = parser.parse_args()
 
+data_dir = '/Users/junkoda/Research/work/como5/data'
 
 #
 # Read parameter file
@@ -63,38 +66,54 @@ mock.cosmology.set(omega_m)
 # Set HOD parameters
 #
 hod = mock.Hod()
-hod.set_coef([12.0, 0.5, 0, 0, 1.0, 0.0, 13.0, 0.0, 1.5, 0.0])
+hod_param = [11.5659763286151, -1.3653860293894984, 7.372119497149173, -3.905197669231047, 0.4114530081890546, 0.0, 4.480542558267717, 0.0, 1.1909781896845204, 0.0]
+hod.set_coef(hod_param)
+
 
 lightcones = mock.LightCones()
 cats = mock.Catalogues()
 
 n = int(arg.n)
+domain = ('w1', '0.8', '1.0')
+z_min = float(domain[1])
+z_max = float(domain[2])
 
-if arg.random:
-    filename = 'rand_lightcone/lightcone_%05d.h5' % n
-    lightcones.load_h5([filename])
-    cats.generate_randoms(hod, lightcones, 0.4, 1.2)
-    
-    outdir = 'randoms'
-    ofilename = '%s/random_%05d.txt' % (outdir, n)
-else:
-    filename = 'halo_lightcone/lightcone_%05d.h5' % n
-    lightcones.load_h5([filename])
-    cats.generate_galaxies(hod, lightcones, 0.4, 1.2)
+halo_lightcones = mock.LightCones()
+halo_lightcones.load_h5(
+    ['%s/halo_lightcone/%s/lightcone_%05d.h5' % (arg.dir, domain[0], n)])
 
-    outdir = 'mocks'
-    ofilename = '%s/mock_%05d.txt' % (outdir, n)
+rand_lightcones = mock.LightCones()
+rand_lightcones.load_h5(
+    ['%s/rand_lightcone/%s/lightcone_%05d.h5' % (arg.dir, domain[0], n)])
 
+galaxy_catalogues = mock.Catalogues()
+random_catalogues = mock.Catalogues()
 
-if not os.path.exists(outdir):
-    os.mkdir(outdir)
-
-cat = cats[0]
-
-with open(ofilename, 'w') as f:
-    for i in range(cat.shape[0]):
-        f.write('%e %e %e %e\n' % (cat[i,0], cat[i,1], cat[i,2], cat[i,3]))
-
-# x,y,z,redshift
+wp_obs = mock.array.loadtxt(
+    '%s/vipers/run4/0.1/corr_projected_%s_%s_%s.txt' % ((data_dir,) + domain))
         
-print(ofilename, 'written')
+covinv = np.load('%s/vipers/run4/0.1/covinv_%s_%s_%s.npy' %
+                 ((data_dir,) + domain))
+
+galaxy_catalogues.generate_galaxies(hod, halo_lightcones, z_min, z_max)
+random_catalogues.generate_randoms(hod,  rand_lightcones, z_min, z_max)
+
+
+
+with open('mock.txt', 'w') as f:
+    a = galaxy_catalogues[0]
+    print(a.shape)
+    for i in range(a.shape[0]):
+        f.write('%e %e %e %e %e %e\n' % (a[i,0], a[i,1], a[i,2], a[i,3],
+                                   a[i,7], a[i,10]))
+
+    
+# Column 1: x
+# Column 2: y
+# Column 3: z
+# Column 4: redshift
+# Column 5: M
+# Column 6: r satellite
+                
+        
+print('mock.txt written')

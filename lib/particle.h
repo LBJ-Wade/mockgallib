@@ -9,6 +9,7 @@ struct Particle {
   float M;
   float w;
   float flag;
+  float rsat, vsat;
 };
 
 #endif

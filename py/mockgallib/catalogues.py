@@ -22,6 +22,8 @@ class Catalogues:
         Column 7:   M;
         Column 8:   w;
         Column 9:   flag;
+        Column 10:  r satellite
+        Column 11:  v satellite
         """
         n = len(self)
         if i < 0 or i >= n:

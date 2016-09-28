@@ -9,6 +9,7 @@ struct Halo {
   int slice;
   float a; // scale factor of the snapshot
   float rs; // NFW rs, physical 1/h kpc
+  //float rsat, vsat;
   float z; // redshift at radius r
 };
 
