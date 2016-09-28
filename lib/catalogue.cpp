@@ -180,7 +180,6 @@ void catalogue_generate_mock(Hod* const hod,
 
     // satellites
     for(int isat=0; isat<nsat; ++isat) {
-      cerr << "satellite\n";
       satellite(&*h, &p);
       p.rsat = util::norm(p.x);
       p.vsat =  p.vr;

@@ -126,7 +126,8 @@ class Data:
 
         # VIPERS projected correlation function
         self.wp_obs = mock.array.loadtxt(
-            '%s/data/vipers/run4/0.1/corr_projected_%s_%s_%s.txt' % ((arg.dir,) +domain))
+            '%s/data/vipers/run4/0.1/corr_projected_%s_%s_%s.txt' % ((arg.dir,) +domain))[:,1]
+        
         
         if mock.comm.rank == 0:
             self.covinv = np.load('%s/data/vipers/run4/0.1/covinv_%s_%s_%s.npy'\
@@ -161,7 +162,7 @@ class Data:
         chi2 = 0.0;
 
         if mock.comm.rank == 0:
-             chi2 = np.dot(wp, self.covinv.dot(wp))
+             chi2 = np.dot(wp - self.wp_obs, self.covinv.dot(wp - self.wp_obs))
 
         print0('chi2 %f / %d' % (chi2, len(wp)))
 
