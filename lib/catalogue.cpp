@@ -183,7 +183,7 @@ void catalogue_generate_mock(Hod* const hod,
       cerr << "satellite\n";
       satellite(&*h, &p);
       p.rsat = util::norm(p.x);
-      p.vsat = p->v[0];
+      p.vsat =  p.vr;
       p.x[0] += h->x[0];
       p.x[1] += h->x[1];
       p.x[2] += h->x[2];
@@ -312,8 +312,8 @@ void catalogue_generate_random(Hod* const hod,
       qsat[iz].pop(hh);
       
       satellite(&hh, &p);
-      p.rsat = util::norm(p->x);
-      p.vsat = p->v[0];
+      p.rsat = util::norm(p.x);
+      p.vsat = p.vr;
       p.x[0] += h->x[0];
       p.x[1] += h->x[1];
       p.x[2] += h->x[2];
