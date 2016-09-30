@@ -62,27 +62,20 @@ class Hod:
 
     def logMmin(self, z):
         """logMmin(z)"""
-        x = z - self.z0
-        co = self.get_coef()
-        return co[0] + co[1]*x + co[2]*x**2 + co[3]*x**3
+        return c._hod_compute_logMmin(self._hod, z)
 
     def sigma(self, z):
         """sigma(z)"""
-        x = z - self.z0
-        co = self.get_coef()
-        return co[4] + co[5]*x
+        return c._hod_compute_sigma(self._hod, z)
+
 
     def logM1(self, z):
         """M1(z)/M_min"""
-        x = z - self.z0
-        co = self.get_coef()
-        return co[6] + co[7]*math.pow(x, co[10])
+        return math.log10(c._hod_compute_M1(self._hod, z))
 
     def alpha(self, z):
         """alpha(z)"""
-        x = z - self.z0
-        co = self.get_coef()
-        return co[8] + co[9]*x
+        return c._hod_compute_alpha(self._hod, z)
 
     def ncen(self, M, z):
         """ncen(M, z): probability of having a central galaxy"""

@@ -8,14 +8,30 @@ struct Hod {
  public:
   static const int n=11;
   Hod(const double z0_ = 0.5);
+
+  double compute_logMmin(const double z) const {
+    double x= z - z0;
+    return c[0] + (c[1] + (c[2] + c[3]*x)*x)*x;
+  }
+  double compute_sigma(const double z) const {
+    double x= z - z0;
+    return c[4] + c[5]*x;
+  }
+  double compute_M1(const double z) const {
+    double x= z - z0;
+    return pow(10.0, logMmin + c[6] + c[7]*pow(x, c[10]));
+  }
+  double compute_alpha(const double z) const {
+    double x= z - z0;
+    return c[8] + c[9]*x;
+  }
   
   void compute_param_z(const double z) {
-    double x= z - z0;
-    logMmin= c[0] + (c[1] + (c[2] + c[3]*x)*x)*x;
-    sigma=   c[4] + c[5]*x;
+    logMmin= compute_logMmin(z);
+    sigma=   compute_sigma(z);
     M0=      pow(10.0, logMmin);
-    M1=      pow(10.0, logMmin + c[6] + c[7]*pow(x, c[10]));
-    alpha=   c[8] + c[9]*x;
+    M1=      compute_M1(z);
+    alpha=   compute_alpha(z);
   }
     
   double ncen(const double M) const {
