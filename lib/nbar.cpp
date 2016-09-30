@@ -31,7 +31,8 @@ NbarIntegration::NbarIntegration(NbarIntegration const * const ni)
 {
   // use same setting as ni (for different redshift)
   w= ni->w;
-  mf= ni->mf;
+  //mf= ni->mf;
+  mf= new MF();
   hod= ni->hod;
   rho_m= ni->rho_m;
   D= 0.0;

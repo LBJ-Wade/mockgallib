@@ -234,9 +234,9 @@ def write_nbar_fitting(nz, nbar1, index):
     with open(filename, 'w') as f:
         for i in range(len(nz)):
             ncen = nbar1.ncen(nz.z[i])
-            nsat = nbar1.ncen(nz.z[i])
+            nsat = nbar1.nsat(nz.z[i])
             f.write('%e %e %e %e %e\n' %
-                    (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i], ncen, nbar))
+                    (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i], ncen, nsat))
 
 
 def write_hod_params(h, index):
