@@ -126,3 +126,15 @@ PyObject* py_hod_nsat(PyObject* self, PyObject* args)
 
   return Py_BuildValue("d", nsat);
 }
+
+PyObject* py_hod_get_z0(PyObject* self, PyObject* args)
+{
+  PyObject* py_hod;
+  if(!PyArg_ParseTuple(args, "O", &py_hod))
+    return NULL;
+
+  Hod* const hod=
+    (Hod*) PyCapsule_GetPointer(py_hod, "_HOD");
+
+  return Py_BuildValue("d", hod->z0);
+}

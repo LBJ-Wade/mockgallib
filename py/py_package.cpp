@@ -108,8 +108,10 @@ static PyMethodDef methods[] = {
   {"_hod_ncen", py_hod_ncen, METH_VARARGS,
    "py_hod_ncen(_hod, M, z); mean number of central galaxies"},
   {"_hod_nsat", py_hod_nsat, METH_VARARGS,
-   "py_hod_nsat(_hod, M, z); mean number of satellite galaxies"},
-
+   "_hod_nsat(_hod, M, z); mean number of satellite galaxies"},
+  {"_hod_get_z0", py_hod_get_z0, METH_VARARGS,
+   "_hod_get_z0(_hod)"},
+  
   {"_nbar_alloc", py_nbar_alloc, METH_VARARGS,
    "_nbar_alloc(_ps, _hod); allocate an nbar integration object"},
   {"_nbar_compute", py_nbar_compute, METH_VARARGS,

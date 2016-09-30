@@ -26,8 +26,8 @@ struct Hod {
     return M <= M0 ? 0.0 : pow((M - M0)/M1, alpha);
   }
   double c[n];
- private:  
   const double z0;
+ private:  
   double logMmin, sigma, M0, M1, alpha;
 };
 

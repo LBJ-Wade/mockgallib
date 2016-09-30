@@ -31,6 +31,7 @@ class Hod:
         else:
             z0 = kwargs.get('z0', 0.5)
             self._hod = c._hod_alloc(z0)
+        self.z0 = c._hod_get_z0(self._hod)
 
     def __repr__(self):
         return "HOD coef = " + self.get_coef().__repr__()
@@ -61,25 +62,25 @@ class Hod:
 
     def logMmin(self, z):
         """logMmin(z)"""
-        x = z - 0.5
+        x = z - self.z0
         co = self.get_coef()
         return co[0] + co[1]*x + co[2]*x**2 + co[3]*x**3
 
     def sigma(self, z):
         """sigma(z)"""
-        x = z - 0.5
+        x = z - self.z0
         co = self.get_coef()
         return co[4] + co[5]*x
 
     def logM1(self, z):
         """M1(z)/M_min"""
-        x = z - 0.5
+        x = z - self.z0
         co = self.get_coef()
         return co[6] + co[7]*x
 
     def alpha(self, z):
         """alpha(z)"""
-        x = z - 0.5
+        x = z - self.z0
         co = self.get_coef()
         return co[8] + co[9]*x
 
