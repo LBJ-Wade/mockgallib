@@ -61,7 +61,7 @@ class Hod:
         return c._hod_get_coef_all(self._hod)
 
     def logMmin(self, z):
-        """logMmin(z)"""
+        """log10 Mmin(z)"""
         return c._hod_compute_logMmin(self._hod, z)
 
     def sigma(self, z):
@@ -70,7 +70,7 @@ class Hod:
 
 
     def logM1(self, z):
-        """M1(z)/M_min"""
+        """log10 M1(z)"""
         return math.log10(c._hod_compute_M1(self._hod, z))
 
     def alpha(self, z):

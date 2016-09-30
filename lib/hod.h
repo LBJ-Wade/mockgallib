@@ -19,7 +19,7 @@ struct Hod {
   }
   double compute_M1(const double z) const {
     double x= z - z0;
-    return pow(10.0, logMmin + c[6] + c[7]*pow(x, c[10]));
+    return pow(10.0, compute_logMmin(z) + c[6] + c[7]*pow(x, c[10]));
   }
   double compute_alpha(const double z) const {
     double x= z - z0;
