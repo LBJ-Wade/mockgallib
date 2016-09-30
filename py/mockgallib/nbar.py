@@ -3,8 +3,8 @@ from mockgallib.hod import Hod
 
 class Nbar:
     """Nbar(ps, hod): compute nbar(z) from power spectrum ps and HOD hod"""
-    def __init__(self, ps, hod):
-        self._ni= c._nbar_alloc(ps._ps, hod._hod)
+    def __init__(self, hod):
+        self._ni= c._nbar_alloc(hod._hod)
 
     def __repr__(self):
         return "nbar integration object"
@@ -12,6 +12,15 @@ class Nbar:
     def __call__(self, z):        
         """compute nbar(z)"""
         return c._nbar_compute(self._ni, z)
+
+    def n(self, z):
+        return c._nbar_compute(self._ni, z)
+
+    def ncen(self, z):
+        return c._nbar_ncen_compute(self._ni, z)
+
+    def nsat(self, z):
+        return c._nbar_nsat_compute(self._ni, z)
 
 class NbarFitting:
     """Class for fitting HOD logMmin(z) coefficients to fit nbar(z)"""

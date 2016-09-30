@@ -5,5 +5,6 @@
 
 PyObject* py_nbar_alloc(PyObject* self, PyObject* args);
 PyObject* py_nbar_compute(PyObject* self, PyObject* args);
-
+PyObject* py_nbar_ncen_compute(PyObject* self, PyObject* args);
+PyObject* py_nbar_nsat_compute(PyObject* self, PyObject* args);
 #endif

@@ -22,9 +22,6 @@
 using namespace std;
 using namespace boost::program_options;
 
-static double integrand_n_hod(double nu, void* params);
-
-
 NbarIntegration::NbarIntegration()
 {
 
@@ -98,7 +95,7 @@ void nbar_read(const char filename[], const double z_min, const double z_max,
     p->dnbar= p->nbar; // relative error
 }
 
-double integrand_n_hod(double nu, void* params)
+static double integrand_n_hod(double nu, void* params)
 {
   // Returns number density dn/dnu of HOD parameters
   // requirement: D computed for z
@@ -116,6 +113,27 @@ double integrand_n_hod(double nu, void* params)
  return ni->hod->ncen(M)*(1.0 + ni->hod->nsat(M))*
         ni->mf->f(nu)*ni->rho_m/M;
 }
+
+static double integrand_ncen_hod(double nu, void* params)
+{
+  NbarIntegration* const ni= (NbarIntegration*) params;
+  
+  const double sigma0= c::delta_c/(ni->D*nu);
+  const double M= sigma_M(sigma0);
+
+ return ni->hod->ncen(M)*ni->mf->f(nu)*ni->rho_m/M;
+}
+
+static double integrand_nsat_hod(double nu, void* params)
+{
+  NbarIntegration* const ni= (NbarIntegration*) params;
+  
+  const double sigma0= c::delta_c/(ni->D*nu);
+  const double M= sigma_M(sigma0);
+
+ return ni->hod->ncen(M)*ni->hod->nsat(M)*ni->mf->f(nu)*ni->rho_m/M;
+}
+
 
 /*
 void nbar_compute_nz(const double c[], vector<Nbar>* const v)
@@ -170,3 +188,60 @@ double nbar_compute(NbarIntegration* const ni, const double z)
   return result;
 }
 
+double nbar_ncen_compute(NbarIntegration* const ni, const double z)
+{
+  // Computes number density of HOD galaxies from HOD parameters 'hod'
+  // n = \int P(n|HOD)*n(M) dnu
+
+  const double a= 1.0/(1.0 + z);
+
+  ni->hod->compute_param_z(z);
+
+  if(ni->D == 0.0 || ni->z != z) {
+    ni->mf->set_redshift(a);    
+    ni->D= growth_D(a);
+    ni->z= z;
+  }
+
+  gsl_function F;
+  F.function= &integrand_ncen_hod;
+  F.params= (void*) ni;
+
+  const double nu_min= c::delta_c*sigma_sinv_min()/ni->D;
+  const double nu_max= c::delta_c*sigma_sinv_max()/ni->D;
+
+  double result;
+  gsl_integration_cquad(&F, nu_min, nu_max, 1.0e-5, 1.0e-5, ni->w,
+			&result, 0, 0);
+
+  return result;
+}
+
+double nbar_nsat_compute(NbarIntegration* const ni, const double z)
+{
+  // Computes number density of HOD galaxies from HOD parameters 'hod'
+  // n = \int P(n|HOD)*n(M) dnu
+
+  const double a= 1.0/(1.0 + z);
+
+  ni->hod->compute_param_z(z);
+
+  if(ni->D == 0.0 || ni->z != z) {
+    ni->mf->set_redshift(a);    
+    ni->D= growth_D(a);
+    ni->z= z;
+  }
+
+  gsl_function F;
+  F.function= &integrand_nsat_hod;
+  F.params= (void*) ni;
+
+  const double nu_min= c::delta_c*sigma_sinv_min()/ni->D;
+  const double nu_max= c::delta_c*sigma_sinv_max()/ni->D;
+
+  double result;
+  gsl_integration_cquad(&F, nu_min, nu_max, 1.0e-5, 1.0e-5, ni->w,
+			&result, 0, 0);
+
+  return result;
+}

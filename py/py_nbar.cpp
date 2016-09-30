@@ -6,7 +6,7 @@ static void py_nbar_free(PyObject *obj);
 
 PyObject* py_nbar_alloc(PyObject* self, PyObject* args)
 {
-  // _nbar_alloc(_ps, _hod)
+  // _nbar_alloc(_hod)
   
   PyObject *py_hod;
   if(!PyArg_ParseTuple(args, "O", &py_hod))
@@ -44,6 +44,40 @@ PyObject* py_nbar_compute(PyObject* self, PyObject* args)
     (NbarIntegration*) PyCapsule_GetPointer(py_ni, "_NbarIntegration");
 
   double nbar= nbar_compute(ni, z);
+
+  return Py_BuildValue("d", nbar);
+}
+
+PyObject* py_nbar_ncen_compute(PyObject* self, PyObject* args)
+{
+  // _nbar_ncen_compute(_ni)
+
+  PyObject* py_ni;
+  double z;
+  if(!PyArg_ParseTuple(args, "Od", &py_ni, &z))
+    return NULL;
+
+  NbarIntegration* const ni=
+    (NbarIntegration*) PyCapsule_GetPointer(py_ni, "_NbarIntegration");
+
+  double nbar= nbar_ncen_compute(ni, z);
+
+  return Py_BuildValue("d", nbar);
+}
+
+PyObject* py_nbar_nsat_compute(PyObject* self, PyObject* args)
+{
+  // _nbar_compute(_ni)
+
+  PyObject* py_ni;
+  double z;
+  if(!PyArg_ParseTuple(args, "Od", &py_ni, &z))
+    return NULL;
+
+  NbarIntegration* const ni=
+    (NbarIntegration*) PyCapsule_GetPointer(py_ni, "_NbarIntegration");
+
+  double nbar= nbar_nsat_compute(ni, z);
 
   return Py_BuildValue("d", nbar);
 }

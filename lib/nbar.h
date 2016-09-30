@@ -27,5 +27,7 @@ struct NbarIntegration {
 NbarIntegration* nbar_integration_alloc(Hod* const hod);
 void nbar_integration_free(NbarIntegration* const ni);
 double nbar_compute(NbarIntegration* const ni, const double z);
+double nbar_ncen_compute(NbarIntegration* const ni, const double z);
+double nbar_nsat_compute(NbarIntegration* const ni, const double z);
 
 #endif

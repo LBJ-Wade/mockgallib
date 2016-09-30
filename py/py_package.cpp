@@ -124,6 +124,10 @@ static PyMethodDef methods[] = {
    "_nbar_alloc(_ps, _hod); allocate an nbar integration object"},
   {"_nbar_compute", py_nbar_compute, METH_VARARGS,
    "_nbar_compute(_ni, z); compute nbar(z)"},
+  {"_nbar_ncen_compute", py_nbar_ncen_compute, METH_VARARGS,
+   "_nbar_ncen_compute(_ni, z); compute ncen_bar(z)"},
+  {"_nbar_nsat_compute", py_nbar_nsat_compute, METH_VARARGS,
+   "_nbar_nsat_compute(_ni, z); compute nsat_bar(z)"},
 
   {"_nbar_fitting_alloc", py_nbar_fitting_alloc, METH_VARARGS,
    "_nbar_fitting_alloc(_ps, _hod, array_obs, z_min, z_max); allocate an nbar fitting object"},

@@ -212,12 +212,13 @@ hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 1.5, 0.0, 1.5, 0.0, 3.0])
 # Setup HOD parameter fitting
 #
 nbar= mock.NbarFitting(hod, nbar_obs, 0.6, 1.2)
+nbar1 = mock.Nbar(hod)
 
 #
 # Setup output
 #
 
-def write_nbar_fitting(nz, index):
+def write_nbar_fitting(nz, nbar1, index):
     """Write nbar_fitting to an ascii file
     Args:
         nz: NbarFitting object
@@ -232,7 +233,10 @@ def write_nbar_fitting(nz, index):
     filename = '%s/nz_%05d.txt' % (outdir, index)
     with open(filename, 'w') as f:
         for i in range(len(nz)):
-                f.write('%e %e %e\n' % (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i]))
+            ncen = nbar1.ncen(nz.z[i])
+            nsat = nbar1.ncen(nz.z[i])
+            f.write('%e %e %e %e %e\n' %
+                    (nz.z[i], nz.nbar_obs[i], nz.nbar_hod[i], ncen, nbar))
 
 
 def write_hod_params(h, index):
@@ -328,7 +332,7 @@ def logging_minimization(x):
 
         for domain, d in data.items():
             d.write_corr_projected(iter)
-        write_nbar_fitting(nbar, iter)
+        write_nbar_fitting(nbar, nbar1, iter)
         write_hod_params(hod, iter)
 
     return chi2_total

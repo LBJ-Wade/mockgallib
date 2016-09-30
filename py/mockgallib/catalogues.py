@@ -66,6 +66,6 @@ class Catalogues:
         c._catalogues_append(self._cats, arr, z_min, z_max)
 
     def ngal(self):
-        """Return number of galaxies
+        """Return number of galaxies (ncen, nsat)
         """
         return c._catalogues_ngal(self._cats)

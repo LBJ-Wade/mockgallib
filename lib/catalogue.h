@@ -25,6 +25,7 @@ class Catalogues: public std::deque<Catalogue*> {
   Catalogues(const size_t ncat);
   ~Catalogues();
   void allocate(const size_t ncat);
+  //double ngal(double* ncen= 0, double* nsat= 0) const;
 };
 
 void catalogue_init();
