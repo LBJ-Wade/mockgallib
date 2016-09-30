@@ -13,6 +13,9 @@ HOD coeffficients:
 
 class Hod:
     """HOD parameters as a function of z parameterised by coefficients c
+    Args:
+        HOD([hod], z0=z0)
+        z0 (float): reference redshift z0, sum_n c_n (z - z0)^n
     Attributes:
         hod[i]    : HOD coeffcient c[i]
         logMmin(z): HOD parameter log_10 Mmin
@@ -22,11 +25,12 @@ class Hod:
         ncen(M, z): mean number of central galaxy per halo
         nsat(M, z): mean number of satellite galaxies per halo
     """
-    def __init__(self, _hod=None):
+    def __init__(self, _hod=None, **kwargs):
         if _hod:
             self._hod = _hod
         else:
-            self._hod = c._hod_alloc()
+            z0 = kwargs.get('z0', 0.5)
+            self._hod = c._hod_alloc(z0)
 
     def __repr__(self):
         return "HOD coef = " + self.get_coef().__repr__()

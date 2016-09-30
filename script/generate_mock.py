@@ -41,7 +41,7 @@ parser.add_argument('--random', help='generate random catalogue',
                     action="store_true")
 arg = parser.parse_args()
 
-data_dir = '/Users/junkoda/Research/work/como5/data'
+data_dir = '/workplace/wp2e/como5/data'
 
 #
 # Read parameter file
@@ -60,7 +60,10 @@ print('Setting cosmology: omega_m= %.4f' % omega_m)
 #
 mock.set_loglevel(0)
 mock.cosmology.set(omega_m)
+mock.power.init(arg.dir + '/' + param['power_spectrum'])
 
+# nz
+nbar_obs=  mock.array.loadtxt(arg.dir + '/' + param['nz'])
 
 #
 # Set HOD parameters
@@ -68,8 +71,11 @@ mock.cosmology.set(omega_m)
 hod = mock.Hod()
 hod_param = [11.5659763286151, -1.3653860293894984, 7.372119497149173, -3.905197669231047, 0.4114530081890546, 0.0, 4.480542558267717, 0.0, 1.1909781896845204, 0.0]
 hod.set_coef(hod_param)
+nbar= mock.NbarFitting(hod, nbar_obs, 0.6, 1.2)
 
-
+x0 = [1.0, 0.15, 1.0]
+nbar.fit()
+    
 lightcones = mock.LightCones()
 cats = mock.Catalogues()
 
@@ -117,3 +123,7 @@ with open('mock.txt', 'w') as f:
                 
         
 print('mock.txt written')
+
+with open('nz.txt', 'w') as f:
+    for i in range(len(nbar)):
+        f.write('%e %e %e\n' % (nbar.z[i], nbar.nbar_obs[i], nbar.nbar_hod[i]))

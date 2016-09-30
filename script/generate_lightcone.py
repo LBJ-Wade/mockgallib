@@ -20,16 +20,15 @@ import sys
 import os
 import argparse
 import json
+import signal
 import numpy as np
 import mockgallib as mock
 
+signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c
 
 def redshift_from_a(a):
     return 1.0/a - 1.0
 
-
-M_min = 1.0e10
-M_max = 4.0e11
 
 #
 # Command-line options
@@ -75,7 +74,7 @@ mock.cosmology.set(omega_m)
 
 # power spectrum
 mock.power.init(param['power_spectrum'])
-mock.sigma.init()
+mock.sigma.init(M_min=9.0e9)
 
 # Random
 if arg.random:
@@ -116,9 +115,6 @@ slice = mock.Slice(remap, sky)
 
 nslice = len(slice)
 
-# mass function
-mfc = MassFunction(
-
 # lightcones
 lightcones = mock.LightCones()
 
@@ -131,6 +127,12 @@ halomass_dir = param['halomass']
 # output directory
 if not os.path.exists(out_dir):
     os.mkdir(out_dir)
+
+if not os.path.exists(out_dir + '/w1'):
+    os.mkdir(out_dir + '/w1')
+
+if not os.path.exists(out_dir + '/w4'):
+    os.mkdir(out_dir + '/w4')
 
 for isnp in range(arg.ibegin, arg.iend+1):
     print(isnp)
@@ -145,7 +147,6 @@ for isnp in range(arg.ibegin, arg.iend+1):
         filename_halo_mass = '%s/halomass_%s.txt' % (halomass_dir, abc)
 
         snapshots.insert(filename_fof, filename_part,filename_halo_mass,
-                         mock.MfCumulative(snp['a'][0]),
                          snp['Mmin'], snp['Mmax'], snp['a'])
 
     lightcones.create_from_snapshots(snapshots, sky, remap, slice, random)
@@ -153,6 +154,6 @@ for isnp in range(arg.ibegin, arg.iend+1):
     print('Write lightcones')
     for islice, lightcone in enumerate(lightcones):
         iout = nslice*(isnp - isnp0) + islice + 1
-        filename = '%s/lightcone_%05d.h5' % (out_dir, iout)
+        filename = '%s/%s/lightcone_%05d.h5' % (out_dir, arg.reg, iout)
         print(filename)
         lightcone.save_h5(filename)

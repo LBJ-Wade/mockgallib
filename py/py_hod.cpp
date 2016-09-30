@@ -5,7 +5,11 @@ static void py_hod_free(PyObject *obj);
 
 PyObject* py_hod_alloc(PyObject* self, PyObject* args)
 {
-  Hod* hod= new Hod();
+  double z0;
+  if(!PyArg_ParseTuple(args, "d", &z0))
+    return NULL;
+
+  Hod* hod= new Hod(z0);
 
   return PyCapsule_New(hod, "_HOD", py_hod_free);
 }

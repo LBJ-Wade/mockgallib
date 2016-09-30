@@ -7,7 +7,8 @@
 // logM1   = c6 + c7*x
 // alpha   = c8 + c9*x
 
-Hod::Hod()
+Hod::Hod(const double z0_) :
+  z0(z0_)
 {
   // Initial guess
   c[0]= 12.0;
@@ -22,6 +23,6 @@ Hod::Hod()
   c[9]= 0.0;
 }
 
-const double Hod::z0= 0.5;
+//const double Hod::z0= 0.5;
 
 

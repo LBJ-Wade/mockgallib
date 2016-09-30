@@ -7,7 +7,7 @@
 struct Hod {
  public:
   static const int n=10;
-  Hod();
+  Hod(const double z0_ = 0.5);
   
   void compute_param_z(const double z) {
     double x= z - z0;
@@ -27,7 +27,7 @@ struct Hod {
   }
   double c[n];
  private:  
-  static const double z0;
+  const double z0;
   double logMmin, sigma, M0, M1, alpha;
 };
 
