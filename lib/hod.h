@@ -6,7 +6,7 @@
 
 struct Hod {
  public:
-  static const int n=10;
+  static const int n=11;
   Hod(const double z0_ = 0.5);
   
   void compute_param_z(const double z) {
@@ -14,7 +14,7 @@ struct Hod {
     logMmin= c[0] + (c[1] + (c[2] + c[3]*x)*x)*x;
     sigma=   c[4] + c[5]*x;
     M0=      pow(10.0, logMmin);
-    M1=      pow(10.0, logMmin + c[6] + c[7]*x);
+    M1=      pow(10.0, logMmin + c[6] + c[7]*pow(x, c[10]));
     alpha=   c[8] + c[9]*x;
   }
     

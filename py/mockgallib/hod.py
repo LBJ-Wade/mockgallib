@@ -1,12 +1,12 @@
 import mockgallib._mockgallib as c
-
+import math
 
 """HOD class
 
 HOD coeffficients:
         log10 M_min = c[0] + c[1]*x + c[2]*x**2 + c[3]*x**3
         sigma       = c[4] + c[5]*x
-        M1    = (c[6] + c[7]*x)*M_min
+        M1    = (c[6] + c[7]*x**c[10])*M_min
         alpha       = c[8] + c[9]*x
 """
 
@@ -76,7 +76,7 @@ class Hod:
         """M1(z)/M_min"""
         x = z - self.z0
         co = self.get_coef()
-        return co[6] + co[7]*x
+        return co[6] + co[7]*math.pow(x, co[10])
 
     def alpha(self, z):
         """alpha(z)"""

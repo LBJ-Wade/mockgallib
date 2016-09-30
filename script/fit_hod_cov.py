@@ -24,6 +24,7 @@ parser.add_argument('--dir', default='.', help='base directory')
 parser.add_argument('--outdir', default='log', help='output directory')
 parser.add_argument('--loglevel', default='0', help='loglevel')
 parser.add_argument('--test', default=False, action='store_true', help='compute one chi2 for given parameter')
+parser.add_argument('--x0', default="1.0,0.15,1.0", help='initial parameters')
 
 arg = parser.parse_args()
 outdir = arg.outdir
@@ -76,7 +77,15 @@ if mock.comm.rank == 0:
     if not os.path.exists(outdir):
         os.mkdir(outdir)
 
-    flog = open('%s/fit_hod.log' % outdir, 'w', 1)
+    if arg.test:
+        for i in range(1000):
+            filename = '%s/nz_%05d.txt' % (outdir, i)
+            if not os.path.isfile(filename):
+                break
+        iter = i
+        flog = open('%s/fit_hod.log' % outdir, 'a', 1)
+    else:
+        flog = open('%s/fit_hod.log' % outdir, 'w', 1)
 
 
 
@@ -165,7 +174,8 @@ class Data:
              chi2 = np.dot(wp - self.wp_obs, self.covinv.dot(wp - self.wp_obs))
 
         print0('chi2 %f / %d' % (chi2, len(wp)))
-
+        self.x2 = chi2
+        
         return chi2
 
 
@@ -184,6 +194,7 @@ class Data:
 domains = []
 for zbin in redshift_bins:
     domains.append(('w1', zbin[0], zbin[1]))
+    domains.append(('w4', zbin[0], zbin[1]))
 data = {}
 
 for domain in domains:
@@ -192,7 +203,8 @@ for domain in domains:
 #
 # Set HOD parameters (initial guess)
 #
-hod = mock.Hod()
+z0 = 0.9
+hod = mock.Hod(z0=z0)
 hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 1.5, 0.0, 1.5, 0.0])
 
 
@@ -263,8 +275,9 @@ def cost_function(x):
     """
 
     hod[6] = x[0]  #log10 M1 = log10 (M_min + c_6 + c_7*(z - z_0)
-    hod[4] = x[1] # sigma
-    hod[8] = x[2] # alpha
+    hod[7] = x[1] # sigma
+    hod[4] = x[2] # sigma
+    hod[8] = x[3] # alpha
 
     print0('eval', x)
     
@@ -291,8 +304,9 @@ def logging_minimization(x):
     iter += 1
 
     hod[6] = x[0] #log10 M1 = log10 (M_min + c_6 + c_7*(z - z_0)
-    hod[4] = x[1] # sigma
-    hod[8] = x[2] # alpha
+    hod[7] = x[1] #log10 M1 = log10 (M_min + c_6 + c_7*(z - z_0)
+    hod[4] = x[2] # sigma
+    hod[8] = x[3] # alpha
 
     # Find best fitting logMmin(z) function
     nbar.fit()
@@ -317,20 +331,48 @@ def logging_minimization(x):
         write_nbar_fitting(nbar, iter)
         write_hod_params(hod, iter)
 
+    return chi2_total
+#
+#x0 = [ float(x) for x in arg.x0.split(',') ]
+#print(x0)
 
-x0 = [1.0, 0.15, 1.0]
-ss = [0.1, 0.02, 0.05]
+x0 = [1.0, 1.0, 0.15, 1.0]
+ss = [0.1, 0.1, 0.02, 0.05]
 
 if arg.test:
+    x = x0
     print('test run at x= ', x0)
-    logging_minimization(x0)
 else:
     x = mock.minimise(cost_function, logging_minimization, x0, ss)
     print0('minimum', x)
 
+chi2_final= logging_minimization(x)
 print0(hod)
 
 
+
+#
+# Write hod.json
+#
+
+if mock.rank == 0:
+    domains_json = []
+    for domain in domains:
+        d = data[domain]
+        domains_json.append({
+            'reg': domain[0], 'zmin': domain[1], 'zmax': domain[2],
+            'chi2': d.x2})
+
+    hod_json = {
+        'z0': z0,
+        'c': hod.coef,
+        'domains': domains_json,
+        'chi2': chi2_final
+        }
+    }
+
+    with open('fit_hod.json', 'w') as f:
+        json.dump(hod_json, f)
 
 if flog:
     flog.close()

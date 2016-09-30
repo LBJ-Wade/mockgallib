@@ -22,6 +22,7 @@ Hod::Hod(const double z0_) :
   c[7]= 0.0;
   c[8]= 1.5;
   c[9]= 0.0;
+  c[10]= 1.0;
 
   msg_printf(msg_verbose, "HOD z0= %f\n", z0);
 }
