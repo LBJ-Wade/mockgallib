@@ -111,7 +111,7 @@ static PyMethodDef methods[] = {
    "_hod_nsat(_hod, M, z); mean number of satellite galaxies"},
   {"_hod_get_z0", py_hod_get_z0, METH_VARARGS,
    "_hod_get_z0(_hod)"},
-  {"_hod_compute_logMMin", py_hod_compute_logMmin, METH_VARARGS,
+  {"_hod_compute_logMmin", py_hod_compute_logMmin, METH_VARARGS,
    "_hod_compute_logMmin(_hod, z)"},
   {"_hod_compute_M1", py_hod_compute_M1, METH_VARARGS,
    "_hod_compute_M1(_hod, z)"},
