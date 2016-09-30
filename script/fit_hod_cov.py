@@ -203,9 +203,9 @@ for domain in domains:
 #
 # Set HOD parameters (initial guess)
 #
-z0 = 0.9
+z0 = 0.5
 hod = mock.Hod(z0=z0)
-hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 1.5, 0.0, 1.5, 0.0])
+hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 1.5, 0.0, 1.5, 0.0, 3.0])
 
 
 #
@@ -355,7 +355,7 @@ print0(hod)
 # Write hod.json
 #
 
-if mock.rank == 0:
+if mock.comm.rank == 0:
     domains_json = []
     for domain in domains:
         d = data[domain]
@@ -368,7 +368,6 @@ if mock.rank == 0:
         'c': hod.coef,
         'domains': domains_json,
         'chi2': chi2_final
-        }
     }
 
     with open('fit_hod.json', 'w') as f:
