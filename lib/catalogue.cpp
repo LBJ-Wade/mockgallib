@@ -188,7 +188,7 @@ void catalogue_generate_mock(Hod* const hod,
       p.x[2] += h->x[2];
       p.z     = h->z;
       p.vr   += h->v[0];
-      p.radec[0] = h->radec[1];
+      p.radec[0] = h->radec[0];
       p.radec[1] = h->radec[1];
 
       cat->push_back(p);
@@ -318,7 +318,7 @@ void catalogue_generate_random(Hod* const hod,
       p.x[2] += h->x[2];
       p.z     = h->z;
       p.vr   += h->v[0];
-      p.radec[0] = h->radec[1];
+      p.radec[0] = h->radec[0];
       p.radec[1] = h->radec[1];
 
       cat->push_back(p);
