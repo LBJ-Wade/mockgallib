@@ -2,6 +2,8 @@
 #define HIST2D_H 1
 
 #include <cstdlib>
+#include <cstdio>
+#include <cassert>
 
 struct LinearBin {
   LinearBin(const float x_min, const float x_max, const int n_bin) :
@@ -64,6 +66,20 @@ class Histogram2D {
   int y_nbin() const {
     return ybin.nbin;
   }
+  /*
+  float x_min() const {
+    return xbin.xmin;
+  }
+  float x_max() const {
+    return xbin.xmax;
+  }
+  float y_min() const {
+    return ybin.xmin;
+  }
+  float y_max() const {
+    return ybin.xmax;
+  }
+  */
   double total() const {
     double sum= 0.0;
     const int n= xbin.nbin*ybin.nbin;
@@ -94,12 +110,18 @@ class Histogram2D {
       hist[i] -= h.hist[i];
   }
   void clear() {
+    npairs= 0.0;
     const int n= size();
     for(int i=0; i<n; ++i)
       hist[i] = 0.0;
   }
 
+  void save(const char filename[]) const;
+  int load(const char filename[]);
+  void print() const;
+  
   double* hist;
+  double npairs;
  private:
   X xbin;
   Y ybin;
@@ -120,5 +142,56 @@ template<class X, class Y>
   //delete [] hist;
 }
 
+template<class X, class Y>
+  void Histogram2D<X,Y>::save(const char filename[]) const
+{
+  FILE* const fp= fopen(filename, "w"); assert(fp);
+  
+  int xnbin= x_nbin();
+  int ynbin= y_nbin();
+  int n= xnbin*ynbin;
+  fwrite(&xnbin, sizeof(int), 1, fp);
+  fwrite(&ynbin, sizeof(int), 1, fp);
+  fwrite(hist, sizeof(double), n, fp);
+  fwrite(&n, sizeof(int), 1, fp);
+
+  fclose(fp);
+}
+
+template<class X, class Y>
+  void Histogram2D<X,Y>::print() const
+{
+  const int xnbin= x_nbin();
+  const int ynbin= y_nbin();
+  const int n= xnbin*ynbin;
+  for(int i=0; i<n; ++i)
+    printf("%e\n", hist[i]);
+}
+
+template<class X, class Y>
+  int Histogram2D<X,Y>::load(const char filename[])
+{
+  FILE* const fp= fopen(filename, "r");
+  if(fp == 0)
+    return false;
+  
+  int xnbin, ynbin, n;
+  
+  int ret= fread(&xnbin, sizeof(int), 1, fp);
+  assert(ret == 1 && xnbin == x_nbin());
+  
+  ret= fread(&ynbin, sizeof(int), 1, fp);
+  assert(ret == 1 && ynbin == y_nbin());
+  
+  ret= fread(hist, sizeof(double), n, fp);
+  assert(ret == n);
+  
+  ret= fread(&n, sizeof(int), 1, fp);
+  assert(ret == 1 && n == xnbin*ynbin);
+
+  fclose(fp);
+
+  return true;
+}
 
 #endif

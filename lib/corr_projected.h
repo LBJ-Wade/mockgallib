@@ -4,7 +4,7 @@
 #include <vector>
 #include "particle.h"
 #include "catalogue.h"
-//#include "kdtree.h"
+#include "hist2d.h"
 
 struct CorrProjected {
   CorrProjected(const int nbin);
@@ -23,6 +23,14 @@ void set_radec_min(const float ra_min_, const float dec_min_);
 void corr_projected_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand,
 			    CorrProjected* const corr);
+
+void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
+				     Histogram2D<LogBin, LinearBin>* const rr);
+void corr_projected_compute_with_rr(Catalogues* const cats_data,
+				    Catalogues* const cats_rand,
+			    Histogram2D<LogBin, LinearBin> const * const rr);
+
+CorrProjected* corr_projected_i(const int i);
 
 /*
 struct Catalogue: std::vector<Particle>

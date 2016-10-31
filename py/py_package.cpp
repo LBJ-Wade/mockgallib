@@ -235,7 +235,7 @@ static PyMethodDef methods[] = {
    "initialise random number generator"},
   {"_rand_free", py_rand_free, METH_VARARGS,
    "free random number generator"},
-
+  
   {"_corr_projected_alloc", py_corr_projected_alloc, METH_VARARGS,
    "allocate corr projected"},
   {"_corr_set_radec_min", py_corr_set_radec_min, METH_VARARGS,
@@ -247,6 +247,17 @@ static PyMethodDef methods[] = {
   {"_corr_rp", py_corr_rp, METH_VARARGS, "return rp array"},
   {"_corr_wp", py_corr_wp, METH_VARARGS, "return wp array"},
   {"_corr_dwp", py_corr_dwp, METH_VARARGS, "return dwp array"},
+
+  {"_corr_projected_hist2d_alloc", py_corr_projected_hist2d_alloc, METH_VARARGS,
+   "_corr_projected_hist2d_alloc(rp_min, rp_max, rp_nbin, pi_max, pi_nbin)"},
+  {"_corr_projected_hist2d_as_array", py_corr_projected_hist2d_as_array,
+   METH_VARARGS, "_corr_projected_hist2d_as_array(_hist2d)"},
+  {"_corr_rp_i", py_corr_rp_i, METH_VARARGS, "return rp array of vcorr[i]"},
+  {"_corr_wp_i", py_corr_wp_i, METH_VARARGS, "return wp array of vcorr[i]"},
+  {"_corr_projected_compute_rr", py_corr_projected_compute_rr, METH_VARARGS,
+   "_corr_projected_compute_rr"},
+  {"_corr_projected_compute_with_rr", py_corr_projected_compute_with_rr,
+   METH_VARARGS, "_corr_projected_compute_with_rr"},
 
   {"_minimise", py_minimise, METH_VARARGS, "minimise funtion"},
 

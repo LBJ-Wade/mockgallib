@@ -7,7 +7,7 @@ LIBRARY   =  libmockgal.a libmockgal.so #libmockgal.dylib
 default:
 	cd .. && $(MAKE) lib
 
-lib: libmockgal.so
+lib: libmockgal.a libmockgal.so
 
 CPPFLAGS := -O2 -fPIC $(OPENMP)
 LIBS     := -lm -lgsl -lgslcblas -lhdf5

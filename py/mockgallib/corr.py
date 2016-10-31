@@ -1,6 +1,23 @@
 import mockgallib._mockgallib as c
 import numpy
 
+class Hist2D:
+    def __init__(self, *args, **kwargs):
+        self.rp_min = kwargs.get('rp_min', 0.1)
+        self.rp_max = kwargs.get('rp_max', 60.0)
+        self.rp_nbin = kwargs.get('rp_nbin', 24)
+        self.pi_max = kwargs.get('pi_max', 60.0)
+        self.pi_nbin = kwargs.get('pi_nbin', 20)
+
+        self._hist2d = c._corr_projected_hist2d_alloc(
+            self.rp_min, self.rp_max, self.rp_nbin,
+            self.pi_max, self.pi_nbin)
+
+    def __getitem__(self, key):
+        a = c._corr_projected_hist2d_as_array(self._hist2d)
+        return a[key]
+    
+
 class CorrelationFunction:
     """A collection of correlation function
 
@@ -62,6 +79,20 @@ class CorrelationFunction:
         self._array = numpy.transpose(c._corr_as_array(self._corr))
         return self._array
 
+    def compute_corr_projected_rr(self, cats_randoms, rr):
+        """Compute RR Hist2D
+        Returns:
+          rr->npairs
+        """
+        return c._corr_projected_compute_rr(cats_randoms._cats, rr._hist2d)
+
+    def compute_corr_projected_with_rr(self, cats_galaxies, cats_randoms, rr):
+        """Compute projected correlation function with given RR
+        """
+        return c._corr_projected_compute_with_rr(cats_galaxies._cats,
+                                            cats_randoms._cats, rr._hist2d)
+
+
     @property
     def rp(self):
         return c._corr_rp(self._corr)
@@ -75,3 +106,11 @@ class CorrelationFunction:
     @property
     def dwp(self):
         return c._corr_dwp(self._corr)
+
+    def rp_i(self, i):
+        return c._corr_rp_i(i)
+
+    def wp_i(self, i):
+        return c._corr_wp_i(i)
+
+    

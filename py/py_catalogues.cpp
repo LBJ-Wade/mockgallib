@@ -158,7 +158,8 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
   
   PyObject *py_catalogues, *py_array;
   double z_min, z_max;
-  if(!PyArg_ParseTuple(args, "OOdd", &py_catalogues, &py_array, &z_min, &z_max)) {
+  if(!PyArg_ParseTuple(args, "OOdd",
+		       &py_catalogues, &py_array, &z_min, &z_max)) {
     return NULL;
   }
 
@@ -205,9 +206,9 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
     return NULL;
   }
   
-  if(!(ncol == 3 || ncol == 4)) {
+  if(!(ncol == 5 || ncol == 6)) {
     PyErr_SetString(PyExc_TypeError,
-		    "Expected 3 or 4 columns x,y,z,weight for a catalogue");
+		    "Expected 5 or 6 columns x,y,z,weight for a catalogue");
     PyBuffer_Release(&view);
     return NULL;
   }
@@ -221,19 +222,18 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
   Catalogue* const cat= new Catalogue();
   cat->reserve(n);
   Particle p;
-  p.radec[0]= 0; p.radec[1]= 0; p.vr= 0; p.M= 0; p.flag= 0; p.w= 1;
+  p.vr= 0; p.M= 0; p.flag= 0; p.w= 1;
+  p.flag= 0.0f; p.rsat= 0.0f, p.vsat= 0.0f;
+  
   
   for(int i=0; i<n; ++i) {
     p.x[0]= *a;
     p.x[1]= *(a + next_col);
     p.x[2]= *(a + 2*next_col);
-    if(ncol >= 4)
-      p.w= *(a + 3*next_col);
-
-    if(ncol >= 6) {
-      p.radec[0]= *(a + 4*next_col);
-      p.radec[1]= *(a + 5*next_col);
-    }
+    p.radec[0]= *(a + 3*next_col);
+    p.radec[1]= *(a + 4*next_col);
+    if(ncol >= 6)
+      p.w= *(a + 6*next_col);
 
     float r= sqrt(p.x[0]*p.x[0] + p.x[1]*p.x[2] + p.x[2]*p.x[2]);
     p.z= distance_redshift(r);

@@ -9,6 +9,7 @@
 #include <cassert>
 
 #include "msg.h"
+#include "comm.h"
 #include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
@@ -20,9 +21,7 @@ static int nbin, nbin_pi;
 static float rp_min, rp_max, pi_max;
 static KDTree* tree_alloc= 0;
 static vector<CorrProjected*> vcorr;
-static double *dd_hist= 0, *dr_hist, *rr_hist;
 static float ra_min=0.0, dec_min= 0.0;
-
 
 void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int nbin_pi_)
 {
@@ -47,22 +46,20 @@ static void allocate_vcorr(const size_t n_data_cat);
 
 static size_t count_pairs_auto(KDTree const * const tree,
 			const size_t ntree,
-			Histogram2D<LogBin, LinearBin>& hist);
+			Histogram2D<LogBin, LinearBin>* const hist);
 
 static size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
 			 KDTree const * const tree2,
-			 Histogram2D<LogBin, LinearBin>& hist);
+			 Histogram2D<LogBin, LinearBin>* const hist);
 
 static void compute_corr_from_histogram2d(
-			 const Histogram2D<LogBin, LinearBin>& dd,
-			 const double npairs_dd,
-			 const Histogram2D<LogBin, LinearBin>& dr,
-			 const double npairs_dr,
-			 const Histogram2D<LogBin, LinearBin>& rr,
-			 const double npairs_rr,
+			 Histogram2D<LogBin, LinearBin> const * const dd,
+			 Histogram2D<LogBin, LinearBin> const * const dr,
+			 Histogram2D<LogBin, LinearBin> const * const rr,
 			 const double pi_max,
 			 CorrProjected* const corr);
 
+static void accumulate_hist(Histogram2D<LogBin, LinearBin>* const hist);
 static void corr_projected_summarise(CorrProjected* const corr);
 
 //
@@ -148,6 +145,7 @@ void set_radec_min(const float ra_min_, const float dec_min_)
   msg_printf(msg_verbose, "ra-dec min %e %e\n", ra_min, dec_min);
 }
 
+
 void corr_projected_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand,
 			    CorrProjected* const corr)
@@ -155,7 +153,6 @@ void corr_projected_compute(Catalogues* const cats_data,
   //
   // Compute 2D correlation function
   //
-  
   rmax2= rp_max*rp_max + pi_max*pi_max;
 
   // Setup vcorr
@@ -164,15 +161,8 @@ void corr_projected_compute(Catalogues* const cats_data,
   //
   // Setup KDTree
   //
-  const int nD= cats_data->size(); // number of Data catalogues
-  const int nR= cats_rand->size(); // number of Random catalgues
-
-  //cerr << "ndata_cat " << nD << ", nrand_cat " << nR << endl;
-
   size_t nalloc= count_num_points(cats_data) + count_num_points(cats_rand);
   const int quota = 32;
-
-  //cerr << "n total points " << nalloc << endl;
 
   if(tree_alloc == 0) {
     tree_alloc= (KDTree*) malloc(sizeof(KDTree)*nalloc);
@@ -217,24 +207,20 @@ void corr_projected_compute(Catalogues* const cats_data,
     dr(LogBin(rp_min, rp_max, nbin), LinearBin(0.0f, pi_max, nbin_pi)),
     rr(LogBin(rp_min, rp_max, nbin), LinearBin(0.0f, pi_max, nbin_pi));
 
-
   //
   // Count pairs
   //
 
-  double npairs_DD= 0;
-  double npairs_RR= 0;
-  double npairs_DR= 0;
-  
   // RR
-  rr.clear();
   for(Catalogues::iterator cat= cats_rand->begin();
       cat != cats_rand->end(); ++cat) {    
     if(!(*cat)->empty())
-      count_pairs_auto((*cat)->tree, (*cat)->ntree, rr);
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, &rr);
 
-    npairs_RR += 0.5*(*cat)->size()*((*cat)->size()-1);
+    rr.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
   }
+
+  accumulate_hist(&rr);
 
   int icat=0;
   assert(cats_data->size() > 0);
@@ -242,17 +228,16 @@ void corr_projected_compute(Catalogues* const cats_data,
   
   for(Catalogues::iterator cat= cats_data->begin();
       cat != cats_data->end(); ++cat) {
-    npairs_DD= 0.0;
-    npairs_DR= 0.0;
+    dd.npairs= 0.0;
+    dr.npairs= 0.0;
     dd.clear();
     dr.clear();
 
     // DD
-    size_t count_dd_debug=0, count_dr_debug= 0;
     if(!(*cat)->empty())
-      count_dd_debug+= count_pairs_auto((*cat)->tree, (*cat)->ntree, dd);
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, &dd);
 
-    npairs_DD += 0.5*(*cat)->size()*((*cat)->size()-1);
+    dd.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
 
 
     // DR
@@ -263,11 +248,13 @@ void corr_projected_compute(Catalogues* const cats_data,
       assert(icat + icat_rand * cats_data->size() < cats_rand->size());
 
       if(!(*cat)->empty() && !(*rcat)->empty())
-	count_dr_debug+= count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
+	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, &dr);
       
-      npairs_DR += (*cat)->size()*(*rcat)->size();
+      dr.npairs += (*cat)->size()*(*rcat)->size();
     }
 
+    accumulate_hist(&dd);
+    accumulate_hist(&dr);
 
     /*
     // ndata_cat * nrand_cat cross pairs
@@ -279,24 +266,18 @@ void corr_projected_compute(Catalogues* const cats_data,
       npairs_DR += (*cat)->size()*(*rcat)->size();
     }
     */
-    //cerr << "count_dd_debug= " << count_dd_debug << endl;
-    //cerr << "count_dr_debug= " << count_dr_debug << endl;
 
-    compute_corr_from_histogram2d(dd, npairs_DD,
-				  dr, npairs_DR,
-				  rr, npairs_RR,		 
-				  pi_max, vcorr.at(icat));
+    compute_corr_from_histogram2d(&dd, &dr, &rr, pi_max, vcorr.at(icat));
 
     icat++;
   }
-
   corr_projected_summarise(corr);
 }
 
 
 static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 					 KDTree const * const tree,
-					 Histogram2D<LogBin, LinearBin>& hist)
+  				    Histogram2D<LogBin, LinearBin>* const hist)
 {
   // prerequisit: set rmax
   //            : binary tree build
@@ -337,7 +318,7 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 	    dist_cylinder(p->x, q->x, rp, pi);
 	  
 	    count++;
-	    hist.add(rp, pi, p->w * p->w);
+	    hist->add(rp, pi, p->w * p->w);
 	  }
 	}
       }
@@ -352,7 +333,7 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 	    dist_cylinder(p->x, q->x, rp, pi);
 	  
 	    count++;
-	    hist.add(rp, pi, p->w * q->w);
+	    hist->add(rp, pi, p->w * q->w);
 	  }
 	}
       }
@@ -373,11 +354,9 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 
 size_t count_pairs_auto(KDTree const * const tree,
 			const size_t ntree,
-			Histogram2D<LogBin, LinearBin>& hist)
+			Histogram2D<LogBin, LinearBin>* const hist)
 {
   // Run count_pairs_leaf_tree for each leaf
-
-
   size_t count= 0;
 
   for(size_t i=0; i<ntree; ++i) {
@@ -393,7 +372,7 @@ size_t count_pairs_auto(KDTree const * const tree,
 
 static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 				   KDTree const * const tree,
-				   Histogram2D<LogBin, LinearBin>& hist)
+				   Histogram2D<LogBin, LinearBin>* const hist)
 {
   // prerequisit: set rmax
   //            : binary tree build
@@ -427,7 +406,7 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 	  dist_cylinder(p->x, q->x, rp, pi);
 	
 	  count++;
-	  hist.add(rp, pi, p->w * q->w);
+	  hist->add(rp, pi, p->w * q->w);
 	}
       }
     }
@@ -447,7 +426,7 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 
 size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
 			 KDTree const * const tree2,
-			 Histogram2D<LogBin, LinearBin>& hist)
+			 Histogram2D<LogBin, LinearBin>* hist)
 {
   // Run count_pairs_leaf_tree for each leaf
   size_t count= 0;
@@ -504,73 +483,45 @@ void allocate_vcorr(const size_t n_data_cat)
   }
 }
 
+CorrProjected* corr_projected_i(const int i)
+{
+  return vcorr.at(i);
+}
 
-void compute_corr_from_histogram2d(const Histogram2D<LogBin, LinearBin>& dd,
-				   const double npairs_dd,
-				   const Histogram2D<LogBin, LinearBin>& dr,
-				   const double npairs_dr,
-				   const Histogram2D<LogBin, LinearBin>& rr,
-				   const double npairs_rr,
-				   const double pi_max,
-				   CorrProjected* const corr)
+
+void compute_corr_from_histogram2d(
+	   Histogram2D<LogBin, LinearBin> const * const dd,
+	   Histogram2D<LogBin, LinearBin> const * const dr,
+	   Histogram2D<LogBin, LinearBin> const * const rr,
+	   const double pi_max,
+	   CorrProjected* const corr)
 {
   // Project 2D historgram DD, DR, DD
   // to projected correlation function to wp(rp)
-  const int nx= dd.x_nbin();
-  const int ny= dd.y_nbin();
+  const int nx= dd->x_nbin();
+  const int ny= dd->y_nbin();
   const double dpi= 2.0*pi_max / ny; assert(ny > 0);
 
-  assert(npairs_rr > 0);
+  assert(rr->npairs > 0);
   assert(corr->n == nx);
 
-  // Reduce all paircount data from MPI nodes
-  double npairs[]= {npairs_dd, npairs_dr, npairs_rr};
-  const int n= rr.size();
-  if(dd_hist == 0) {
-    dd_hist= (double*) malloc(sizeof(double)*3*n);
-    dr_hist= dd_hist + n;
-    rr_hist= dr_hist + n;
-  }
-
-#ifdef WITHMPI
-  double npairs_sum[3];
-
-  MPI_Allreduce(npairs, npairs_sum, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-  msg_printf(msg_debug, "Reduce DD %.1lf pairs -> %lf; %.3f\n",
-	     npairs[0], npairs_sum[0], npairs_sum[0] / npairs[0]);
-  msg_printf(msg_debug, "Reduce DR %.1lf pairs -> %lf; %.3f\n",
-	     npairs[1], npairs_sum[1], npairs_sum[1] / npairs[1]);
-  msg_printf(msg_debug, "Reduce RR %.1lf pairs -> %lf; %.3f\n",
-	     npairs[2], npairs_sum[2], npairs_sum[2] / npairs[2]);
-
-  MPI_Allreduce(dd.hist, dd_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(dr.hist, dr_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(rr.hist, rr_hist, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#else
-  for(int i=0; i<n; ++i){
-    dd_hist[i]= dd.hist[i];
-    dr_hist[i]= dr.hist[i];
-    rr_hist[i]= rr.hist[i];
-  }
-#endif
-
   for(int ix=0; ix<nx; ++ix) {
-    corr->rp[ix]= dd.x_bin(ix);
+    corr->rp[ix]= dd->x_bin(ix);
     double wp= 0.0;
     for(int iy=0; iy<ny; ++iy) {
-      int index= ix*dd.y_nbin() + iy;
+      int index= ix*dd->y_nbin() + iy;
 
-      double rrr= rr_hist[index]/npairs_sum[2]; assert(npairs_sum[2] > 0);
+      double rrr= rr->hist[index]/rr->npairs; assert(rr->npairs > 0);
       if(rrr > 0.0)
-	wp += ((dd_hist[index]/npairs_sum[0]
-	     - 2.0*dr_hist[index]/npairs_sum[1])/rrr + 1.0)*dpi;
-      //wp += (dd_hist[index]/npairs_sum[0]/rrr - 1.0)*dpi;
+	wp += ((dd->hist[index]/dd->npairs
+	     - 2.0*dr->hist[index]/dr->npairs)/rrr + 1.0)*dpi;
 
       // xi = (DD - 2*DR + RR)/RR
       // wp = \int_-pi-max^pi-max xi(rp, pi) dpi
     }    
     corr->wp[ix]= wp;
+    fprintf(stderr, "%e %e\n", corr->rp[ix], wp);
+	  
     assert(!isnan(wp));
   }
 }
@@ -634,4 +585,185 @@ void corr_projected_summarise(CorrProjected* const corr)
     corr->wp[i]= wp;
     corr->dwp[i]= dwp;
   }
+}
+
+void accumulate_hist(Histogram2D<LogBin, LinearBin>* const hist)
+{
+  if(comm_n_nodes() == 1)
+    return;
+
+  //
+  // Accumulate from all MPI nodes
+  //
+  
+  const int nx= hist->x_nbin();
+  const int ny= hist->y_nbin();
+  const int n=  hist->size();
+  
+  double npairs= hist->npairs;
+  
+#ifdef WITHMPI
+  double* const hist_sum= (double*) malloc(sizeof(double)*n); assert(hist_sum);
+  double npairs_sum;
+
+  MPI_Allreduce(&npairs, &npairs_sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  msg_printf(msg_debug, "Accumulate hist %.1lf pairs -> %lf; %.3f\n",
+	     npairs, npairs_sum, npairs_sum / npairs);
+
+  MPI_Allreduce(hist->hist, hist_sum, n, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  hist->npairs= npairs_sum;
+  for(int i=0; i<n; ++i){
+    hist->hist[i]= hist_sum[i];
+  }
+
+  free(hist_sum);
+#endif
+}
+
+		     
+void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
+				   Histogram2D<LogBin, LinearBin>* const rr)
+{
+  //rp_max= rr->x_max();
+  //pi_max= rr->y_max();
+  msg_printf(msg_debug, "rp_min= %e, pi_max= %e\n", rp_min, rp_max);
+
+  rmax2= rp_max*rp_max + pi_max*pi_max;
+
+  //
+  // Setup KDTree
+  //
+  //const int n= cats->size();
+  const int quota = 32;
+    
+  if(tree_alloc == 0) {
+    size_t nalloc= count_num_points(cats_rand);
+
+
+    tree_alloc= (KDTree*) malloc(sizeof(KDTree)*nalloc);
+    msg_printf(msg_verbose, "%lu trees allocated (%lu Mbytes)\n",
+	       nalloc, nalloc*sizeof(KDTree) / (1024*1024));
+  }
+
+  KDTree* tree_free= tree_alloc;
+  size_t ntree_used= 0;
+
+  // KDTree for Randoms
+  for(Catalogues::iterator cat= cats_rand->begin();
+      cat != cats_rand->end(); ++cat) {
+    (*cat)->tree= tree_free;
+    (*cat)->ntree = kdtree_construct((*cat)->tree, &((*cat)->front()),
+				     (*cat)->size(), quota);
+    ntree_used += (*cat)->ntree;
+    tree_free += (*cat)->ntree;
+  }
+  
+  msg_printf(msg_verbose, "%lu trees used (%lu Mbytes).\n",
+	     ntree_used, ntree_used*sizeof(KDTree) / (1024*1024));
+  msg_printf(msg_verbose, "Count RR pairs.\n");
+
+  //
+  // Count pairs RR
+  //
+  rr->clear();
+  for(Catalogues::iterator cat=
+	cats_rand->begin(); cat != cats_rand->end(); ++cat) {    
+    if(!(*cat)->empty()) {
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, rr);  
+      rr->npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
+    }
+  }
+
+  msg_printf(msg_verbose, "%.1lf RR pairs.\n", rr->npairs);
+  //rr->print();
+
+  accumulate_hist(rr);
+}
+
+void corr_projected_compute_with_rr(Catalogues* const cats_data,
+				    Catalogues* const cats_rand,
+			    Histogram2D<LogBin, LinearBin> const * const rr)
+{
+  // Setup vcorr
+  allocate_vcorr(cats_data->size());
+
+  assert(nbin == rr->x_nbin());
+  assert(nbin_pi == rr->y_nbin());
+
+  //
+  // Setup KDTree
+  //
+  const int quota = 32;
+    
+  if(tree_alloc == 0) {
+    size_t nalloc= count_num_points(cats_data) + count_num_points(cats_rand);
+
+    tree_alloc= (KDTree*) malloc(sizeof(KDTree)*nalloc);
+    msg_printf(msg_verbose, "%lu trees allocated (%lu Mbytes)\n",
+	       nalloc, nalloc*sizeof(KDTree) / (1024*1024));
+  }
+
+  KDTree* tree_free= tree_alloc;
+  size_t ntree_used= 0;
+
+  // KDTree for data
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
+    (*cat)->tree= tree_free;
+    (*cat)->ntree = kdtree_construct((*cat)->tree, &((*cat)->front()),
+				     (*cat)->size(), quota);
+    ntree_used += (*cat)->ntree;
+    tree_free += (*cat)->ntree;
+  }
+
+  // KDTree for Randoms
+  for(Catalogues::iterator cat= cats_rand->begin();
+      cat != cats_rand->end(); ++cat) {
+    (*cat)->tree= tree_free;
+    (*cat)->ntree = kdtree_construct((*cat)->tree, &((*cat)->front()),
+				     (*cat)->size(), quota);
+    ntree_used += (*cat)->ntree;
+    tree_free += (*cat)->ntree;
+  }
+  
+  msg_printf(msg_verbose, "%lu trees used (%lu Mbytes).\n",
+	     ntree_used, ntree_used*sizeof(KDTree) / (1024*1024));
+
+  msg_printf(msg_verbose, "Count DD and DR pairs.\n");
+
+  Histogram2D<LogBin, LinearBin>
+    dd(LogBin(rp_min, rp_max, nbin), LinearBin(0.0f, pi_max, nbin_pi)),
+    dr(LogBin(rp_min, rp_max, nbin), LinearBin(0.0f, pi_max, nbin_pi));
+
+  int icat= 0;
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
+    dd.clear();
+    dr.clear();
+
+    // DD
+    if(!(*cat)->empty())
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, &dd);
+
+    dd.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
+
+
+    // DR for all random catalogues
+    for(Catalogues::iterator rcat= cats_rand->begin();
+      rcat != cats_rand->end(); ++rcat) {    
+
+      if(!(*cat)->empty() && !(*rcat)->empty())
+	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, &dr);
+      dr.npairs += (*cat)->size()*(*rcat)->size();
+    }
+
+    accumulate_hist(&dd);
+    accumulate_hist(&dr);
+
+    // compute projected correlation function
+    compute_corr_from_histogram2d(&dd, &dr, rr, pi_max, vcorr.at(icat));
+  }
+
 }

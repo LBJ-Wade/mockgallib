@@ -1,7 +1,11 @@
+#include <iostream>
 #include <vector>
 #include "corr_projected.h"
+#include "hist2d.h"
+
 #include "py_assert.h"
 #include "py_corr_projected.h"
+
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include "numpy/arrayobject.h"
 
@@ -15,9 +19,121 @@ py_corr_projected_module_init()
   return NULL;
 }
 
-
 static void py_corr_projected_free(PyObject *obj);
+static void py_hist2d_free(PyObject *obj);
+  
+//
+// hist2d
+//
+PyObject* py_corr_projected_hist2d_alloc(PyObject* self, PyObject* args)
+{
+  float rp_min, rp_max, pi_max;
+  int nbin_rp, nbin_pi;
 
+  if(!PyArg_ParseTuple(args, "ffifi", &rp_min, &rp_max, &nbin_rp,
+		       &pi_max, &nbin_pi))
+    return NULL;
+
+  Histogram2D<LogBin, LinearBin>* const hist2d=
+    new Histogram2D<LogBin, LinearBin>(
+	    LogBin(rp_min, rp_max, nbin_rp), LinearBin(0.0f, pi_max, nbin_pi));
+
+  return PyCapsule_New(hist2d, "_Hist2D", py_hist2d_free);  
+}
+
+void py_hist2d_free(PyObject *obj)
+{
+  Histogram2D<LogBin, LinearBin>* const hist2d=
+    (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(obj, "_Hist2D");
+
+  py_assert_void(hist2d);
+
+  delete hist2d;
+}
+
+PyObject* py_corr_projected_hist2d_as_array(PyObject* self, PyObject* args)
+{
+  PyObject *py_hist2d;
+  
+  if(!PyArg_ParseTuple(args, "O", &py_hist2d)) {
+    return NULL;
+  }
+  
+  Histogram2D<LogBin, LinearBin>* const hist2d=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_hist2d, "_Hist2D");
+  py_assert_ptr(hist2d);
+
+  const int nd=2;
+  npy_intp dims[]= {hist2d->x_nbin(), hist2d->y_nbin()};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, hist2d->hist);
+}
+
+PyObject* py_corr_projected_hist2d_set(PyObject* self, PyObject* args)
+{
+  PyObject *py_hist2d;
+  PyObject *bufobj;
+  Py_buffer view;
+  
+  if(!PyArg_ParseTuple(args, "OO", &py_hist2d, &bufobj))
+    return NULL;
+
+  Histogram2D<LogBin, LinearBin>* const hist2d=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_hist2d, "_Hist2D");
+  py_assert_ptr(hist2d);
+
+  if(PyObject_GetBuffer(bufobj, &view,
+			PyBUF_ANY_CONTIGUOUS | PyBUF_FORMAT) == -1) {
+    return NULL;
+  }
+
+  //
+  // Read array and copy to vector<Nbar>
+  //
+  if(view.ndim != 2) {
+    PyErr_SetString(PyExc_TypeError, "Expected a 2-dimensional array");
+    PyBuffer_Release(&view);
+    return NULL;
+  }
+
+  if(strcmp(view.format,"d") != 0) {
+    PyErr_SetString(PyExc_TypeError, "Expected an array of doubles");
+    PyBuffer_Release(&view);
+    return NULL;
+  }
+
+  const int nrow= view.shape[0];
+  const int ncol= view.shape[1];
+
+  if(hist2d->x_nbin() != nrow || hist2d->y_nbin() != ncol) {
+    PyErr_SetString(PyExc_TypeError, "Unexpected array size");
+    PyBuffer_Release(&view);
+    return NULL;
+  }
+
+  double* p= (double*) view.buf;
+  
+  const size_t next_row= view.strides[0]/sizeof(double);
+  const size_t next_col= view.strides[1]/sizeof(double);
+
+  double* hist= hist2d->hist;
+  
+  for(int ix=0; ix<nrow; ++ix) {
+    for(int iy=0; iy<ncol; ++iy) {  
+      hist[iy*ncol + ix]= *(p + next_col*iy);
+    }
+    p += next_row;
+  }
+  msg_printf(msg_info, "Set %d rows and %d colums in hist2d\n", nrow, ncol); 
+
+  Py_RETURN_NONE;
+}
+
+
+
+//
+// py_corr_projected
+//
 
 PyObject* py_corr_projected_alloc(PyObject* self, PyObject* args)
 {
@@ -88,6 +204,59 @@ PyObject* py_corr_projected_compute(PyObject* self, PyObject* args)
   Py_RETURN_NONE;
 }
 
+PyObject* py_corr_projected_compute_rr(PyObject* self, PyObject* args)
+{
+  // _corr_projected_compute(mock_catalogues, random_catalogues,
+  //                         correlation_functions)
+
+  PyObject *py_randoms, *py_hist2d;
+  
+  if(!PyArg_ParseTuple(args, "OO", &py_randoms, &py_hist2d)) {
+    return NULL;
+  }
+  
+  Catalogues* const randoms=
+    (Catalogues*) PyCapsule_GetPointer(py_randoms, "_Catalogues");
+  py_assert_ptr(randoms);
+  
+
+  Histogram2D<LogBin, LinearBin>* const rr=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_hist2d, "_Hist2D");
+  py_assert_ptr(rr);
+
+  corr_projected_compute_pairs_rr(randoms, rr);
+
+  return Py_BuildValue("d", rr->npairs);
+}
+
+PyObject* py_corr_projected_compute_with_rr(PyObject* self, PyObject* args)
+{
+  // _corr_projected_compute(mock_catalogues, random_catalogues,
+  //                         correlation_functions)
+
+  PyObject *py_galaxies, *py_randoms, *py_hist2d;
+  
+  if(!PyArg_ParseTuple(args, "OOO", &py_galaxies, &py_randoms, &py_hist2d)) {
+    return NULL;
+  }
+
+  Catalogues* const galaxies=
+    (Catalogues*) PyCapsule_GetPointer(py_galaxies, "_Catalogues");
+  py_assert_ptr(galaxies);
+
+  Catalogues* const randoms=
+    (Catalogues*) PyCapsule_GetPointer(py_randoms, "_Catalogues");
+  py_assert_ptr(randoms);
+
+  Histogram2D<LogBin, LinearBin>* const rr=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_hist2d, "_Hist2D");
+  py_assert_ptr(rr);
+
+  corr_projected_compute_with_rr(galaxies, randoms, rr);
+
+  Py_RETURN_NONE;
+}
+
 
 PyObject* py_corr_as_array(PyObject* self, PyObject* args)
 {
@@ -105,6 +274,38 @@ PyObject* py_corr_as_array(PyObject* self, PyObject* args)
   npy_intp dims[]= {ncol, corr->n};
 
   return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->rp);
+}
+
+PyObject* py_corr_rp_i(PyObject* self, PyObject* args)
+{
+  // Return rp of vcorr[i] as an array
+  int i;
+  if(!PyArg_ParseTuple(args, "i", &i)) {
+    return NULL;
+  }
+
+  CorrProjected* const corr= corr_projected_i(i);
+
+  const int nd=1;
+  npy_intp dims[]= {corr->n};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->rp);
+}
+
+PyObject* py_corr_wp_i(PyObject* self, PyObject* args)
+{
+  // Return wp of vcorr[i] as an array  
+  int i;
+  if(!PyArg_ParseTuple(args, "i", &i)) {
+    return NULL;
+  }
+
+  CorrProjected* const corr= corr_projected_i(i);
+
+  const int nd=1;
+  npy_intp dims[]= {corr->n};
+
+  return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->wp);
 }
 
 PyObject* py_corr_rp(PyObject* self, PyObject* args)
