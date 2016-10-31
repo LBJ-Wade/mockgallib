@@ -1,5 +1,6 @@
 import mockgallib._mockgallib as c
 import numpy
+import h5py
 
 class Hist2D:
     def __init__(self, *args, **kwargs):
@@ -14,8 +15,19 @@ class Hist2D:
             self.pi_max, self.pi_nbin)
 
     def __getitem__(self, key):
+        """
+        Returns [ix,iy] component of the 2D histogram
+        """
         a = c._corr_projected_hist2d_as_array(self._hist2d)
         return a[key]
+
+    def load(self, filename):
+        f = h5py.File(filename, 'r')
+        npairs = f['npairs'][()]
+        a = f['rr'][:]
+        f.close()
+
+        c._corr_projected_hist2d_set(self._hist2d, a, npairs)
     
 
 class CorrelationFunction:

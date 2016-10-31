@@ -74,8 +74,9 @@ PyObject* py_corr_projected_hist2d_set(PyObject* self, PyObject* args)
   PyObject *py_hist2d;
   PyObject *bufobj;
   Py_buffer view;
+  double npairs;
   
-  if(!PyArg_ParseTuple(args, "OO", &py_hist2d, &bufobj))
+  if(!PyArg_ParseTuple(args, "OOd", &py_hist2d, &bufobj, &npairs))
     return NULL;
 
   Histogram2D<LogBin, LinearBin>* const hist2d=
@@ -87,9 +88,6 @@ PyObject* py_corr_projected_hist2d_set(PyObject* self, PyObject* args)
     return NULL;
   }
 
-  //
-  // Read array and copy to vector<Nbar>
-  //
   if(view.ndim != 2) {
     PyErr_SetString(PyExc_TypeError, "Expected a 2-dimensional array");
     PyBuffer_Release(&view);
@@ -101,6 +99,8 @@ PyObject* py_corr_projected_hist2d_set(PyObject* self, PyObject* args)
     PyBuffer_Release(&view);
     return NULL;
   }
+
+  hist2d->npairs= npairs;
 
   const int nrow= view.shape[0];
   const int ncol= view.shape[1];
@@ -120,12 +120,14 @@ PyObject* py_corr_projected_hist2d_set(PyObject* self, PyObject* args)
   
   for(int ix=0; ix<nrow; ++ix) {
     for(int iy=0; iy<ncol; ++iy) {  
-      hist[iy*ncol + ix]= *(p + next_col*iy);
+      hist[ix*ncol + iy]= *(p + next_col*iy);
     }
     p += next_row;
   }
-  msg_printf(msg_info, "Set %d rows and %d colums in hist2d\n", nrow, ncol); 
 
+  msg_printf(msg_info, "Set %d rows and %d colums in hist2d; npairs= %e\n", nrow, ncol, hist2d->npairs);
+
+  PyBuffer_Release(&view);
   Py_RETURN_NONE;
 }
 

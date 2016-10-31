@@ -252,6 +252,8 @@ static PyMethodDef methods[] = {
    "_corr_projected_hist2d_alloc(rp_min, rp_max, rp_nbin, pi_max, pi_nbin)"},
   {"_corr_projected_hist2d_as_array", py_corr_projected_hist2d_as_array,
    METH_VARARGS, "_corr_projected_hist2d_as_array(_hist2d)"},
+  {"_corr_projected_hist2d_set", py_corr_projected_hist2d_set, METH_VARARGS,
+   "_corr_projected_hist2d_set(_hist2d, hist, npairs)"},
   {"_corr_rp_i", py_corr_rp_i, METH_VARARGS, "return rp array of vcorr[i]"},
   {"_corr_wp_i", py_corr_wp_i, METH_VARARGS, "return wp array of vcorr[i]"},
   {"_corr_projected_compute_rr", py_corr_projected_compute_rr, METH_VARARGS,

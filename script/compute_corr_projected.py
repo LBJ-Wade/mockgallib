@@ -48,11 +48,7 @@ parser.add_argument('--irandoms', default='1:1',
                     help='index range of random catalogues')
 parser.add_argument('--param', default='param.json',
                     help='parameter json file')
-parser.add_argument('--rr-only', default=False, action='store_true',
-                    help='compute RR only')
 parser.add_argument('--rr', default='', help='RR filename')
-
-
 
 parser.add_argument('--zmin', type=float, default=0.5, help='minimum redshift')
 parser.add_argument('--zmax', type=float,  default=1.2, help='minimum redshift')
@@ -89,36 +85,47 @@ def read_catalogues(filebase, irange):
          cats.append(a, z_min=arg.zmin, z_max= arg.zmax)
      return cats
 
-#galaxies = read_catalogues('../mock_%s_' % arg.reg, igalaxies)
-#
+galaxies = read_catalogues('../mock_%s_' % arg.reg, igalaxies)
+randoms  = read_catalogues('../rand_%s_' % arg.reg, irandoms)
 
 
 corr = mock.CorrelationFunction(rp_min=0.1, rp_max=60.0, nbin=24,
                                 pi_max=60.0, pi_nbin=20,
                                 ra_min=0.001388889, dec_min=0.0375)
 
-if arg.rr_only:
-    randoms  = read_catalogues('../rand_%s_' % arg.reg, irandoms)
-    
-    rr = mock.corr.Hist2D(rp_min=0.1, rp_max=60.0, rp_nbin=24, pi_max=60.0, pi_nbin=20)
+rr = mock.corr.Hist2D(rp_min=0.1, rp_max=60.0, rp_nbin=24,
+                      pi_max=60.0, pi_nbin=20)
 
-    npairs = corr.compute_corr_projected_rr(randoms, rr)
 
-    f = h5py.File(arg.rr, 'w')
-    f['npairs'] = npairs
-    f['rr'] = rr[:]
-    f.close()
+#npairs = corr.compute_corr_projected_rr(randoms, rr)
+#f = h5py.File('rr.h5', 'w')
+#f['npairs'] = npairs
+#f['rr'] = rr[:]
+#f.close()
 
-#corr.compute_corr_projected_with_rr(galaxies, randoms, rr)
-#rp = corr.rp_i(0)
-#wp = corr.wp_i(0)
+#print('rr shape', rr[:].shape)
+#print(rr[:])
+
+#f = h5py.File('rr.h5', 'r')
+#aa = f['rr'][:]
+#print('npairs', f['npairs'][()])
+#f.close()
+
+rr.load('rr.h5')
+#print(rr[:] - aa)
+#print('rr load shape', rr[:].shape)
+#print(rr[:])
+
+corr.compute_corr_projected_with_rr(galaxies, randoms, rr)
+rp = corr.rp_i(0)
+wp = corr.wp_i(0)
 
 #print(rp)
 #print(wp)
 
-#n= len(rp)
-#with open('corr.txt', 'w') as f:
-#    for i in range(n):
-#        f.write('%e %e\n' % (rp[i], wp[i]))
+n= len(rp)
+with open('corr2.txt', 'w') as f:
+    for i in range(n):
+        f.write('%e %e\n' % (rp[i], wp[i]))
 
-#print('corr.txt written')
+print('corr2.txt written')

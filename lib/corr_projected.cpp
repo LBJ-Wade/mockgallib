@@ -520,7 +520,7 @@ void compute_corr_from_histogram2d(
       // wp = \int_-pi-max^pi-max xi(rp, pi) dpi
     }    
     corr->wp[ix]= wp;
-    fprintf(stderr, "%e %e\n", corr->rp[ix], wp);
+    //fprintf(stderr, "%e %e\n", corr->rp[ix], wp);
 	  
     assert(!isnan(wp));
   }
@@ -677,7 +677,6 @@ void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
   }
 
   msg_printf(msg_verbose, "%.1lf RR pairs.\n", rr->npairs);
-  //rr->print();
 
   accumulate_hist(rr);
 }
@@ -688,6 +687,8 @@ void corr_projected_compute_with_rr(Catalogues* const cats_data,
 {
   // Setup vcorr
   allocate_vcorr(cats_data->size());
+
+  rmax2= rp_max*rp_max + pi_max*pi_max;
 
   assert(nbin == rr->x_nbin());
   assert(nbin_pi == rr->y_nbin());
