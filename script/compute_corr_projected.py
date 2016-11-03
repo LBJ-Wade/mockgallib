@@ -48,7 +48,8 @@ parser.add_argument('--irandoms', default='1:1',
                     help='index range of random catalogues')
 parser.add_argument('--param', default='param.json',
                     help='parameter json file')
-parser.add_argument('--rr', default='', help='RR filename')
+parser.add_argument('--rr', default='', help='precomputed RR filename')
+parser.add_argument('-o', default='.', help='output directory')
 
 parser.add_argument('--zmin', type=float, default=0.5, help='minimum redshift')
 parser.add_argument('--zmax', type=float,  default=1.2, help='minimum redshift')
@@ -85,8 +86,8 @@ def read_catalogues(filebase, irange):
          cats.append(a, z_min=arg.zmin, z_max= arg.zmax)
      return cats
 
-galaxies = read_catalogues('../mock_%s_' % arg.reg, igalaxies)
-randoms  = read_catalogues('../rand_%s_' % arg.reg, irandoms)
+galaxies = read_catalogues('../mocks/%s/mock_%s_' % (arg.reg, arg.reg), igalaxies)
+randoms  = read_catalogues('../rands/%s/rand_%s_' % (arg.reg, arg.reg), irandoms)
 
 
 corr = mock.CorrelationFunction(rp_min=0.1, rp_max=60.0, nbin=24,
@@ -96,36 +97,22 @@ corr = mock.CorrelationFunction(rp_min=0.1, rp_max=60.0, nbin=24,
 rr = mock.corr.Hist2D(rp_min=0.1, rp_max=60.0, rp_nbin=24,
                       pi_max=60.0, pi_nbin=20)
 
-
-#npairs = corr.compute_corr_projected_rr(randoms, rr)
-#f = h5py.File('rr.h5', 'w')
-#f['npairs'] = npairs
-#f['rr'] = rr[:]
-#f.close()
-
-#print('rr shape', rr[:].shape)
-#print(rr[:])
-
-#f = h5py.File('rr.h5', 'r')
-#aa = f['rr'][:]
-#print('npairs', f['npairs'][()])
-#f.close()
-
-rr.load('rr.h5')
-#print(rr[:] - aa)
-#print('rr load shape', rr[:].shape)
-#print(rr[:])
+rr.load(arg.rr)
 
 corr.compute_corr_projected_with_rr(galaxies, randoms, rr)
-rp = corr.rp_i(0)
-wp = corr.wp_i(0)
 
-#print(rp)
-#print(wp)
+i0 = int(igalaxies[0])
+i1 = int(igalaxies[1]) + 1
 
-n= len(rp)
-with open('corr2.txt', 'w') as f:
-    for i in range(n):
-        f.write('%e %e\n' % (rp[i], wp[i]))
+for i in range(i0, i1):
+    ii= i - i0
+    rp = corr.rp_i(ii)
+    wp = corr.wp_i(ii)
 
-print('corr2.txt written')
+    nrow= len(rp)
+    filename = '%s/corr_projected_%05d.txt' % (arg.o, i)
+    with open(filename, 'w') as f:
+        for irow in range(nrow):
+            f.write('%e %e\n' % (rp[irow], wp[irow]))
+
+    print('%s written', arg.o)

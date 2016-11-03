@@ -765,6 +765,8 @@ void corr_projected_compute_with_rr(Catalogues* const cats_data,
 
     // compute projected correlation function
     compute_corr_from_histogram2d(&dd, &dr, rr, pi_max, vcorr.at(icat));
+
+    icat++;
   }
 
 }

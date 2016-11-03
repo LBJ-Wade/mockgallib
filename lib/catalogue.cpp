@@ -168,7 +168,7 @@ void catalogue_generate_mock(Hod* const hod,
     p.M   = h->M;
     p.rsat = 0.0f;
     p.vsat = 0.0f;
-    p.vr  = h->v[0];
+    p.vr  = h->vr;
 
     cat->push_back(p);
     ncen_total++;
@@ -187,7 +187,7 @@ void catalogue_generate_mock(Hod* const hod,
       p.x[1] += h->x[1];
       p.x[2] += h->x[2];
       p.z     = h->z;
-      p.vr   += h->v[0];
+      p.vr   += h->vr;
       p.radec[0] = h->radec[0];
       p.radec[1] = h->radec[1];
 
@@ -236,7 +236,7 @@ void catalogue_generate_centrals(Hod* const hod,
     p.vsat = 0.0f;
 
     p.M   = h->M;
-    p.vr  = h->v[0];
+    p.vr  = h->vr;
     p.z   = h->z;
     p.radec[0] = h->radec[0];
     p.radec[1] = h->radec[1];
@@ -289,7 +289,7 @@ void catalogue_generate_random(Hod* const hod,
       p.M= h->M;
       p.rsat = 0.0f;
       p.vsat = 0.0f;
-      p.vr  = h->v[0];
+      p.vr  = h->vr;
       p.z   = h->z;
       p.radec[0] = h->radec[0];
       p.radec[1] = h->radec[1];
@@ -317,7 +317,7 @@ void catalogue_generate_random(Hod* const hod,
       p.x[1] += h->x[1];
       p.x[2] += h->x[2];
       p.z     = h->z;
-      p.vr   += h->v[0];
+      p.vr   += h->vr;
       p.radec[0] = h->radec[0];
       p.radec[1] = h->radec[1];
 
