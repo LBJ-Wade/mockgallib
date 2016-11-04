@@ -124,6 +124,9 @@ void fill_lightcone_haloes(Snapshot const * const snp,
     if(h->M < M_min)
       continue;
 
+    //debug!!!
+    //printf("%d %e\n", h->nfof, h->M);
+
     // randomise the coordinate if random = true
     if(random)
       randomise_position(boxsize, h->x);
