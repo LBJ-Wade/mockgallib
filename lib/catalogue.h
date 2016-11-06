@@ -15,6 +15,7 @@ class Catalogue: public std::vector<Particle>
   
   KDTree* tree;
   size_t ntree;
+  double wsum, w2sum;
   int ncen, nsat;
 };
 

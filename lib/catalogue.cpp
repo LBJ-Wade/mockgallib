@@ -58,7 +58,7 @@ class SatelitteQueue {
 // Class member functions
 //
 Catalogue::Catalogue() :
-  tree(0), ntree(0), ncen(0), nsat(0)
+  tree(0), ntree(0), wsum(0.0), w2sum(0.0), ncen(0), nsat(0)
 {
   
 }

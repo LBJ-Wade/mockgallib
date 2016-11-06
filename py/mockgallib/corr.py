@@ -64,7 +64,6 @@ class CorrelationFunction:
         self.ra_min= ra_min
         self.dec_min= dec_min
         self._array = None
-
         
         self._corr = c._corr_projected_alloc(
                           self.rp_min, self.rp_max, self.nbin,
@@ -80,13 +79,11 @@ class CorrelationFunction:
     def __len__(self):
         return self.nbin
 
-
     def __repr__(self):
         return ("Projected correlation function\n"
                 + "%d logarithmic bins in rp (%e, %e)\n"
                 + "%d linear bins in pi (0, %e)") % (self.nbin,
                 self.rp_min, self.rp_max, self.pi_nbin, self.pi_max)
-
 
     def compute_corr_projected(self, cats_galaxies, cats_randoms):
         """Computes projected correlation function."""
