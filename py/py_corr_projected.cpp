@@ -178,6 +178,27 @@ PyObject* py_corr_set_radec_min(PyObject* self, PyObject* args)
   Py_RETURN_NONE;
 }
 
+PyObject* py_corr_set_pair_correction(PyObject* self, PyObject* args)
+{
+  PyObject* bytes;
+  
+  if(!PyArg_ParseTuple(args, "O&", PyUnicode_FSConverter, &bytes)) {
+    return NULL;
+  }
+  
+  char* filename;
+  Py_ssize_t len;
+  PyBytes_AsStringAndSize(bytes, &filename, &len);
+
+  corr_set_pair_correction(filename);
+
+  Py_DECREF(bytes);
+  
+  Py_RETURN_NONE;
+}
+
+  
+
 PyObject* py_corr_projected_compute(PyObject* self, PyObject* args)
 {
   // _corr_projected_compute(mock_catalogues, random_catalogues,

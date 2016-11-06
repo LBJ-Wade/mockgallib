@@ -19,6 +19,7 @@ struct CorrProjected {
 void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int nbin_pi_);
 
 void set_radec_min(const float ra_min_, const float dec_min_);
+void corr_set_pair_correction(const char filename[]);
 
 void corr_projected_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand,

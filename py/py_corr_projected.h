@@ -12,6 +12,7 @@ PyObject* py_corr_projected_hist2d_set(PyObject* self, PyObject* args);
 
 PyObject* py_corr_projected_alloc(PyObject* self, PyObject* args);
 PyObject* py_corr_set_radec_min(PyObject* self, PyObject* args);
+PyObject* py_corr_set_pair_correction(PyObject* self, PyObject* args);
 
 PyObject* py_corr_projected_compute(PyObject* self, PyObject* args);
 PyObject* py_corr_as_array(PyObject* self, PyObject* args);

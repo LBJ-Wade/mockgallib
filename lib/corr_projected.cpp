@@ -13,6 +13,7 @@
 #include "catalogue.h"
 #include "corr_projected.h"
 #include "hist2d.h"
+#include "corr_pair_correction.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ static float rp_min, rp_max, pi_max;
 static KDTree* tree_alloc= 0;
 static vector<CorrProjected*> vcorr;
 static float ra_min=0.0, dec_min= 0.0;
+static bool pair_correction= false;
 
 // #define DEBUG_TREE 1  // disable kdtree and count N^2 pairs 
 
@@ -36,6 +38,12 @@ void corr_projected_init(const float rp_min_, const float rp_max_, const int nbi
   msg_printf(msg_debug,
 	     "corr_projected_init %e %e %d %e %d\n",
 	     rp_min, rp_max, nbin, pi_max, nbin_pi);
+}
+
+void corr_set_pair_correction(const char filename[])
+{
+  corr_pair_correction_init(filename);
+  pair_correction= true;
 }
 
 
@@ -133,6 +141,16 @@ static inline void dist_cylinder(const float x[], const float y[], float& rp, fl
   else
     rp= sqrt(r2 - pi*pi);
 }
+
+static inline float dist_angle(Particle const * const p,
+			       Particle const * const q)
+{
+  const float dra= p->radec[0] - q->radec[0];
+  const float ddec= p->radec[1] - q->radec[1];
+  
+  return sqrt(dra*dra + ddec*ddec);
+}
+
 
 
 size_t count_num_points(Catalogues const * const v)
@@ -332,6 +350,7 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 #endif
 
   size_t count= 0;
+  double pw= 1.0; // pair-wise weight
 
   if(tree->subtree[0] == 0 && tree->subtree[1] == 0) {
     // This tree is a leaf (no further subtree)
@@ -344,11 +363,14 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 	for(Particle const *q= p+1; q != leaf->particles[1]; ++q) {
 	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	     fabs(p->radec[1] - q->radec[1]) >= dec_min) {
-
-	    dist_cylinder(p->x, q->x, rp, pi);
-	  
 	    count++;
-	    hist->add(rp, pi, p->w * p->w);
+	    
+	    dist_cylinder(p->x, q->x, rp, pi);
+
+	    if(pair_correction)
+	      pw= corr_pair_correction(dist_angle(p, q));
+
+	    hist->add(rp, pi, p->w * p->w / pw);
 	  }
 	}
       }
