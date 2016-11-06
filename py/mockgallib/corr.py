@@ -3,9 +3,15 @@ import numpy
 import h5py
 
 class Hist2D:
-    def __init__(self, *args, *,
+    def __init__(self, *,
                  rp_min=0.1, rp_max=60.0, rp_nbin=24,
                  pi_max=60.0, pi_nbin=20):
+        self.rp_min = rp_min
+        self.rp_max = rp_max
+        self.rp_nbin= rp_nbin
+        self.pi_max= pi_max
+        self.pi_nbin= pi_nbin
+        
         self._hist2d = c._corr_projected_hist2d_alloc(
             self.rp_min, self.rp_max, self.rp_nbin,
             self.pi_max, self.pi_nbin)
@@ -46,11 +52,19 @@ class CorrelationFunction:
     """
 
 
-    def __init__(self, *args, *,
+    def __init__(self, *,
                  rp_min=0.1, rp_max=60.0, nbin=24,
                  pi_max=60.0, pi_nbin=10,
                  ra_min=0.0, dec_min=0.0):
+        self.rp_min= rp_min
+        self.rp_max= rp_max
+        self.nbin = nbin
+        self.pi_max= pi_max
+        self.pi_nbin= pi_nbin
+        self.ra_min= ra_min
+        self.dec_min= dec_min
         self._array = None
+
         
         self._corr = c._corr_projected_alloc(
                           self.rp_min, self.rp_max, self.nbin,
