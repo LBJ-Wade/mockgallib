@@ -382,9 +382,12 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 	     fabs(p->radec[1] - q->radec[1]) >= dec_min) {
 
 	    dist_cylinder(p->x, q->x, rp, pi);
-	  
+
+	    if(pair_correction)
+	      pw= corr_pair_correction(dist_angle(p, q));
+
 	    count++;
-	    hist->add(rp, pi, p->w * q->w);
+	    hist->add(rp, pi, p->w * q->w / pw);
 	  }
 	}
       }
@@ -444,6 +447,7 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
     return 0;
 #endif
 
+  double pw= 1.0;
   size_t count= 0;    
 
   if(tree->subtree[0] == 0 && tree->subtree[1] == 0) {
@@ -457,9 +461,12 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 	if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	   fabs(p->radec[1] - q->radec[1]) >= dec_min){
 	  dist_cylinder(p->x, q->x, rp, pi);
-	
+
+	  if(pair_correction)
+	    pw= corr_pair_correction(dist_angle(p, q));
+
 	  count++;
-	  hist->add(rp, pi, p->w * q->w);
+	  hist->add(rp, pi, p->w * q->w / pw);
 	}
       }
     }

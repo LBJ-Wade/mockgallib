@@ -16,6 +16,8 @@ class Hist2D:
             self.rp_min, self.rp_max, self.rp_nbin,
             self.pi_max, self.pi_nbin)
 
+        
+
     def __getitem__(self, key):
         """
         Returns [ix,iy] component of the 2D histogram
@@ -43,6 +45,7 @@ class CorrelationFunction:
         pi_nbin (=10):  number of bins in pi
         ra_min (= 0.0): minimum pairwise ra separation
         dec_min (=0.0):                  dec
+        pair_correction (=None): pair wise correction filename
 
     Attributes:
         rp_min, rp_max, nbin, pi_max, pi_nbin (same as above)
@@ -55,7 +58,8 @@ class CorrelationFunction:
     def __init__(self, *,
                  rp_min=0.1, rp_max=60.0, nbin=24,
                  pi_max=60.0, pi_nbin=10,
-                 ra_min=0.0, dec_min=0.0):
+                 ra_min=0.0, dec_min=0.0,
+                 pair_correction= None):
         self.rp_min= rp_min
         self.rp_max= rp_max
         self.nbin = nbin
@@ -70,6 +74,9 @@ class CorrelationFunction:
                           self.pi_max, self.pi_nbin)
 
         c._corr_set_radec_min(self.ra_min, self.dec_min)
+
+        if pair_correction:
+            c._corr_set_pair_correction(pair_correction)
 
 
     def __getitem__(self, key):

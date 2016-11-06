@@ -3,6 +3,7 @@
 #include <cassert>
 #include <gsl/gsl_spline.h>
 
+#include "msg.h"
 #include "corr_pair_correction.h"
 
 using namespace std;
@@ -38,6 +39,8 @@ void corr_pair_correction_init(const char filename[])
 
   fclose(fp);
   free(theta);
+
+  msg_printf(msg_info, "pair correction: %s", filename);
 }
 
 void corr_pair_correction_free()
