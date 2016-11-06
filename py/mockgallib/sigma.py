@@ -15,7 +15,7 @@ M = None
 sinv = None
 
 
-def init(*args, **kwargs):
+def init(*, M_min=1.0e10, M_max=1.0e16, n=1001):
     """Initilises sigma module
 
     Optional keyword arguments:
@@ -24,10 +24,6 @@ def init(*args, **kwargs):
        n = 1001: number of interpolation points
     """
 
-    M_min = kwargs.get('M_min', 1.0e10)
-    M_max = kwargs.get('M_max', 1.0e16)
-    n = kwargs.get('n', 1001)
-    
     c._sigma_init(M_min, M_max, n)
 
     n = c._sigma_n()

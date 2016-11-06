@@ -44,24 +44,22 @@ class Catalogues:
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
                                z_min, z_max, 1)
 
-    def append(self, arr, **kwargs):
+    def append(self, arr, *, z_min= 0.0, z_max= 100.0):
         """Append a catalogue
         
         Input: arr is an array with 3 or 4 columns
            Column 0 (a[:,0]): x
            Column 1 (a[:,1]): y
            Column 2 (a[:,2]): z
-           Column 3 (a[:,3], optional): weight
-           Column 4 (a[:,4], optional): ra
-           Column 5 (a[:,5], optional): dec
+           Column 3 (a[:,4], optional): ra
+           Column 4 (a[:,5], optional): dec
+           Column 5 (a[:,3], optional): weight
 
         Option:
            z_min: minimum redshift loading
            z_max: maximum redshift loading
         """
 
-        z_min= kwargs.get('z_min', -1.0)
-        z_max= kwargs.get('z_max', -1.0)
 
         c._catalogues_append(self._cats, arr, z_min, z_max)
 

@@ -25,11 +25,10 @@ class Hod:
         ncen(M, z): mean number of central galaxy per halo
         nsat(M, z): mean number of satellite galaxies per halo
     """
-    def __init__(self, _hod=None, **kwargs):
+    def __init__(self, _hod=None, *, z0=0.5):
         if _hod:
             self._hod = _hod
         else:
-            z0 = kwargs.get('z0', 0.5)
             self._hod = c._hod_alloc(z0)
         self.z0 = c._hod_get_z0(self._hod)
 

@@ -3,13 +3,9 @@ import numpy
 import h5py
 
 class Hist2D:
-    def __init__(self, *args, **kwargs):
-        self.rp_min = kwargs.get('rp_min', 0.1)
-        self.rp_max = kwargs.get('rp_max', 60.0)
-        self.rp_nbin = kwargs.get('rp_nbin', 24)
-        self.pi_max = kwargs.get('pi_max', 60.0)
-        self.pi_nbin = kwargs.get('pi_nbin', 20)
-
+    def __init__(self, *args, *,
+                 rp_min=0.1, rp_max=60.0, rp_nbin=24,
+                 pi_max=60.0, pi_nbin=20):
         self._hist2d = c._corr_projected_hist2d_alloc(
             self.rp_min, self.rp_max, self.rp_nbin,
             self.pi_max, self.pi_nbin)
@@ -50,14 +46,10 @@ class CorrelationFunction:
     """
 
 
-    def __init__(self, *args, **kwargs):
-        self.rp_min = kwargs.get('rp_min', 0.01)
-        self.rp_max = kwargs.get('rp_max', 60.0)
-        self.nbin = kwargs.get('nbin', 101)
-        self.pi_max = kwargs.get('pi_max', 60.0)
-        self.pi_nbin = kwargs.get('pi_nbin', 10)
-        self.ra_min = kwargs.get('ra_min', 0.0)
-        self.dec_min = kwargs.get('dec_min', 0.0)
+    def __init__(self, *args, *,
+                 rp_min=0.1, rp_max=60.0, nbin=24,
+                 pi_max=60.0, pi_nbin=10,
+                 ra_min=0.0, dec_min=0.0):
         self._array = None
         
         self._corr = c._corr_projected_alloc(
