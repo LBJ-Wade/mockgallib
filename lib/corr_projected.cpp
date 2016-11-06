@@ -59,7 +59,8 @@ void corr_projected_free()
 static void allocate_vcorr(const size_t n_data_cat);
 
 static size_t count_pairs_auto(KDTree const * const tree,
-			const size_t ntree,
+			       const size_t ntree,
+			       const bool is_dd,
 			Histogram2D<LogBin, LinearBin>* const hist);
 
 static size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
@@ -246,7 +247,8 @@ void corr_projected_compute(Catalogues* const cats_data,
       rcat != cats_rand->end(); ++rcat) {    
     if(!(*rcat)->empty()) {
       compute_wsum(*rcat);
-      debug_count_rr += count_pairs_auto((*rcat)->tree, (*rcat)->ntree, &rr);
+      debug_count_rr +=
+	count_pairs_auto((*rcat)->tree, (*rcat)->ntree, false, &rr);
       rr.npairs += 0.5*((*rcat)->wsum*(*rcat)->wsum - (*rcat)->w2sum);
     }
     
@@ -268,7 +270,8 @@ void corr_projected_compute(Catalogues* const cats_data,
 
     // DD
     if(!(*cat)->empty()) {
-      debug_count_dd += count_pairs_auto((*cat)->tree, (*cat)->ntree, &dd);
+      debug_count_dd +=
+	count_pairs_auto((*cat)->tree, (*cat)->ntree, true, &dd);
 
       compute_wsum(*cat);
       dd.npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
@@ -323,7 +326,8 @@ void corr_projected_compute(Catalogues* const cats_data,
 
 static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 					 KDTree const * const tree,
-  				    Histogram2D<LogBin, LinearBin>* const hist)
+					 const bool is_dd,
+				   Histogram2D<LogBin, LinearBin>* const hist)
 {
   // prerequisit: set rmax
   //            : binary tree build
@@ -367,9 +371,11 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 	    
 	    dist_cylinder(p->x, q->x, rp, pi);
 
-	    if(pair_correction)
+	    if(is_dd && pair_correction)
 	      pw= corr_pair_correction(dist_angle(p, q));
 
+	    //if(dist_angle(p, q) < 0.01)
+	    //cerr << dist_angle(p, q) << " " << pw << endl;
 	    hist->add(rp, pi, p->w * p->w / pw);
 	  }
 	}
@@ -383,7 +389,7 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 
 	    dist_cylinder(p->x, q->x, rp, pi);
 
-	    if(pair_correction)
+	    if(is_dd && pair_correction)
 	      pw= corr_pair_correction(dist_angle(p, q));
 
 	    count++;
@@ -398,9 +404,9 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 
   // Recursively seach subtree
   if(tree->subtree[0])
-    count += count_pairs_leaf_tree_auto(leaf, tree->subtree[0], hist);
+    count += count_pairs_leaf_tree_auto(leaf, tree->subtree[0], is_dd, hist);
   if(tree->subtree[1])
-    count += count_pairs_leaf_tree_auto(leaf, tree->subtree[1], hist);
+    count += count_pairs_leaf_tree_auto(leaf, tree->subtree[1], is_dd, hist);
 
   return count;
 }
@@ -408,6 +414,7 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
 
 size_t count_pairs_auto(KDTree const * const tree,
 			const size_t ntree,
+			const bool is_dd,
 			Histogram2D<LogBin, LinearBin>* const hist)
 {
   // Run count_pairs_leaf_tree for each leaf
@@ -416,7 +423,7 @@ size_t count_pairs_auto(KDTree const * const tree,
   for(size_t i=0; i<ntree; ++i) {
     KDTree const * leaf= tree + i;
     if(leaf->subtree[0] == 0 && leaf->subtree[1] == 0) {
-      count += count_pairs_leaf_tree_auto(leaf, tree, hist);
+      count += count_pairs_leaf_tree_auto(leaf, tree, is_dd, hist);
     }
   }
 
@@ -447,7 +454,6 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
     return 0;
 #endif
 
-  double pw= 1.0;
   size_t count= 0;    
 
   if(tree->subtree[0] == 0 && tree->subtree[1] == 0) {
@@ -462,11 +468,8 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 	   fabs(p->radec[1] - q->radec[1]) >= dec_min){
 	  dist_cylinder(p->x, q->x, rp, pi);
 
-	  if(pair_correction)
-	    pw= corr_pair_correction(dist_angle(p, q));
-
 	  count++;
-	  hist->add(rp, pi, p->w * q->w / pw);
+	  hist->add(rp, pi, p->w * q->w);
 	}
       }
     }
@@ -734,7 +737,7 @@ void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
   for(Catalogues::iterator cat=
 	cats_rand->begin(); cat != cats_rand->end(); ++cat) {    
     if(!(*cat)->empty()) {
-      count_pairs_auto((*cat)->tree, (*cat)->ntree, rr);  
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, false, rr);  
       rr->npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
     }
   }
@@ -809,7 +812,7 @@ void corr_projected_compute_with_rr(Catalogues* const cats_data,
 
     // DD
     if(!(*cat)->empty())
-      count_pairs_auto((*cat)->tree, (*cat)->ntree, &dd);
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, true, &dd);
 
     dd.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
 

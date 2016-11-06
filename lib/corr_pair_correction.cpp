@@ -4,6 +4,7 @@
 #include <gsl/gsl_spline.h>
 
 #include "msg.h"
+#include "error.h"
 #include "corr_pair_correction.h"
 
 using namespace std;
@@ -21,6 +22,11 @@ void corr_pair_correction_init(const char filename[])
   double* w= theta + n_alloc;
 
   FILE* fp= fopen(filename, "r");
+  if(fp == 0) {
+    msg_printf(msg_fatal, "Error: unable to open pair_correction file %s",
+	       filename);
+    throw FileNotFoundError();
+  }
 
   char buf[128];
   int n= 0;
@@ -40,7 +46,7 @@ void corr_pair_correction_init(const char filename[])
   fclose(fp);
   free(theta);
 
-  msg_printf(msg_info, "pair correction: %s", filename);
+  msg_printf(msg_info, "pair correction: %s\n", filename);
 }
 
 void corr_pair_correction_free()
