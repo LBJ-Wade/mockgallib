@@ -153,15 +153,6 @@ static inline void dist_cylinder(const float x[], const float y[], float& rp, fl
     rp= sqrt(r2 - pi*pi);
 }
 
-// static inline float dist_angle(Particle const * const p,
-// 			       Particle const * const q)
-// {
-//   const float dra= p->radec[0] - q->radec[0];
-//   const float ddec= p->radec[1] - q->radec[1];
-  
-//   return sqrt(dra*dra + ddec*ddec);
-// }
-
 static inline float dist_angle(const float radec1[], const float radec2[])
 {
   const float dra= radec1[0] - radec2[0];
@@ -272,7 +263,6 @@ void corr_projected_compute(Catalogues* const cats_data,
       rr.npairs += 0.5*((*rcat)->wsum*(*rcat)->wsum - (*rcat)->w2sum);
     }
     
-    //rr.npairs += 0.5*(*rcat)->size()*((*rcat)->size() - 1);
     count_rr += (*rcat)->size()*((*rcat)->size() - 1)/2;
   }
 
@@ -297,7 +287,6 @@ void corr_projected_compute(Catalogues* const cats_data,
     }
 
     count_dd += (*cat)->size()*((*cat)->size()-1)/2;
-    //dd.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
 
 
     // DR
@@ -310,7 +299,6 @@ void corr_projected_compute(Catalogues* const cats_data,
       if(!(*cat)->empty() && !(*rcat)->empty()) {
 	debug_count_dr += count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, &dr);
       
-	//dr.npairs += (*cat)->size()*(*rcat)->size();
 	dr.npairs += (*cat)->wsum * (*rcat)->wsum;
 	count_dr += (*cat)->size()*(*rcat)->size();
       }
@@ -324,8 +312,6 @@ void corr_projected_compute(Catalogues* const cats_data,
     msg_printf(msg_debug, "debug_count rr %llu %llu\n",
 	       debug_count_rr, count_rr);
 
-    //(double) debug_count_dr,
-    //(double) debug_count_rr);
     assert(debug_count_dd == count_dd);
     assert(debug_count_dr == count_dr);
     assert(debug_count_rr == count_rr);
@@ -610,8 +596,6 @@ void compute_corr_from_histogram2d(
       if(rrr > 0.0) {
 	wp += ((dd->hist[index]/dd->npairs
 	     - 2.0*dr->hist[index]/dr->npairs)/rrr + 1.0)*dpi;
-	//wp += ((dd->hist[index]/dd->npairs)/rrr - 1.0)*dpi;
-
       }
 
       // xi = (DD - 2*DR + RR)/RR
@@ -723,8 +707,6 @@ void accumulate_hist(Histogram2D<LogBin, LinearBin>* const hist)
 void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
 				   Histogram2D<LogBin, LinearBin>* const rr)
 {
-  //rp_max= rr->x_max();
-  //pi_max= rr->y_max();
   msg_printf(msg_verbose, "corr_projected_compute_pairs_rr\n");
   msg_printf(msg_debug, "rp_min= %e, pi_max= %e\n", rp_min, rp_max);
 
@@ -773,7 +755,6 @@ void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
 
       compute_wsum(*cat);
       rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
-      //rr->npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
     }
   }
 
@@ -874,9 +855,6 @@ void corr_projected_compute_pairs_all(Catalogues* const cats_data,
   accumulate_hist(dd);
   accumulate_hist(dr);
   accumulate_hist(rr);
-  //msg_printf(msg_verbose, "%.1lf RR pairs.\n", rr->npairs);
-
-
 }
 
 void corr_projected_compute_with_rr(Catalogues* const cats_data,
@@ -984,35 +962,6 @@ void compute_wsum(Catalogue* const cat)
   cat->w2sum= w2sum;
 }
 
-/*
-void compute_npairs(Catalogue const * const cat1,
-		    Catalogue const * const cat2,
-		    double* const npairs)
-{
-  // npairs_auto = 0.5*[(Sum w)^2 - (Sum w^2)]
-  // npairs_corss = (Sum w1)*(Sum w2)
-  
-  double wsum1[2], wsum2[2];
-  compute_wsum(cat1, wsum1);
-  
-  npairs[0]= 0.5*(wsum1[0]*wsum1[0] - wsum2[1]);
-  npairs[1]= wsum1[0]*wsum2[0];
-  npairs[2]= 0.5*(wsum2[0]*wsum2[0] - wsum2[1]);    
-}
-
-double compute_npairs_auto(Catalogue const * const cat)
-{
-  // Return wsum = [Sum w, Sum w^2]
-  double wsum= 0.0, w2sum= 0.0;
-  
-  for(Catalogue::const_iterator p= cat->begin(); p != cat->end(); ++p) {
-    wsum += p->w;
-    w2sum += p->w * p->w;
-  }
-
-  return 0.5*(wsum*wsum - w2sum);
-}
-*/
 
 //
 // Direct N^2 computation (for tests)
@@ -1033,7 +982,6 @@ void count_pairs_auto_direct(Catalogue const * const cat,
 	if(is_dd && pair_correction)
 	  pw= corr_pair_correction(dist_angle(p->radec, q->radec));
 
-	//hist->add(rp, pi, 1.0); //deug!!!
 	hist->add(rp, pi, p->w * q->w / pw);
       }
     }
@@ -1154,7 +1102,6 @@ void corr_projected_compute_pairs_all_direct(Catalogues* const cats_data,
 				     Histogram2D<LogBin, LinearBin>* const rr)
 {
   msg_printf(msg_verbose, "Count DD DR RR pairs (direct).\n");
-  //msg_printf(msg_verbose, "corr_projected_compute_pairs_rr_direct\n");
   msg_printf(msg_debug, "rp_min= %e, pi_max= %e\n", rp_min, rp_max);
   rmax2= rp_max*rp_max + pi_max*pi_max;
 
