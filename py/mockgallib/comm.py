@@ -22,3 +22,12 @@ def bcast_str(src_str):
         str:           src_str in all MPI nodes
     """
     return c._comm_bcast_str(src_str)
+
+def bcast_int(src_int):
+    """Broadcast an integer to other MPI nodes from rank=0
+    Args:
+        src_int (int): sourse sring at rank=0
+    Return value:
+        int:           src_int in all MPI nodes
+    """
+    return c._comm_bcast_int(src_int)

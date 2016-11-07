@@ -41,3 +41,16 @@ PyObject* py_comm_bcast_str(PyObject *self, PyObject* args)
 
   return py_str;
 }
+
+PyObject* py_comm_bcast_int(PyObject *self, PyObject* args)
+{
+  int n;
+  
+  if(!PyArg_ParseTuple(args, "i", &n)) {
+    return NULL;
+  }
+
+  n= comm_bcast_int(n);
+
+  return Py_BuildValue("i", n);
+}

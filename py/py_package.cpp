@@ -280,6 +280,7 @@ static PyMethodDef methods[] = {
   {"_comm_this_rank", py_comm_this_rank, METH_VARARGS, "MPI rank"},
   {"_comm_n_nodes", py_comm_n_nodes, METH_VARARGS, "Number of MPI nodes"},
   {"_comm_bcast_str", py_comm_bcast_str, METH_VARARGS, "Broadcast string"},
+  {"_comm_bcast_int", py_comm_bcast_int, METH_VARARGS, "Broadcast int"},
 
   {"_array_loadtxt", py_array_loadtxt, METH_VARARGS, "Broadcast string"},
 
