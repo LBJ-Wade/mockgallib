@@ -155,6 +155,8 @@ void nbar_fitting_compute(NbarFitting* fitting)
   gsl_vector_free(ss);
   gsl_multimin_fminimizer_free(s);
 
+  msg_printf(msg_debug, "waiting at a barrier nbar_fitting\n");
+  comm_barrier();
 
   comm_mpi_bcast_double(fitting->hod->c, 4);
 }

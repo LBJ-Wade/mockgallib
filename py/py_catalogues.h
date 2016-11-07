@@ -18,5 +18,6 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args);
 
 PyObject* py_catalogues_ngal(PyObject* self, PyObject* args);
 PyObject* py_catalogues_nz(PyObject* self, PyObject* args);
+PyObject* py_catalogues_subsample(PyObject* self, PyObject* args);
 #endif
 

@@ -187,6 +187,8 @@ void corr_projected_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand,
 			    CorrProjected* const corr)
 {
+  cerr << "waiting at a barrier corr_projected_compute\n";
+  comm_barrier();
   //
   // Compute 2D correlation function
   //
@@ -687,6 +689,7 @@ void accumulate_hist(Histogram2D<LogBin, LinearBin>* const hist)
   double* const hist_sum= (double*) malloc(sizeof(double)*n); assert(hist_sum);
   double npairs_sum;
 
+  //cerr << "all reduce accumulate hist\n";
   MPI_Allreduce(&npairs, &npairs_sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
   msg_printf(msg_debug, "Accumulate hist %.1lf pairs -> %lf; %.3f\n",
@@ -1144,3 +1147,4 @@ void corr_projected_compute_pairs_all_direct(Catalogues* const cats_data,
   accumulate_hist(dr);
   accumulate_hist(rr);
 }
+

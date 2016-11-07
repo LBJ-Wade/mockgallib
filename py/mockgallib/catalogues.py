@@ -67,3 +67,7 @@ class Catalogues:
         """Return number of galaxies (ncen, nsat)
         """
         return c._catalogues_ngal(self._cats)
+
+    def subsample(self, n):
+        """Subsample each catalogues to n data if it is larger than n points"""
+        c._catalogues_subsample(self._cats, n)

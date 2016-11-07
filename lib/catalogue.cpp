@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <algorithm>
 #include <cassert>
 
 #include "msg.h"
@@ -348,3 +349,12 @@ double* catalogue_compute_nz(Catalogue const * const cat,
   return count;
 }
 
+
+void catalogue_subsample(Catalogue * const cat, const size_t n)
+{
+  if(cat->size() < n)
+    return;
+  
+  random_shuffle(cat->begin(), cat->end());
+  cat->resize(n);
+}

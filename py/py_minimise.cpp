@@ -317,3 +317,4 @@ int call_log_function_collective(PyObject* const py_log_function,
   
   return int_result;
 }
+

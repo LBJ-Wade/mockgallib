@@ -358,3 +358,24 @@ PyObject* py_catalogues_load_h5(PyObject* self, PyObject* args)
   Py_RETURN_NONE;
 }
 
+PyObject* py_catalogues_subsample(PyObject* self, PyObject* args)
+{
+  // _catalogues_subample(_cats, n)
+  // subsample catalogue to n points
+  
+  PyObject *py_catalogues;
+  int n;
+  if(!PyArg_ParseTuple(args, "Oi", &py_catalogues, &n)) {
+    return NULL;
+  }
+
+  Catalogues* const cats=
+    (Catalogues*) PyCapsule_GetPointer(py_catalogues, "_Catalogues");
+  py_assert_ptr(cats);
+
+  for(Catalogues::iterator c= cats->begin(); c != cats->end(); ++c)
+    catalogue_subsample(*c, n);
+
+  Py_RETURN_NONE;
+}
+

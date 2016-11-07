@@ -45,5 +45,6 @@ void catalogue_generate_random(Hod* const hod,
 double* catalogue_compute_nz(Catalogue const * const cat,
 		     const double z_min, const double z_max, const int nbin);
 
+void catalogue_subsample(Catalogue* const cat, const size_t n);
 
 #endif

@@ -30,6 +30,7 @@
 #include "py_minimise.h"
 #include "py_comm.h"
 #include "py_array.h"
+#include "py_callback.h"
 
 using namespace std;
 
@@ -181,6 +182,8 @@ static PyMethodDef methods[] = {
    "return average number of galaxies in catalogues"},
   {"_catalogues_nz", py_catalogues_nz, METH_VARARGS,
    "return number of galaxies dN/dz in catalogues"},
+  {"_catalogues_subsample", py_catalogues_subsample, METH_VARARGS,
+   "_catalogues_subsample(_catalogues, n)"},
   
   {"_sky_alloc", py_sky_alloc, METH_VARARGS,
    "allocate a new _Sky"},
@@ -279,6 +282,13 @@ static PyMethodDef methods[] = {
   {"_comm_bcast_str", py_comm_bcast_str, METH_VARARGS, "Broadcast string"},
 
   {"_array_loadtxt", py_array_loadtxt, METH_VARARGS, "Broadcast string"},
+
+  {"_callback_standby", py_callback_standby, METH_VARARGS,
+   "_callback_standby(function)"},
+  {"_callback_sync", py_callback_sync, METH_VARARGS,
+   "_callback_sync(x)"},
+  {"_callback_release", py_callback_release, METH_VARARGS,
+   "_callback_release"},
   
   {NULL, NULL, 0, NULL}
 };

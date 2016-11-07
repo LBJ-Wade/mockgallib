@@ -11,6 +11,7 @@ import mockgallib.sigma
 import mockgallib.rand
 import mockgallib.halo_concentration
 import mockgallib.array
+import mockgallib.callback
 
 from mockgallib._mockgallib import set_loglevel
 from mockgallib._mockgallib import growth_D
