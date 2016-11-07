@@ -1,6 +1,6 @@
 .PHONY: all lib py test check clean count
 
-WITHMPI := 1
+#WITHMPI := 1
 
 ifdef WITHMPI
 MPICXX  ?= mpic++

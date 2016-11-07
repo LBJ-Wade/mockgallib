@@ -85,6 +85,11 @@ void comm_mpi_bcast_double(double* const p, const int count)
   assert(ret == MPI_SUCCESS);
 }
 
+void comm_abort()
+{
+  MPI_Abort(MPI_COMM_WORLD, 1);
+}
+
 #else
 //
 // Serial: dummy communication functions
@@ -102,18 +107,41 @@ void comm_barrier() {}
 char* comm_bcast_char(char const * const src)
 {
   const size_t n= strlen(src);
-  char* const str= malloc(n+1); assert(str);
+  char* const str= (char*) malloc(n+1); assert(str);
   strncpy(str, src, n+1);
 
   return str;
 }
 
-double* comm_bcast_double(double const * const double_src, const int n_src)
+/*
+double* comm_bcast_double(double * const double_src, const int n_src)
 {
   return double_src;
 }
+*/
 
-int comm_mpi_bcast_double(double* const p, const int count){};
+ //int comm_mpi_bcast_double(double* const p, const int count){};
+int comm_bcast_int(const int val)
+{
+  return val;
+}
+
+void comm_mpi_bcast_double(double* const p, const int count)
+{
+}
+
+int comm_allreduce_min_int(int val)
+{
+  return val;
+}
+
+
+void comm_abort()
+{
+  abort();
+}
+
+
 #endif
 
 
@@ -129,11 +157,3 @@ int comm_n_nodes()
 }
 
 
-void comm_abort()
-{
-#ifdef WITHMPI
-  MPI_Abort(MPI_COMM_WORLD, 1);
-#else
-  abort();
-#endif
-}
