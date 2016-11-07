@@ -252,6 +252,50 @@ PyObject* py_corr_projected_compute_rr(PyObject* self, PyObject* args)
   return Py_BuildValue("d", rr->npairs);
 }
 
+PyObject* py_corr_projected_compute_all(PyObject* self, PyObject* args)
+{
+  ///Compute DD DR RR pairs from galaxy and random catalogues
+  ///Return: (npairs_DD, npairs_DR, npairs_RR)
+
+  PyObject *py_galaxies, *py_randoms;
+  PyObject *py_dd, *py_dr, *py_rr;
+  int direct;
+
+  if(!PyArg_ParseTuple(args, "OOOOOi", &py_galaxies, &py_randoms,
+		       &py_dd, &py_dr, &py_rr, &direct)) {
+    return NULL;
+  }
+
+  Catalogues* const galaxies=
+    (Catalogues*) PyCapsule_GetPointer(py_galaxies, "_Catalogues");
+  py_assert_ptr(galaxies);
+
+  Catalogues* const randoms=
+    (Catalogues*) PyCapsule_GetPointer(py_randoms, "_Catalogues");
+  py_assert_ptr(randoms);
+
+  Histogram2D<LogBin, LinearBin>* const dd=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_dd, "_Hist2D");
+  py_assert_ptr(dd);
+
+  Histogram2D<LogBin, LinearBin>* const dr=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_dr, "_Hist2D");
+  py_assert_ptr(dr);
+
+  Histogram2D<LogBin, LinearBin>* const rr=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_rr, "_Hist2D");
+  py_assert_ptr(rr);
+
+  if(direct) {
+    corr_projected_compute_pairs_all_direct(galaxies, randoms, dd, dr, rr);
+  }
+  else {
+    corr_projected_compute_pairs_all(galaxies, randoms, dd, dr, rr);
+  }
+
+  return Py_BuildValue("(ddd)", dd->npairs, dr->npairs, rr->npairs);
+}
+
 PyObject* py_corr_projected_compute_with_rr(PyObject* self, PyObject* args)
 {
   // _corr_projected_compute(mock_catalogues, random_catalogues,
@@ -380,4 +424,57 @@ PyObject* py_corr_dwp(PyObject* self, PyObject* args)
   npy_intp dims[]= {corr->n};
 
   return PyArray_SimpleNewFromData(nd, dims, NPY_DOUBLE, corr->dwp);
+}
+
+PyObject* py_corr_projected_compute_direct(PyObject* self, PyObject* args)
+{
+  // _corr_projected_compute(mock_catalogues, random_catalogues,
+  //                         correlation_functions)
+
+  PyObject *py_galaxies, *py_randoms, *py_corr;
+  
+  if(!PyArg_ParseTuple(args, "OOO", &py_galaxies, &py_randoms, &py_corr)) {
+    return NULL;
+  }
+
+  Catalogues* const galaxies=
+    (Catalogues*) PyCapsule_GetPointer(py_galaxies, "_Catalogues");
+  py_assert_ptr(galaxies);
+
+  Catalogues* const randoms=
+    (Catalogues*) PyCapsule_GetPointer(py_randoms, "_Catalogues");
+  py_assert_ptr(randoms);
+
+  CorrProjected* const corr=
+    (CorrProjected*) PyCapsule_GetPointer(py_corr, "_CorrProjected");
+  py_assert_ptr(corr);
+
+  corr_projected_compute_direct(galaxies, randoms, corr);
+  
+  Py_RETURN_NONE;
+}
+
+PyObject* py_corr_projected_compute_rr_direct(PyObject* self, PyObject* args)
+{
+  // _corr_projected_compute(mock_catalogues, random_catalogues,
+  //                         correlation_functions)
+
+  PyObject *py_randoms, *py_hist2d;
+  
+  if(!PyArg_ParseTuple(args, "OO", &py_randoms, &py_hist2d)) {
+    return NULL;
+  }
+  
+  Catalogues* const randoms=
+    (Catalogues*) PyCapsule_GetPointer(py_randoms, "_Catalogues");
+  py_assert_ptr(randoms);
+  
+
+  Histogram2D<LogBin, LinearBin>* const rr=
+   (Histogram2D<LogBin, LinearBin>*) PyCapsule_GetPointer(py_hist2d, "_Hist2D");
+  py_assert_ptr(rr);
+
+  corr_projected_compute_pairs_rr_direct(randoms, rr);
+
+  return Py_BuildValue("d", rr->npairs);
 }

@@ -25,7 +25,7 @@ static vector<CorrProjected*> vcorr;
 static float ra_min=0.0, dec_min= 0.0;
 static bool pair_correction= false;
 
-// #define DEBUG_TREE 1  // disable kdtree and count N^2 pairs 
+//define DEBUG_TREE 1  // disable kdtree and count N^2 pairs 
 
 void corr_projected_init(const float rp_min_, const float rp_max_, const int nbin_, const float pi_max_, const int nbin_pi_)
 {
@@ -34,6 +34,8 @@ void corr_projected_init(const float rp_min_, const float rp_max_, const int nbi
   nbin=   nbin_;
   pi_max= pi_max_;
   nbin_pi= nbin_pi_;
+
+  rmax2= rp_max*rp_max + pi_max*pi_max;
 
   msg_printf(msg_debug,
 	     "corr_projected_init %e %e %d %e %d\n",
@@ -66,6 +68,14 @@ static size_t count_pairs_auto(KDTree const * const tree,
 static size_t count_pairs_cross(KDTree const * const tree1, const size_t ntree1,
 			 KDTree const * const tree2,
 			 Histogram2D<LogBin, LinearBin>* const hist);
+
+static void count_pairs_auto_direct(Catalogue const * const cat,
+			     const bool is_dd,
+			     Histogram2D<LogBin, LinearBin>* const hist);
+
+static void count_pairs_cross_direct(Catalogue const * const cat,
+			      Catalogue const * const rcat,
+			      Histogram2D<LogBin, LinearBin>* const hist);
 
 static void compute_corr_from_histogram2d(
 			 Histogram2D<LogBin, LinearBin> const * const dd,
@@ -143,11 +153,19 @@ static inline void dist_cylinder(const float x[], const float y[], float& rp, fl
     rp= sqrt(r2 - pi*pi);
 }
 
-static inline float dist_angle(Particle const * const p,
-			       Particle const * const q)
+// static inline float dist_angle(Particle const * const p,
+// 			       Particle const * const q)
+// {
+//   const float dra= p->radec[0] - q->radec[0];
+//   const float ddec= p->radec[1] - q->radec[1];
+  
+//   return sqrt(dra*dra + ddec*ddec);
+// }
+
+static inline float dist_angle(const float radec1[], const float radec2[])
 {
-  const float dra= p->radec[0] - q->radec[0];
-  const float ddec= p->radec[1] - q->radec[1];
+  const float dra= radec1[0] - radec2[0];
+  const float ddec= radec1[1] - radec2[1];
   
   return sqrt(dra*dra + ddec*ddec);
 }
@@ -173,7 +191,7 @@ void set_radec_min(const float ra_min_, const float dec_min_)
   msg_printf(msg_verbose, "ra-dec min %e %e\n", ra_min, dec_min);
 }
 
-
+    
 void corr_projected_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand,
 			    CorrProjected* const corr)
@@ -242,6 +260,8 @@ void corr_projected_compute(Catalogues* const cats_data,
 
   // RR
   size_t debug_count_dd= 0, debug_count_dr=0, debug_count_rr=0;
+  size_t count_dd=0, count_dr=0, count_rr=0;
+  
   rr.clear();
   for(Catalogues::iterator rcat= cats_rand->begin();
       rcat != cats_rand->end(); ++rcat) {    
@@ -253,6 +273,7 @@ void corr_projected_compute(Catalogues* const cats_data,
     }
     
     //rr.npairs += 0.5*(*rcat)->size()*((*rcat)->size() - 1);
+    count_rr += (*rcat)->size()*((*rcat)->size() - 1)/2;
   }
 
   accumulate_hist(&rr);
@@ -263,8 +284,6 @@ void corr_projected_compute(Catalogues* const cats_data,
   
   for(Catalogues::iterator cat= cats_data->begin();
       cat != cats_data->end(); ++cat) {
-    dd.npairs= 0.0;
-    dr.npairs= 0.0;
     dd.clear();
     dr.clear();
 
@@ -277,6 +296,7 @@ void corr_projected_compute(Catalogues* const cats_data,
       dd.npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
     }
 
+    count_dd += (*cat)->size()*((*cat)->size()-1)/2;
     //dd.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
 
 
@@ -292,14 +312,23 @@ void corr_projected_compute(Catalogues* const cats_data,
       
 	//dr.npairs += (*cat)->size()*(*rcat)->size();
 	dr.npairs += (*cat)->wsum * (*rcat)->wsum;
+	count_dr += (*cat)->size()*(*rcat)->size();
       }
     }
 
-#ifdef TREE_DEBUG
-    msg_printf(msg_debug, "debug_count dd dr rr %e %e %e\n",
-	       (double) debug_count_dd,
-	       (double) debug_count_dr,
-	       (double) debug_count_rr);
+#ifdef DEBUG_TREE
+    msg_printf(msg_debug, "debug_count dd %llu %llu\n",
+	       debug_count_dd, count_dd);
+    msg_printf(msg_debug, "debug_count dr %llu %llu\n",
+	       debug_count_dr, count_dr);
+    msg_printf(msg_debug, "debug_count rr %llu %llu\n",
+	       debug_count_rr, count_rr);
+
+    //(double) debug_count_dr,
+    //(double) debug_count_rr);
+    assert(debug_count_dd == count_dd);
+    assert(debug_count_dr == count_dr);
+    assert(debug_count_rr == count_rr);
 #endif
 
     accumulate_hist(&dd);
@@ -365,18 +394,16 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
     if(leaf == tree) {
       for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p) {
 	for(Particle const *q= p+1; q != leaf->particles[1]; ++q) {
+	  count++;
 	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	     fabs(p->radec[1] - q->radec[1]) >= dec_min) {
-	    count++;
 	    
 	    dist_cylinder(p->x, q->x, rp, pi);
 
 	    if(is_dd && pair_correction)
-	      pw= corr_pair_correction(dist_angle(p, q));
+	      pw= corr_pair_correction(dist_angle(p->radec, q->radec));
 
-	    //if(dist_angle(p, q) < 0.01)
-	    //cerr << dist_angle(p, q) << " " << pw << endl;
-	    hist->add(rp, pi, p->w * p->w / pw);
+	    hist->add(rp, pi, p->w * q->w / pw);
 	  }
 	}
       }
@@ -384,15 +411,16 @@ static size_t count_pairs_leaf_tree_auto(KDTree const * const leaf,
     else {
       for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p){
 	for(Particle const *q= tree->particles[0]; q != tree->particles[1];++q){
+	  count++;
+		    
 	  if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	     fabs(p->radec[1] - q->radec[1]) >= dec_min) {
 
 	    dist_cylinder(p->x, q->x, rp, pi);
 
 	    if(is_dd && pair_correction)
-	      pw= corr_pair_correction(dist_angle(p, q));
+	      pw= corr_pair_correction(dist_angle(p->radec, q->radec));
 
-	    count++;
 	    hist->add(rp, pi, p->w * q->w / pw);
 	  }
 	}
@@ -464,11 +492,12 @@ static size_t count_pairs_leaf_tree_cross(KDTree const * const leaf,
 
     for(Particle const *p= leaf->particles[0]; p != leaf->particles[1]; ++p){
       for(Particle const *q= tree->particles[0]; q != tree->particles[1];++q){
+	count++;
+
 	if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
 	   fabs(p->radec[1] - q->radec[1]) >= dec_min){
 	  dist_cylinder(p->x, q->x, rp, pi);
 
-	  count++;
 	  hist->add(rp, pi, p->w * q->w);
 	}
       }
@@ -581,6 +610,8 @@ void compute_corr_from_histogram2d(
       if(rrr > 0.0) {
 	wp += ((dd->hist[index]/dd->npairs
 	     - 2.0*dr->hist[index]/dr->npairs)/rrr + 1.0)*dpi;
+	//wp += ((dd->hist[index]/dd->npairs)/rrr - 1.0)*dpi;
+
       }
 
       // xi = (DD - 2*DR + RR)/RR
@@ -694,6 +725,7 @@ void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
 {
   //rp_max= rr->x_max();
   //pi_max= rr->y_max();
+  msg_printf(msg_verbose, "corr_projected_compute_pairs_rr\n");
   msg_printf(msg_debug, "rp_min= %e, pi_max= %e\n", rp_min, rp_max);
 
   rmax2= rp_max*rp_max + pi_max*pi_max;
@@ -737,14 +769,114 @@ void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
   for(Catalogues::iterator cat=
 	cats_rand->begin(); cat != cats_rand->end(); ++cat) {    
     if(!(*cat)->empty()) {
-      count_pairs_auto((*cat)->tree, (*cat)->ntree, false, rr);  
-      rr->npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, false, rr);
+
+      compute_wsum(*cat);
+      rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+      //rr->npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
     }
   }
 
   msg_printf(msg_verbose, "%.1lf RR pairs.\n", rr->npairs);
 
   accumulate_hist(rr);
+}
+
+void corr_projected_compute_pairs_all(Catalogues* const cats_data,
+				     Catalogues* const cats_rand,
+				     Histogram2D<LogBin, LinearBin>* const dd,
+				     Histogram2D<LogBin, LinearBin>* const dr,
+				     Histogram2D<LogBin, LinearBin>* const rr)
+{
+  msg_printf(msg_verbose, "corr_projected_compute_pairs_all\n");
+  msg_printf(msg_debug, "rp_min= %e, pi_max= %e\n", rp_min, rp_max);
+
+  rmax2= rp_max*rp_max + pi_max*pi_max;
+
+  //
+  // Setup KDTree
+  //
+  size_t nalloc= count_num_points(cats_data) + count_num_points(cats_rand);
+  const int quota = 32;
+
+  if(tree_alloc == 0) {
+    tree_alloc= (KDTree*) malloc(sizeof(KDTree)*nalloc);
+    msg_printf(msg_verbose, "%lu trees allocated (%lu Mbytes)\n",
+	       nalloc, nalloc*sizeof(KDTree) / (1024*1024));
+  }
+
+  KDTree* tree_free= tree_alloc;
+  size_t ntree_used= 0;
+
+  // KDTree for Data
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
+    (*cat)->tree= tree_free;
+
+    (*cat)->ntree = kdtree_construct((*cat)->tree, &((*cat)->front()),
+				     (*cat)->size(), quota);
+    ntree_used += (*cat)->ntree;
+    tree_free +=  (*cat)->ntree;
+  }
+
+  // KDTree for Randoms
+  for(Catalogues::iterator cat= cats_rand->begin();
+      cat != cats_rand->end(); ++cat) {
+    (*cat)->tree= tree_free;
+    (*cat)->ntree = kdtree_construct((*cat)->tree, &((*cat)->front()),
+				     (*cat)->size(), quota);
+    ntree_used += (*cat)->ntree;
+    tree_free += (*cat)->ntree;
+  }
+
+  msg_printf(msg_verbose, "%lu trees used (%lu Mbytes).\n",
+	     ntree_used, ntree_used*sizeof(KDTree) / (1024*1024));
+  msg_printf(msg_verbose, "Computing correlation function.\n");
+
+  //
+  // Count pairs RR
+  //
+  rr->clear();
+  for(Catalogues::iterator cat=
+	cats_rand->begin(); cat != cats_rand->end(); ++cat) {    
+    if(!(*cat)->empty()) {
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, false, rr);
+
+      compute_wsum(*cat);
+      rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+    }
+  }
+
+  dd->clear();
+  dr->clear();
+
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
+    // DD
+    if(!(*cat)->empty()) {
+      count_pairs_auto((*cat)->tree, (*cat)->ntree, true, dd);
+
+      compute_wsum(*cat);
+      dd->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+    }
+
+    // DR
+    // ndata_cat * nrand_cat cross pairs
+    for(Catalogues::iterator rcat= cats_rand->begin();
+      rcat != cats_rand->end(); ++rcat) {    
+
+      if(!(*cat)->empty() && !(*rcat)->empty())
+	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, dr);
+      dr->npairs += (*cat)->wsum * (*rcat)->wsum;
+    }
+  }
+
+  accumulate_hist(dd);
+  accumulate_hist(dr);
+  accumulate_hist(rr);
+  //msg_printf(msg_verbose, "%.1lf RR pairs.\n", rr->npairs);
+
+
 }
 
 void corr_projected_compute_with_rr(Catalogues* const cats_data,
@@ -881,3 +1013,187 @@ double compute_npairs_auto(Catalogue const * const cat)
   return 0.5*(wsum*wsum - w2sum);
 }
 */
+
+//
+// Direct N^2 computation (for tests)
+//
+void count_pairs_auto_direct(Catalogue const * const cat,
+			     const bool is_dd,
+			     Histogram2D<LogBin, LinearBin>* const hist)
+{
+  for(Catalogue::const_iterator p= cat->begin(); p != cat->end(); ++p) {
+    for(Catalogue::const_iterator q= p+1; q != cat->end(); ++q) {
+      if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
+	 fabs(p->radec[1] - q->radec[1]) >= dec_min) {
+	float rp, pi;
+	double pw= 1.0;
+
+	dist_cylinder(p->x, q->x, rp, pi);
+
+	if(is_dd && pair_correction)
+	  pw= corr_pair_correction(dist_angle(p->radec, q->radec));
+
+	//hist->add(rp, pi, 1.0); //deug!!!
+	hist->add(rp, pi, p->w * q->w / pw);
+      }
+    }
+  }
+}
+
+void count_pairs_cross_direct(Catalogue const * const cat,
+			     Catalogue const * const rcat,
+			     Histogram2D<LogBin, LinearBin>* const hist)
+{
+  for(Catalogue::const_iterator p= cat->begin(); p != cat->end(); ++p) {
+    for(Catalogue::const_iterator q= rcat->begin(); q != rcat->end(); ++q) {
+      if(fabs(p->radec[0] - q->radec[0]) >= ra_min ||
+	 fabs(p->radec[1] - q->radec[1]) >= dec_min) {
+	float rp, pi;
+	
+	dist_cylinder(p->x, q->x, rp, pi);
+
+	hist->add(rp, pi, p->w * q->w);
+      }
+    }
+  }
+}
+
+void corr_projected_compute_direct(Catalogues* const cats_data,
+				   Catalogues* const cats_rand,
+				   CorrProjected* const corr)
+{
+  rmax2= rp_max*rp_max + pi_max*pi_max;
+  allocate_vcorr(cats_data->size());
+
+  Histogram2D<LogBin, LinearBin>
+    dd(LogBin(rp_min, rp_max, nbin), LinearBin(0.0f, pi_max, nbin_pi)),
+    dr(LogBin(rp_min, rp_max, nbin), LinearBin(0.0f, pi_max, nbin_pi)),
+    rr(LogBin(rp_min, rp_max, nbin), LinearBin(0.0f, pi_max, nbin_pi));
+
+
+  rr.clear();
+  for(Catalogues::iterator rcat= cats_rand->begin();
+      rcat != cats_rand->end(); ++rcat) {
+
+    compute_wsum(*rcat);
+    count_pairs_auto_direct(*rcat, false, &rr);
+      
+    rr.npairs += 0.5*((*rcat)->wsum*(*rcat)->wsum - (*rcat)->w2sum);
+  }
+
+  int icat=0;
+  assert(cats_data->size() > 0);
+  const int rand_cats_factor= cats_rand->size() / cats_data->size();
+  
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
+    dd.clear();
+    dr.clear();
+
+    // DD
+    count_pairs_auto_direct(*cat, true, &dd);
+
+    compute_wsum(*cat);
+    dd.npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+
+    // DR
+    // Not ndata_cat * nrand_cat crosses, but nrand_cat cross pairs
+    for(size_t icat_rand=0; icat_rand<rand_cats_factor; ++icat_rand) {
+      Catalogues::iterator rcat= cats_rand->begin() + icat +
+	                           icat_rand * cats_data->size();
+      assert(icat + icat_rand * cats_data->size() < cats_rand->size());
+
+      if(!(*cat)->empty() && !(*rcat)->empty()) {
+	count_pairs_cross_direct(*cat, *rcat, &dr);
+      
+	dr.npairs += (*cat)->wsum * (*rcat)->wsum;
+      }
+    }
+
+    accumulate_hist(&dd);
+    accumulate_hist(&dr);
+
+    compute_corr_from_histogram2d(&dd, &dr, &rr, pi_max, vcorr.at(icat));
+
+    icat++;
+  }
+  corr_projected_summarise(corr);
+}
+
+
+void corr_projected_compute_pairs_rr_direct(Catalogues* const cats_rand,
+				   Histogram2D<LogBin, LinearBin>* const rr)
+{
+  msg_printf(msg_verbose, "corr_projected_compute_pairs_rr_direct\n");
+  msg_printf(msg_debug, "rp_min= %e, pi_max= %e\n", rp_min, rp_max);
+  rmax2= rp_max*rp_max + pi_max*pi_max;
+
+  //
+  // Count pairs RR
+  //
+  rr->clear();
+  for(Catalogues::iterator cat=
+	cats_rand->begin(); cat != cats_rand->end(); ++cat) {    
+    if(!(*cat)->empty()) {
+      count_pairs_auto_direct(*cat, false, rr);
+      
+      compute_wsum(*cat);
+      rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+    }
+  }
+
+  msg_printf(msg_verbose, "%.1lf RR pairs.\n", rr->npairs);
+
+  accumulate_hist(rr);
+}
+
+void corr_projected_compute_pairs_all_direct(Catalogues* const cats_data,
+					     Catalogues* const cats_rand,
+				     Histogram2D<LogBin, LinearBin>* const dd,
+				     Histogram2D<LogBin, LinearBin>* const dr,
+				     Histogram2D<LogBin, LinearBin>* const rr)
+{
+  msg_printf(msg_verbose, "Count DD DR RR pairs (direct).\n");
+  //msg_printf(msg_verbose, "corr_projected_compute_pairs_rr_direct\n");
+  msg_printf(msg_debug, "rp_min= %e, pi_max= %e\n", rp_min, rp_max);
+  rmax2= rp_max*rp_max + pi_max*pi_max;
+
+  //
+  // Count pairs RR
+  //
+  rr->clear();
+  for(Catalogues::iterator cat=
+	cats_rand->begin(); cat != cats_rand->end(); ++cat) {    
+    if(!(*cat)->empty()) {
+      count_pairs_auto_direct(*cat, false, rr);
+      
+      compute_wsum(*cat);
+      rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+    }
+  }
+
+  dd->clear();
+  dr->clear();
+
+  for(Catalogues::iterator cat= cats_data->begin();
+      cat != cats_data->end(); ++cat) {
+    // DD
+    count_pairs_auto_direct(*cat, true, dd);
+
+    compute_wsum(*cat);
+    dd->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+
+    // DR
+    // ndata_cat * nrand_cat cross pairs
+    for(Catalogues::iterator rcat= cats_rand->begin();
+      rcat != cats_rand->end(); ++rcat) {    
+
+      count_pairs_cross_direct(*cat, *rcat, dr);
+      dr->npairs += (*cat)->wsum * (*rcat)->wsum;
+    }
+  }
+
+  accumulate_hist(dd);
+  accumulate_hist(dr);
+  accumulate_hist(rr);
+}

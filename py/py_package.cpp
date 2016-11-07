@@ -263,6 +263,13 @@ static PyMethodDef methods[] = {
   {"_corr_projected_compute_with_rr", py_corr_projected_compute_with_rr,
    METH_VARARGS, "_corr_projected_compute_with_rr"},
 
+  {"_corr_projected_compute_direct", py_corr_projected_compute_direct,
+   METH_VARARGS, "_corr_projected_compute_direct"},
+  {"_corr_projected_compute_rr_direct", py_corr_projected_compute_rr_direct,
+   METH_VARARGS, "_corr_projected_compute_rr_direct"},
+  {"_corr_projected_compute_all", py_corr_projected_compute_all,
+   METH_VARARGS, "_corr_projected_compute_all"},
+
   {"_minimise", py_minimise, METH_VARARGS, "minimise funtion"},
 
   {"_comm_init", py_comm_init, METH_VARARGS, "Initialize MPI"},

@@ -92,21 +92,40 @@ class CorrelationFunction:
                 + "%d linear bins in pi (0, %e)") % (self.nbin,
                 self.rp_min, self.rp_max, self.pi_nbin, self.pi_max)
 
-    def compute_corr_projected(self, cats_galaxies, cats_randoms):
+    def compute_corr_projected(self, cats_galaxies, cats_randoms, *,
+                               direct=False):
         """Computes projected correlation function."""
-        c._corr_projected_compute(cats_galaxies._cats,
-                                  cats_randoms._cats,
-                                  self._corr)
+
+        if direct:
+            c._corr_projected_compute_direct(cats_galaxies._cats,
+                                             cats_randoms._cats,
+                                             self._corr)
+        else:
+            c._corr_projected_compute(cats_galaxies._cats,
+                                      cats_randoms._cats,
+                                      self._corr)
 
         self._array = numpy.transpose(c._corr_as_array(self._corr))
         return self._array
 
-    def compute_corr_projected_rr(self, cats_randoms, rr):
+    def compute_corr_projected_rr(self, cats_randoms, rr, *,
+                                  direct=False):
         """Compute RR Hist2D
         Returns:
           rr->npairs
         """
+
+        if direct:
+            return c._corr_projected_compute_rr_direct(cats_randoms._cats, rr._hist2d)
+
         return c._corr_projected_compute_rr(cats_randoms._cats, rr._hist2d)
+
+    def compute_corr_projected_pairs(self, cat_galaxies, cat_randoms,
+                                     dd, dr, rr, *, direct=False):
+        return c._corr_projected_compute_all(cat_galaxies._cats,
+                                    cat_randoms._cats,
+                                    dd._hist2d, dr._hist2d, rr._hist2d,
+                                    int(direct))
 
     def compute_corr_projected_with_rr(self, cats_galaxies, cats_randoms, rr):
         """Compute projected correlation function with given RR

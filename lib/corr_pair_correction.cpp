@@ -37,6 +37,7 @@ void corr_pair_correction_init(const char filename[])
   }
 
   spline= gsl_spline_alloc(gsl_interp_cspline, n);
+  //spline= gsl_spline_alloc(gsl_interp_linear, n);
   acc= gsl_interp_accel_alloc();
 
   gsl_spline_init(spline, theta, w, n);

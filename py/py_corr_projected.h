@@ -25,4 +25,8 @@ PyObject* py_corr_rp_i(PyObject* self, PyObject* args);
 PyObject* py_corr_wp_i(PyObject* self, PyObject* args);
 PyObject* py_corr_projected_compute_rr(PyObject* self, PyObject* args);
 PyObject* py_corr_projected_compute_with_rr(PyObject* self, PyObject* args);
+
+PyObject* py_corr_projected_compute_direct(PyObject* self, PyObject* args);
+PyObject* py_corr_projected_compute_rr_direct(PyObject* self, PyObject* args);
+PyObject* py_corr_projected_compute_all(PyObject* self, PyObject* args);
 #endif

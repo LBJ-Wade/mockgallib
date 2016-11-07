@@ -27,11 +27,27 @@ void corr_projected_compute(Catalogues* const cats_data,
 
 void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
 				     Histogram2D<LogBin, LinearBin>* const rr);
+void corr_projected_compute_pairs_all(Catalogues* const cats_data,
+				      Catalogues* const cats_rand,
+				      Histogram2D<LogBin, LinearBin>* const dd,
+				      Histogram2D<LogBin, LinearBin>* const dr,
+				      Histogram2D<LogBin, LinearBin>* const rr);
 void corr_projected_compute_with_rr(Catalogues* const cats_data,
 				    Catalogues* const cats_rand,
 			    Histogram2D<LogBin, LinearBin> const * const rr);
 
 CorrProjected* corr_projected_i(const int i);
+
+void corr_projected_compute_direct(Catalogues* const cats_data,
+				   Catalogues* const cats_rand,
+				   CorrProjected* const corr);
+void corr_projected_compute_pairs_rr_direct(Catalogues* const cats_rand,
+				   Histogram2D<LogBin, LinearBin>* const rr);
+void corr_projected_compute_pairs_all_direct(Catalogues* const cats_data,
+					     Catalogues* const cats_rand,
+				     Histogram2D<LogBin, LinearBin>* const dd,
+				     Histogram2D<LogBin, LinearBin>* const dr,
+				     Histogram2D<LogBin, LinearBin>* const rr);
 
 /*
 struct Catalogue: std::vector<Particle>
