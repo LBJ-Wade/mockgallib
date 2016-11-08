@@ -33,16 +33,16 @@ class Catalogues:
     def load_h5(self, filename):
         c._catalogues_load_h5(self._cats, filename)
 
-    def generate_galaxies(self, hod, lightcones, z_min, z_max):
+    def generate_galaxies(self, hod, lightcones, sky, z_min, z_max):
         """Generates n mock catalogues from n lightcones.
         Existing catalogues will be overwritten
         """
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
-                               z_min, z_max, 0)
+                               sky._sky, z_min, z_max, 0)
 
-    def generate_randoms(self, hod, lightcones, z_min, z_max):
+    def generate_randoms(self, hod, lightcones, sky, z_min, z_max):
         c._catalogues_generate(self._cats, hod._hod, lightcones._lt,
-                               z_min, z_max, 1)
+                               sky._sky, z_min, z_max, 1)
 
     def append(self, arr, *, z_min= 0.0, z_max= 100.0):
         """Append a catalogue

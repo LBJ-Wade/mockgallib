@@ -11,7 +11,6 @@
 #include "catalogue.h"
 #include "satellite.h"
 
-#include "sky.h"
 #include "mf_cumulative.h"
 using namespace std;
 
@@ -121,6 +120,7 @@ void catalogue_free()
 
 void catalogue_generate_mock(Hod* const hod,
 			     LightCone const * const lightcone,
+			     Sky const * const sky,
 			     const double z_min, const double z_max,
 			     Catalogue * const cat)
 {
@@ -189,9 +189,10 @@ void catalogue_generate_mock(Hod* const hod,
       p.x[2] += h->x[2];
       p.z     = h->z;
       p.vr   += h->vr;
-      p.radec[0] = h->radec[0];
-      p.radec[1] = h->radec[1];
-
+      //p.radec[0] = h->radec[0];
+      //p.radec[1] = h->radec[1];
+      sky->compute_radec(p.x, p.radec);
+    
       cat->push_back(p);
     }    
   }
@@ -253,6 +254,7 @@ void catalogue_generate_centrals(Hod* const hod,
 
 void catalogue_generate_random(Hod* const hod,
 			       LightCone const * const lightcone,
+			       Sky const * const sky,
 			       const double z_min, const double z_max,
 			       Catalogue * const cat)
 {
@@ -283,7 +285,6 @@ void catalogue_generate_random(Hod* const hod,
     int iz= (int)((h->z - z_min)/dz); assert(0 <= iz && iz < n_zbin);
     
     if(rand_uniform() <= ncen) {
-      
       p.x[0]= h->x[0];
       p.x[1]= h->x[1];
       p.x[2]= h->x[2];
@@ -319,8 +320,9 @@ void catalogue_generate_random(Hod* const hod,
       p.x[2] += h->x[2];
       p.z     = h->z;
       p.vr   += h->vr;
-      p.radec[0] = h->radec[0];
-      p.radec[1] = h->radec[1];
+      //p.radec[0] = h->radec[0];
+      //p.radec[1] = h->radec[1];
+      sky->compute_radec(p.x, p.radec);
 
       cat->push_back(p);
     }

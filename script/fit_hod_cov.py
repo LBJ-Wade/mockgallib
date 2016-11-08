@@ -58,18 +58,32 @@ print0('Using linear power spectrum: ' + param['power_spectrum'])
 mock.power.init(arg.dir + '/' + param['power_spectrum'])
 
 # redshift_bins
+z_mins = []
+z_maxs = []
 def read_redshift_bins(redshift_bins):
     arr = []
     for zbin in redshift_bins:
         arr.append((float(zbin['zmin']), float(zbin['zmax'])))
+        z_mins.append(float(zbin['zmin']))
+        z_maxs.append(float(zbin['zmax']))
 
     return arr
 
 redshift_bins = read_redshift_bins(param['redshift_bins'])
 print0(redshift_bins)
 
+z_min_all = min(z_mins)
+z_max_all = max(z_maxs)
+
+
 # nz
 nbar_obs=  mock.array.loadtxt(arg.dir + '/' + param['nz'])
+
+
+# sky
+sky = {}
+for reg in param['reg']:
+    sky[reg['name']] = mock.Sky(reg['ra'], reg['dec'], [z_min_all, z_max_all])
 
 flog = None
 iter = 0
@@ -101,6 +115,7 @@ class Data:
         self.reg = domain[0]
         self.z_min = float(domain[1])
         self.z_max = float(domain[2])
+        self.sky = sky[self.reg]
 
         print0('Create Data for ', domain) 
         
@@ -150,9 +165,11 @@ class Data:
         """Generate galaxy and random catalogues from given HOD"""
         print0('generate catalogues for %.2f - %.2f' % (self.z_min, self.z_max))
         self.galaxy_catalogues.generate_galaxies(hod, self.halo_lightcones,
+                                                 self.sky,
                                                  self.z_min, self.z_max)
         
         self.random_catalogues.generate_randoms(hod, self.rand_lightcones,
+                                                self.sky,
                                                 self.z_min, self.z_max)
 
 
@@ -211,7 +228,7 @@ hod.set_coef([12, 0.0, 0.0, 0, 0.1, 0.0, 1.5, 0.0, 1.5, 0.0, 3.0])
 #
 # Setup HOD parameter fitting
 #
-nbar= mock.NbarFitting(hod, nbar_obs, 0.6, 1.2)
+nbar= mock.NbarFitting(hod, nbar_obs, 0.5, 1.2)
 nbar1 = mock.Nbar(hod)
 
 #
@@ -232,6 +249,7 @@ def write_nbar_fitting(nz, nbar1, index):
     """
     filename = '%s/nz_%05d.txt' % (outdir, index)
     with open(filename, 'w') as f:
+        print('write_nbar_fitting', hod)
         for i in range(len(nz)):
             ncen = nbar1.ncen(nz.z[i])
             nsat = nbar1.nsat(nz.z[i])
@@ -314,6 +332,7 @@ def logging_minimization(x):
 
     # Find best fitting logMmin(z) function
     nbar.fit()
+    print('logging nbar.fit', hod)
 
     chi2_total = 0.0
     chi2_each = []
@@ -340,8 +359,8 @@ def logging_minimization(x):
 #x0 = [ float(x) for x in arg.x0.split(',') ]
 #print(x0)
 
-x0 = [1.0, 1.0, 0.15, 1.0]
-ss = [0.1, 0.1, 0.02, 0.05]
+x0 = [1.0, 0.0, 0.15, 1.0]
+ss = [1.0, 0.0, 0.2,  0.5]
 
 if arg.test:
     x = x0

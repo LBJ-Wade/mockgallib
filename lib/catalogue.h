@@ -7,6 +7,7 @@
 #include "kdtree.h"
 #include "hod.h"
 #include "lightcone.h"
+#include "sky.h"
 
 class Catalogue: public std::vector<Particle>
 {
@@ -34,11 +35,13 @@ void catalogue_free();
 
 void catalogue_generate_mock(Hod* const hod,
 			     LightCone const * const lightcone,
+			     Sky const * const sky,
 			     const double z_min, const double z_max,
 			     Catalogue * const cat);
 
 void catalogue_generate_random(Hod* const hod,
 			       LightCone const * const lightcone,
+			       Sky const * const sky,
 			       const double z_min, const double z_max,
 			       Catalogue * const cat);
 
