@@ -33,7 +33,7 @@ PyObject* py_callback_standby(PyObject *self, PyObject *args)
   
   while(1) {
     int command= comm_bcast_int(0);
-    cerr << "received signal " << command << endl;
+    //cerr << "received signal " << command << endl;
     
     if(command == 123) {
       //cerr << "received signal to call callback function\n";
@@ -67,7 +67,7 @@ PyObject* py_callback_sync(PyObject *self, PyObject *args)
     return NULL;
   }
 
-  cerr << "send command 123\n";
+  msg_printf(msg_debug, "send command 123\n");
   comm_bcast_int(123);
   
   if(!PyList_Check(py_x)) {
@@ -85,10 +85,8 @@ PyObject* py_callback_sync(PyObject *self, PyObject *args)
     x[i]= PyFloat_AsDouble(py_x_i);
   }
 
-  //cerr << "send n" << n << endl;
   comm_bcast_int(n);
 
-  //cerr << "send x[" << n << "]\n";
   comm_mpi_bcast_double(x, n);
   free(x);
 
@@ -98,7 +96,8 @@ PyObject* py_callback_sync(PyObject *self, PyObject *args)
 PyObject* py_callback_release(PyObject *self, PyObject *args)
 {
   assert(comm_this_rank() == 0);
-  cerr << "_callback_relase 456\n";
+  msg_printf(msg_debug, "_callback_release 456\n");
+
   comm_bcast_int(456);
   Py_RETURN_NONE;
 }
@@ -107,12 +106,9 @@ int call_function_collective(PyObject* const py_function)
 {
   assert(comm_this_rank() != 0);
 
-  //cerr << "get n ...";
   int n= comm_bcast_int(0);
-  //cerr << n << endl;
   double* const x= (double*) malloc(sizeof(double)*n);
 
-  //cerr << "get x[" << n << "]\n";
   comm_mpi_bcast_double(x, n);
 
   PyObject* py_x= PyList_New(n);

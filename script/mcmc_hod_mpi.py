@@ -31,6 +31,7 @@ parser.add_argument('--nchain', default="10", help='length of MCMC chain')
 
 arg = parser.parse_args()
 outdir = arg.outdir
+nsample = int(arg.subsample)
 
 mock.set_loglevel(0)
 
@@ -61,18 +62,31 @@ print0('Using linear power spectrum: ' + param['power_spectrum'])
 mock.power.init(arg.dir + '/' + param['power_spectrum'])
 
 # redshift_bins
+z_mins = []
+z_maxs = []
+
 def read_redshift_bins(redshift_bins):
     arr = []
     for zbin in redshift_bins:
         arr.append((float(zbin['zmin']), float(zbin['zmax'])))
+        z_mins.append(float(zbin['zmin']))
+        z_maxs.append(float(zbin['zmax']))
 
     return arr
 
 redshift_bins = read_redshift_bins(param['redshift_bins'])
 print0(redshift_bins)
 
+z_min_all = min(z_mins)
+z_max_all = max(z_maxs)
+
 # nz
 nbar_obs=  mock.array.loadtxt(arg.dir + '/' + param['nz'])
+
+# sky
+sky = {}
+for reg in param['reg']:
+    sky[reg['name']] = mock.Sky(reg['ra'], reg['dec'], [z_min_all, z_max_all])
 
 flog = None
 iter = 0
@@ -104,7 +118,8 @@ class Data:
         self.reg = domain[0]
         self.z_min = float(domain[1])
         self.z_max = float(domain[2])
-
+        self.sky = sky[self.reg]
+        
         print0('Create Data for ', domain) 
         
         # Load lightcones
@@ -153,10 +168,16 @@ class Data:
         """Generate galaxy and random catalogues from given HOD"""
         print0('generate catalogues for %.2f - %.2f' % (self.z_min, self.z_max))
         self.galaxy_catalogues.generate_galaxies(hod, self.halo_lightcones,
+                                                 self.sky,
                                                  self.z_min, self.z_max)
         
         self.random_catalogues.generate_randoms(hod, self.rand_lightcones,
+                                                self.sky,
                                                 self.z_min, self.z_max)
+
+        if nsample > 0:
+            self.galaxy_catalogues.subsample(nsample)
+            self.random_catalogues.subsample(nsample)
 
 
     def chi2(self, hod):
@@ -304,8 +325,11 @@ def lnprob_function(x):
     
     # Find best fitting logMmin(z) function
     nbar.fit()
+    nbar_fitting_iter = nbar.iter
+    nbar_fitting_iter = mock.comm.bcast_int(nbar_fitting_iter)
+
     print0('nbar.fit', nbar.iter)
-    if nbar.iter > 900:
+    if nbar_fitting_iter > 900:
         return -1000.0
 
     chi2 = 0
@@ -335,8 +359,11 @@ def logging_minimization(x):
     hod[8] = x[3] # alpha
 
     # Find best fitting logMmin(z) function
-    nbar_iter= nbar.fit()
-    print('logging nbar.fit %d' % nbar_iter, hod)
+    nbar.fit()
+    nbar_fitting_iter = nbar.iter
+    nbar_fitting_iter = mock.comm.bcast_int(nbar_fitting_iter)
+
+    print('logging nbar.fit %d' % nbar_fitting_iter, hod)
     if nbar_iter > 900:
         return -1000
 

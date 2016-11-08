@@ -356,6 +356,8 @@ void catalogue_subsample(Catalogue * const cat, const size_t n)
 {
   if(cat->size() < n)
     return;
+
+  msg_printf(msg_verbose, "subsampling to %lu\n", n);
   
   random_shuffle(cat->begin(), cat->end());
   cat->resize(n);

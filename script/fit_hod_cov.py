@@ -305,6 +305,10 @@ def cost_function(x):
     
     # Find best fitting logMmin(z) function
     nbar.fit()
+    nbar_fitting_iter = nbar.iter
+    nbar_fitting_iter = mock.comm.bcast_int(nbar_fitting_iter)
+    if nbar_fitting_iter > 900:
+        return 2000
 
     chi2 = 0
 
@@ -332,6 +336,11 @@ def logging_minimization(x):
 
     # Find best fitting logMmin(z) function
     nbar.fit()
+    nbar_fitting_iter = nbar.iter
+    nbar_fitting_iter = mock.comm.bcast_int(nbar_fitting_iter)
+    if nbar_fitting_iter > 900:
+        return 2000
+
     print('logging nbar.fit', hod)
 
     chi2_total = 0.0
