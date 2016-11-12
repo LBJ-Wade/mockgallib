@@ -1,5 +1,5 @@
 """
-This script generates a mock/random catalogue from a lightcone 
+This script generates a mock/random catalogue from a lightcone
 
 python3 generate_mock.py [--random] <n>
 
@@ -10,7 +10,7 @@ Options:
     --param [=param.json]: parameter file
     --random:              generate random catalogue
 
-Input: 
+Input:
     halo_lightcone/lightcone_<n>.h5
     rand_lightcone/lightcone_<n>.h5
 
@@ -26,7 +26,7 @@ import signal
 import numpy as np
 import mockgallib as mock
 
-signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c
+signal.signal(signal.SIGINT, signal.SIG_DFL)  # stop with ctrl-c
 
 #
 # Command-line options
@@ -34,7 +34,7 @@ signal.signal(signal.SIGINT, signal.SIG_DFL) # stop with ctrl-c
 parser = argparse.ArgumentParser()
 parser.add_argument('n', help='index of lightcone')
 parser.add_argument('--reg', default='w1', help='region w1/w4')
-parser.add_argument('--dir', default='.', help='base data directory') 
+parser.add_argument('--dir', default='.', help='base data directory')
 parser.add_argument('--param', default='param.json',
                     help='parameter json file')
 parser.add_argument('--mock', help='generate mock catalogue',
@@ -89,24 +89,21 @@ hod_param = [11.632682100874081, -0.5706390738948128, 4.904043697780981, -1.0126
 
 hod.set_coef(hod_param)
 
-#nbar= mock.NbarFitting(hod, nbar_obs, 0.6, 1.2)
-#x0 = [1.0, 0.15, 1.0]
-#nbar.fit()
-    
 lightcones = mock.LightCones()
 cats = mock.Catalogues()
 
 n = int(arg.n)
+
 
 def write_catalogue(filename, a):
     with open(filename, 'w') as f:
         for i in range(a.shape[0]):
             f.write('%d %e %e %e %e %e %e %e %e %e %e\n' % (
                     i,
-                    a[i,0], a[i,1], a[i,2], 
-                    a[i,4], a[i,3],
-                    a[i,5], a[i,6],
-                    a[i,7], a[i,10], a[i,11]))
+                    a[i, 0], a[i, 1], a[i, 2],
+                    a[i, 4], a[i, 3],
+                    a[i, 5], a[i, 6],
+                    a[i, 7], a[i, 10], a[i, 11]))
 
 reg = arg.reg
 
@@ -119,7 +116,7 @@ if arg.mock:
     galaxy_catalogues.generate_galaxies(hod, halo_lightcones, sky[reg],
                                         z_min, z_max)
 
-    write_catalogue('mocks/%s/mock_%s_%05d.txt' % (reg, reg, n), 
+    write_catalogue('mocks/%s/mock_%s_%05d.txt' % (reg, reg, n),
                     galaxy_catalogues[0])
 
 if arg.rand:
@@ -131,7 +128,7 @@ if arg.rand:
     random_catalogues.generate_randoms(hod,  rand_lightcones, sky[reg],
                                        z_min, z_max)
 
-    write_catalogue('rands/%s/rand_%s_%05d.txt' % (reg, reg, n), 
+    write_catalogue('rands/%s/rand_%s_%05d.txt' % (reg, reg, n),
                     random_catalogues[0])
 
 # Column 0: index
