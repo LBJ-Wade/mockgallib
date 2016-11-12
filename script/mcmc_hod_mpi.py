@@ -425,8 +425,9 @@ if mock.comm.rank == 0:
     print('mcmc done')
     mock.callback.release()
     
-    print(sampler.flatchain[:])
-    np.savetxt('chain.txt', sampler.flatchain[:])
+    #print(sampler.flatchain[:])
+    chain = sampler.chain[:, :, :].reshape((-1, ndim))
+    np.savetxt('chain.txt', chain) #sampler.flatchain[:])
 else:
     print('standby')
     mock.callback.standby(lnprob_function)

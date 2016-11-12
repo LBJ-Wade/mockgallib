@@ -6,7 +6,7 @@
 
 struct Hod {
  public:
-  static const int n=11;
+  static const int n=12;
   Hod(const double z0_ = 0.5);
 
   double compute_logMmin(const double z) const {
@@ -15,7 +15,7 @@ struct Hod {
   }
   double compute_sigma(const double z) const {
     double x= z - z0;
-    return c[4] + c[5]*x;
+    return c[4] + c[5]*pow(x, c[11]);
   }
   double compute_M1(const double z) const {
     double x= z - z0;

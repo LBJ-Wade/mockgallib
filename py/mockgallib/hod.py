@@ -4,10 +4,10 @@ import math
 """HOD class
 
 HOD coeffficients:
-        log10 M_min = c[0] + c[1]*x + c[2]*x**2 + c[3]*x**3
-        sigma       = c[4] + c[5]*x
-        M1    = (c[6] + c[7]*x**c[10])*M_min
-        alpha       = c[8] + c[9]*x
+        log10 M_min =  c[0] + c[1]*x + c[2]*x**2 + c[3]*x**3
+        sigma       =  c[4] + c[5]*x**c[11]
+        M1          = (c[6] + c[7]*x**c[10])*M_min
+        alpha       =  c[8] + c[9]*x
 """
 
 
