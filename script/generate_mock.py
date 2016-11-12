@@ -65,22 +65,31 @@ mock.set_loglevel(0)
 mock.cosmology.set(omega_m)
 mock.power.init(arg.dir + '/' + param['power_spectrum'])
 
+#
+# redshift range
+#
+z_min = 0.39
+z_max = 1.21
+print('redshift range %f %f' % (z_min, z_max))
+
 # nz
 # nbar_obs=  mock.array.loadtxt(arg.dir + '/' + param['nz'])
 
 # sky
+sky = {}
 for reg in param['reg']:
-    sky[reg['name']] = mock.Sky(reg['ra'], reg['dec'], [z_min_all, z_max_all])
+    sky[reg['name']] = mock.Sky(reg['ra'], reg['dec'], [z_min, z_max])
 
 
 #
 # Set HOD parameters
 #
 hod = mock.Hod()
-hod_param = [11.68219947743167, -0.32842888873294585, 2.767160089761731, 0.05782377516591075, 0.25, 0.0, 0.7, 6.0, 0.9, 0.0, 3.0, 2.0]
-hod.set_coef(hod_param)
-#nbar= mock.NbarFitting(hod, nbar_obs, 0.6, 1.2)
+hod_param = [11.632682100874081, -0.5706390738948128, 4.904043697780981, -1.0126352684312565, 0.45, 0.9, 1.05, 0.0, 0.9, 0.0, 4.0, 2.0]
 
+hod.set_coef(hod_param)
+
+#nbar= mock.NbarFitting(hod, nbar_obs, 0.6, 1.2)
 #x0 = [1.0, 0.15, 1.0]
 #nbar.fit()
     
@@ -88,9 +97,6 @@ lightcones = mock.LightCones()
 cats = mock.Catalogues()
 
 n = int(arg.n)
-domain = (arg.reg, '0.5', '1.2')
-z_min = float(domain[1])
-z_max = float(domain[2])
 
 def write_catalogue(filename, a):
     with open(filename, 'w') as f:
@@ -108,7 +114,7 @@ reg = arg.reg
 if arg.mock:
     halo_lightcones = mock.LightCones()
     halo_lightcones.load_h5(
-        ['%s/halo_lightcone/%s/lightcone_%05d.h5' % (arg.dir, domain[0], n)])
+        ['%s/halo_lightcone/%s/lightcone_%05d.h5' % (arg.dir, reg, n)])
     galaxy_catalogues = mock.Catalogues()
     galaxy_catalogues.generate_galaxies(hod, halo_lightcones, sky[reg],
                                         z_min, z_max)
@@ -119,7 +125,7 @@ if arg.mock:
 if arg.rand:
     rand_lightcones = mock.LightCones()
     rand_lightcones.load_h5(
-        ['%s/rand_lightcone/%s/lightcone_%05d.h5' % (arg.dir, domain[0], n)])
+        ['%s/rand_lightcone/%s/lightcone_%05d.h5' % (arg.dir, reg, n)])
 
     random_catalogues = mock.Catalogues()
     random_catalogues.generate_randoms(hod,  rand_lightcones, sky[reg],
