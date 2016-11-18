@@ -3,7 +3,9 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <cmath>
 #include <cassert>
+
 
 struct LinearBin {
   LinearBin(const float x_min, const float x_max, const int n_bin) :
@@ -52,6 +54,7 @@ class Histogram2D {
   void add(float x, float y, float val) {
     int ix= xbin(x);
     int iy= ybin(y);
+    
     if(0 <= ix && ix < xbin.nbin && 0 <= iy && iy < ybin.nbin) {
       int index= ix*ybin.nbin + iy;
       hist[index] += val;

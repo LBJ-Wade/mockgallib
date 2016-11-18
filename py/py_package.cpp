@@ -27,6 +27,7 @@
 #include "py_halo_concentration.h"
 #include "py_rand.h"
 #include "py_corr_projected.h"
+#include "py_corr_multipole.h"
 #include "py_minimise.h"
 #include "py_comm.h"
 #include "py_array.h"
@@ -273,6 +274,37 @@ static PyMethodDef methods[] = {
   {"_corr_projected_compute_all", py_corr_projected_compute_all,
    METH_VARARGS, "_corr_projected_compute_all"},
 
+  
+  {"_corr_multipole_hist2d_alloc", py_corr_multipole_hist2d_alloc,
+    METH_VARARGS, "_corr_multipole_hist2d_alloc"},
+
+  {"_corr_multipole_hist2d_alloc", py_corr_multipole_hist2d_alloc,
+    METH_VARARGS, "_corr_multipole_hist2d_alloc"},
+  {"_corr_multipole_hist2d_as_array", py_corr_multipole_hist2d_as_array,
+    METH_VARARGS, "_corr_multipole_hist2d_as_array"},
+  {"_corr_multipole_hist2d_set", py_corr_multipole_hist2d_set,
+    METH_VARARGS, "_corr_multipole_hist2d_set"},
+  {"_corr_multipole_alloc", py_corr_multipole_alloc,
+    METH_VARARGS, "_corr_multipole_alloc"},
+  {"_corr_multipole_set_radec_min", py_corr_multipole_set_radec_min,
+    METH_VARARGS, "_corr_multipole_set_radec_min"},
+  {"_corr_multipole_set_pair_correction", py_corr_multipole_set_pair_correction,
+    METH_VARARGS, "_corr_multipole_set_pair_correction"},
+  {"_corr_multipole_compute", py_corr_multipole_compute,
+   METH_VARARGS, "_corr_multipole_compute"},
+  {"_corr_multipole_as_array", py_corr_multipole_as_array,
+    METH_VARARGS, "_corr_multipole_as_array"},
+  {"_corr_multipole_r_i", py_corr_multipole_r_i,
+   METH_VARARGS, "_corr_multipole_r_i"},
+  {"_corr_multipole_xi0_i", py_corr_multipole_xi0_i,
+   METH_VARARGS, "_corr_multipole_xi0_i"},
+  {"_corr_multipole_xi2_i", py_corr_multipole_xi2_i,
+   METH_VARARGS, "_corr_multipole_xi2_i"},
+  {"_corr_multipole_compute_rr", py_corr_multipole_compute_rr,
+   METH_VARARGS, "_corr_multipole_compute_rr"},
+  {"_corr_multipole_compute_with_rr", py_corr_multipole_compute_with_rr,
+   METH_VARARGS, "_corr_multipole_compute_with_rr"},
+
   {"_minimise", py_minimise, METH_VARARGS, "minimise funtion"},
 
   {"_comm_init", py_comm_init, METH_VARARGS, "Initialize MPI"},
@@ -310,6 +342,7 @@ PyInit__mockgallib(void) {
   py_catalogues_module_init();
   py_lightcones_module_init();
   py_corr_projected_module_init();
+  py_corr_multipole_module_init();
   py_array_module_init();
   
   return PyModule_Create(&module);

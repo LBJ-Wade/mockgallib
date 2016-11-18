@@ -136,7 +136,7 @@ int call_function_collective(PyObject* const py_function)
     return 1;
   }
 
-  double result= PyFloat_AsDouble(py_result);
+  //double result= PyFloat_AsDouble(py_result);
   Py_DECREF(py_result);
   free(x);
 

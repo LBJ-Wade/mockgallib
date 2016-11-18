@@ -159,7 +159,7 @@ PyObject* py_catalogues_catalogue(PyObject* self, PyObject* args)
 PyObject* py_catalogues_append(PyObject* self, PyObject* args)
 {
   // _catalogues_append(_catalogues, array)
-  // array must have 4 columns, x,y,z,w
+  // array must have 5 or 6 columns, x,y,z,ra,dec,w
   
   PyObject *py_catalogues, *py_array;
   double z_min, z_max;
@@ -237,8 +237,11 @@ PyObject* py_catalogues_append(PyObject* self, PyObject* args)
     p.x[2]= *(a + 2*next_col);
     p.radec[0]= *(a + 3*next_col);
     p.radec[1]= *(a + 4*next_col);
+
     if(ncol >= 6)
       p.w= *(a + 5*next_col);
+
+    //fprintf(stderr, "%e %e %e %e %e %e\n", p.x[0], p.x[1], p.x[2], p.radec[0], p.radec[1], p.w);
 
     float r= sqrt(p.x[0]*p.x[0] + p.x[1]*p.x[2] + p.x[2]*p.x[2]);
     p.z= distance_redshift(r);

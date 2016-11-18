@@ -88,7 +88,7 @@ static void accumulate_hist(Histogram2D<LogBin, LinearBin>* const hist);
 static void corr_projected_summarise(CorrProjected* const corr);
 static size_t count_num_points(Catalogues const * const v);
 
-void compute_wsum(Catalogue * const cat);
+static void compute_wsum(Catalogue * const cat);
 
 //
 // Inline helper functions
@@ -756,7 +756,6 @@ void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
     if(!(*cat)->empty()) {
       count_pairs_auto((*cat)->tree, (*cat)->ntree, false, rr);
 
-      compute_wsum(*cat);
       rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
     }
   }
@@ -1056,7 +1055,8 @@ void corr_projected_compute_direct(Catalogues* const cats_data,
 
       if(!(*cat)->empty() && !(*rcat)->empty()) {
 	count_pairs_cross_direct(*cat, *rcat, &dr);
-      
+
+	compute_wsum(*rcat);
 	dr.npairs += (*cat)->wsum * (*rcat)->wsum;
       }
     }
