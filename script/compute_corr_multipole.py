@@ -102,10 +102,11 @@ corr = mock.CorrelationFunctionMultipole(r_min=0.08912509, r_max=141.25375446,
                                          pair_correction=arg.pair_correction)
 
 if arg.rr:
-    rr = mock.corr.Hist2D(r_min=0.08912509, r_max=141.25375446, r_nbin=32,
-                          mu_nbin=40)
-
+    rr = mock.corr_multipole.Hist2D(r_min=0.08912509, r_max=141.25375446,
+                                    r_nbin=32, mu_nbin=40)
     rr.load(arg.rr)
+
+    print('computing corr multipole with rr: %s' % arg.rr)
 
     corr.compute_corr_multipole_with_rr(galaxies, randoms, rr)
 else:
@@ -120,9 +121,6 @@ for i in range(i0, i1):
     xi0 = corr.xi0_i(ii)
     xi2 = corr.xi2_i(ii)
 
-    print(r)
-    print(xi0)
-    
     nrow= len(r)
     filename = '%s/corr_multipole_%05d.txt' % (arg.o, i)
     with open(filename, 'w') as f:
