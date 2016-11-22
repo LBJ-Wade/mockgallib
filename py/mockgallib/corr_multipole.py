@@ -4,10 +4,10 @@ import h5py
 
 class Hist2D:
     def __init__(self, *,
-                 r_min=0.1, p_max=60.0, rp_nbin=24, mu_nbin=20):
-        self.r_min = rp_min
-        self.r_max = rp_max
-        self.r_nbin= rp_nbin
+                 r_min=0.1, r_max=60.0, r_nbin=24, mu_nbin=20):
+        self.r_min = r_min
+        self.r_max = r_max
+        self.r_nbin= r_nbin
         self.mu_nbin= mu_nbin
         
         self._hist2d = c._corr_multipole_hist2d_alloc(

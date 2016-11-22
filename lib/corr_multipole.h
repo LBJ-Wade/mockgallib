@@ -22,7 +22,7 @@ void corr_multipole_compute_pairs_rr(Catalogues* const cats_rand,
 				     Histogram2D<LogBin, LinearBin>* const rr);
 void corr_multipole_compute_with_rr(Catalogues* const cats_data,
 				    Catalogues* const cats_rand,
-				    Histogram2D<LogBin, LinearBin> const * const rr);
+			      Histogram2D<LogBin, LinearBin> const * const rr);
 void corr_multipole_compute(Catalogues* const cats_data,
 			    Catalogues* const cats_rand);
 

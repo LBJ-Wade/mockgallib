@@ -259,13 +259,14 @@ void corr_projected_compute(Catalogues* const cats_data,
   for(Catalogues::iterator rcat= cats_rand->begin();
       rcat != cats_rand->end(); ++rcat) {    
     if(!(*rcat)->empty()) {
-      compute_wsum(*rcat);
       debug_count_rr +=
 	count_pairs_auto((*rcat)->tree, (*rcat)->ntree, false, &rr);
+      
+      compute_wsum(*rcat);
       rr.npairs += 0.5*((*rcat)->wsum*(*rcat)->wsum - (*rcat)->w2sum);
     }
     
-    count_rr += (*rcat)->size()*((*rcat)->size() - 1)/2;
+    //count_rr += (*rcat)->size()*((*rcat)->size() - 1)/2;
   }
 
   accumulate_hist(&rr);
@@ -288,7 +289,7 @@ void corr_projected_compute(Catalogues* const cats_data,
       dd.npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
     }
 
-    count_dd += (*cat)->size()*((*cat)->size()-1)/2;
+    //count_dd += (*cat)->size()*((*cat)->size()-1)/2;
 
 
     // DR
@@ -302,7 +303,7 @@ void corr_projected_compute(Catalogues* const cats_data,
 	debug_count_dr += count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, &dr);
       
 	dr.npairs += (*cat)->wsum * (*rcat)->wsum;
-	count_dr += (*cat)->size()*(*rcat)->size();
+	//count_dr += (*cat)->size()*(*rcat)->size();
       }
     }
 
@@ -582,6 +583,9 @@ void compute_corr_from_histogram2d(
   const int ny= dd->y_nbin();
   const double dpi= 2.0*pi_max / ny; assert(ny > 0);
 
+  assert(dpi > 0);
+  assert(dd->npairs > 0);
+  assert(dr->npairs > 0);
   assert(rr->npairs > 0);
   assert(corr->n == nx);
 
@@ -910,6 +914,12 @@ void corr_projected_compute_with_rr(Catalogues* const cats_data,
   msg_printf(msg_verbose, "%lu trees used (%lu Mbytes).\n",
 	     ntree_used, ntree_used*sizeof(KDTree) / (1024*1024));
 
+  // wsum for random catalogue
+  for(Catalogues::iterator rcat= cats_rand->begin();
+      rcat != cats_rand->end(); ++rcat) {    
+    compute_wsum(*rcat);
+  }
+  
   msg_printf(msg_verbose, "Count DD and DR pairs.\n");
 
   Histogram2D<LogBin, LinearBin>
@@ -926,7 +936,9 @@ void corr_projected_compute_with_rr(Catalogues* const cats_data,
     if(!(*cat)->empty())
       count_pairs_auto((*cat)->tree, (*cat)->ntree, true, &dd);
 
-    dd.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
+    compute_wsum(*cat);
+    dd.npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
+    //dd.npairs += 0.5*(*cat)->size()*((*cat)->size()-1);???
 
 
     // DR for all random catalogues
@@ -935,7 +947,8 @@ void corr_projected_compute_with_rr(Catalogues* const cats_data,
 
       if(!(*cat)->empty() && !(*rcat)->empty())
 	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, &dr);
-      dr.npairs += (*cat)->size()*(*rcat)->size();
+      dr.npairs += (*cat)->wsum * (*rcat)->wsum;
+      //dr.npairs += (*cat)->size()*(*rcat)->size();???
     }
 
     accumulate_hist(&dd);

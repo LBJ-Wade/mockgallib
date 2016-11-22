@@ -398,7 +398,10 @@ void compute_corr_from_histogram2d(
   const int nx= dd->x_nbin();
   const int ny= dd->y_nbin();
   const double dmu= 1.0/ny;
-  
+
+  assert(dmu > 0.0);
+  assert(dd->npairs > 0);
+  assert(dr->npairs > 0);
   assert(rr->npairs > 0);
   assert(corr->n == nx);
 
@@ -416,6 +419,8 @@ void compute_corr_from_histogram2d(
 	double xi = (dd->hist[index]/dd->npairs - 2.0*dr->hist[index]/dr->npairs)/rrr + 1.0;
 	xi0 += xi*dmu;
 	xi2 += (7.5*mu*mu - 2.5)*xi*dmu;
+
+	//fprintf(stderr, "%e %e %e %e\n", xi, dmu, xi0, xi2);
       }
       // xi = (DD - 2*DR + RR)/RR
       // xi[l] = (2l + 1) int_0^1 P_l(mu) xi(r, mu) dmu
@@ -476,7 +481,6 @@ void corr_multipole_compute_pairs_rr(Catalogues* const cats_rand,
   //
   // Setup KDTree
   //
-  //const int n= cats->size();
   const int quota = 32;
     
   if(tree_alloc == 0) {
@@ -513,6 +517,8 @@ void corr_multipole_compute_pairs_rr(Catalogues* const cats_rand,
 	cats_rand->begin(); cat != cats_rand->end(); ++cat) {    
     if(!(*cat)->empty()) {
       count_pairs_auto((*cat)->tree, (*cat)->ntree, false, rr);
+
+      compute_wsum(*cat);
       rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
       //rr->npairs += 0.5*(*cat)->size()*((*cat)->size()-1);
     }
@@ -525,7 +531,7 @@ void corr_multipole_compute_pairs_rr(Catalogues* const cats_rand,
 
 void corr_multipole_compute_with_rr(Catalogues* const cats_data,
 				    Catalogues* const cats_rand,
-				    Histogram2D<LogBin, LinearBin> const * const rr)
+			      Histogram2D<LogBin, LinearBin> const * const rr)
 {
   // Setup vcorr
   allocate_vcorr(cats_data->size());
@@ -570,7 +576,13 @@ void corr_multipole_compute_with_rr(Catalogues* const cats_data,
     ntree_used += (*cat)->ntree;
     tree_free += (*cat)->ntree;
   }
-  
+
+  // wsum(rcat)
+  for(Catalogues::iterator rcat=
+	cats_rand->begin(); rcat != cats_rand->end(); ++rcat) {    
+    compute_wsum(*rcat);
+  }
+
   msg_printf(msg_verbose, "%lu trees used (%lu Mbytes).\n",
 	     ntree_used, ntree_used*sizeof(KDTree) / (1024*1024));
 
@@ -599,8 +611,10 @@ void corr_multipole_compute_with_rr(Catalogues* const cats_data,
     for(Catalogues::iterator rcat= cats_rand->begin();
       rcat != cats_rand->end(); ++rcat) {    
 
-      if(!(*cat)->empty() && !(*rcat)->empty())
+      if(!(*cat)->empty() && !(*rcat)->empty()) {
 	count_pairs_cross((*cat)->tree, (*cat)->ntree, (*rcat)->tree, &dr);
+	dr.npairs += (*cat)->wsum * (*rcat)->wsum;
+      }
     }
 
     accumulate_hist(&dd);
