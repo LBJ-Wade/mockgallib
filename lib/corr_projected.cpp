@@ -760,6 +760,7 @@ void corr_projected_compute_pairs_rr(Catalogues* const cats_rand,
     if(!(*cat)->empty()) {
       count_pairs_auto((*cat)->tree, (*cat)->ntree, false, rr);
 
+      compute_wsum(*cat);
       rr->npairs += 0.5*((*cat)->wsum*(*cat)->wsum - (*cat)->w2sum);
     }
   }
